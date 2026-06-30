@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-3)
     ap.add_argument("--out", type=str, default="checkpoints/cfna_chat.pt")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--resume", action="store_true", help="continue from an existing checkpoint")
     args = ap.parse_args()
 
     torch.manual_seed(args.seed)
@@ -67,19 +68,31 @@ def main():
     cfg = chat_config()
     model = CFNAModel(cfg)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
-    print(f"model: {model.num_params():,} params | seq {args.seq} batch {args.batch} | budget {args.minutes} min")
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    rng = np.random.default_rng(args.seed)
     history = []
-    t0 = time.time()
     step = 0
-    best_val = float("inf")
+    # Resume from an existing checkpoint so progress survives container restarts.
+    if args.resume and out.exists():
+        ck = torch.load(out, map_location="cpu", weights_only=False)
+        if ck.get("config") == vars(cfg):
+            model.load_state_dict(ck["state_dict"])
+            if "optimizer" in ck:
+                opt.load_state_dict(ck["optimizer"])
+            step = int(ck.get("step", 0))
+            history = ck.get("history", [])
+            print(f"resumed from step {step}")
+    print(f"model: {model.num_params():,} params | seq {args.seq} batch {args.batch} | budget {args.minutes} min")
 
-    def save(tag="last"):
-        torch.save({"state_dict": model.state_dict(), "config": vars(cfg),
-                    "step": step, "history": history}, out)
+    rng = np.random.default_rng(args.seed + step)  # vary sampling across resumes
+    t0 = time.time()
+    best_val = min((h["heldout_bpb"] for h in history), default=float("inf"))
+
+    def save():
+        # Save EVERY interval (durable), including optimizer state for clean resume.
+        torch.save({"state_dict": model.state_dict(), "optimizer": opt.state_dict(),
+                    "config": vars(cfg), "step": step, "history": history}, out)
 
     while (time.time() - t0) < args.minutes * 60:
         batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng))
@@ -95,12 +108,11 @@ def main():
             vb = heldout_bpb(model, valb)
             mins = (time.time() - t0) / 60
             history.append({"step": step, "train_bpb": parts["bpb"], "heldout_bpb": vb, "minutes": mins})
-            print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | held-out bpb {vb:.3f}")
-            if vb < best_val:
-                best_val = vb
-                save("best")
+            print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | held-out bpb {vb:.3f}", flush=True)
+            best_val = min(best_val, vb)
+            save()  # durable: overwrite each interval so a restart loses <=50 steps
 
-    save("final")
+    save()
     Path(str(out) + ".json").write_text(json.dumps({"config": vars(cfg), "history": history}, indent=2))
     print(f"\nsaved checkpoint -> {out}  ({step} steps, best held-out bpb {best_val:.3f})")
 
