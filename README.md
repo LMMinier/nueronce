@@ -1,111 +1,99 @@
-# research_mcp
+# nueronce
 
-A purpose-built MCP server for storing and searching all the research behind a
-project — backed by your Notion workspace. Instead of generic Notion CRUD, it
-exposes **research-shaped** tools: capture a note/finding/experiment/source,
-search the corpus, filter by project/tag/status, and update or archive entries.
+A from-the-ground-up **hybrid foundational model** architecture (**CFNA**) plus a
+companion **research MCP server**.
 
-One Notion database = your research corpus. Every entry has:
+CFNA reorganizes the standard `next_token = MODEL(previous_tokens)` recipe into a
+pipeline with explicit division of labor:
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| Name | title | Entry title |
-| Type | select | Note · Finding · Experiment · Source · Question · Decision |
-| Project | select | Which research thread (e.g. "New AI Infra", "RFT", "AACP") |
-| Tags | multi-select | Free-form tags |
-| Status | select | Open · In Progress · Verified · Refuted · Archived |
-| Source | url | DOI / link / citation |
-| Summary | rich_text | First 2000 chars of the body, kept searchable |
+```
+perceive → represent meaning → determine intent → retrieve evidence →
+reason → plan → communicate → verify → revise
+```
 
-The full body lives in the Notion page itself; the Summary mirror is what
-`research_search` keyword-matches against (Notion's API can't full-text the page
-body directly, so the searchable mirror is how we get keyword search with zero
-extra dependencies).
+Perception, typed memory, retrieval, reasoning, planning, surface realization, and
+verification are *separate subsystems* rather than one decoder-only network doing
+all of it via token continuation. See **[`docs/CFNA_design.md`](docs/CFNA_design.md)**
+for the full design and **[`docs/architecture.md`](docs/architecture.md)** for the
+module map.
 
-## Tools
+## What's in here
 
-| Tool | What it does |
-|------|--------------|
-| `research_setup_database` | Creates the backing database once, under a page you choose |
-| `research_capture` | Store a new entry (title, body, type, project, tags, status, source) |
-| `research_search` | Keyword search across titles + summaries |
-| `research_list` | Filter by project / type / status / tag, with pagination |
-| `research_get` | Fetch one entry including its full page body |
-| `research_update` | Edit properties and/or append text to the body |
-| `research_archive` | Soft-delete (recoverable from Notion trash) |
+```
+cfna/                     The CFNA architecture scaffold (a Python package)
+  types.py                Typed runtime records + controlled vocabularies   [implemented]
+  ops.py                  Numeric / hashing utilities                        [implemented]
+  config.py               CFNA-350M prototype defaults                       [implemented]
+  ingestion.py            Policy-aware ingestion + provenance gate           [gate implemented]
+  parsing.py              Document parser + knowledge-unit compiler          [hooks]
+  perception.py           Dynamic byte patching + unit formation             [patching implemented]
+  embeddings.py           Cognitive embedding bundle compiler                [backend]
+  memory.py               Typed recurrent memory + evidence-gated consolidation
+  routers.py              Relation-specific routers                          [geometry implemented]
+  retrieval.py            Dense + sparse + late-interaction hybrid retriever [fusion implemented]
+  core.py                 Hybrid cognitive fabric (SSM/attn/retrieval blocks)
+  workspace.py            Latent reasoning workspace
+  planning.py             Planner + two-stage renderer
+  verification.py         Independent verifier + verify→revise loop          [loop implemented]
+  tools.py                Authority-gated tool executor                      [gate implemented]
+  runtime.py              LoRA adapters + SSD-backed memory + orchestration  [LoRA implemented]
+  schemas/                JSON schemas + worked examples for wire records    [implemented]
+  training/               WPGCP curriculum + VGRFT fine-tuning pipelines
+docs/                     Design doc, architecture map, research_mcp guide
+tests/                    Unit tests for the implemented logic
+research_mcp.py           Notion-backed research MCP server (standalone)
+```
 
-## Setup
+### Implemented vs. scaffolded
 
-### 1. Install
+This is a faithful *implementation map*, not a trained model. The data model and
+the fully-specified, backend-light logic are implemented and tested:
+
+- provenance gating, source-quality scoring
+- dynamic byte patching + information-unit formation
+- retrieval score fusion, relation geometry
+- evidence-gated consolidation scoring, LoRA low-rank adaptation
+- the verify→revise control loop and tool authority gate
+- JSON schemas + examples, config defaults
+
+The learned neural components (CNN perception, embedding heads, typed recurrent
+cell, hybrid blocks, workspace iteration, the causal renderer, the VGRFT trainer)
+expose typed interfaces and raise `cfna.BackendNotConfigured` until a PyTorch/JAX
+backend is wired in. Find every seam with:
 
 ```bash
-pip install -r requirements.txt
+grep -rn "needs_backend\|BackendNotConfigured" cfna/
 ```
 
-### 2. Create a Notion integration
-
-1. Go to <https://www.notion.so/my-integrations> → **New integration** (internal).
-2. Copy the **Internal Integration Token** (starts with `ntn_` or `secret_`).
-3. Open the Notion page you want the research database to live under, click the
-   **•••** menu → **Connections** → add your integration. (The integration can
-   only touch pages/databases you explicitly share with it.)
-
-### 3. Create the database (once)
-
-Set the token and run the setup tool. The easiest path is to start the server,
-then in your MCP client call `research_setup_database` with the parent page ID
-(the 32-char hex string in the page URL):
+## Quickstart
 
 ```bash
-export NOTION_TOKEN="ntn_xxx..."
-python research_mcp.py        # then call research_setup_database from the client
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"        # numpy + pytest
+pytest                         # run the test suite
 ```
 
-It returns a `database_id`. Set it and restart:
+```python
+import numpy as np
+from cfna.perception import dynamic_patching, encode_information_units
+from cfna.config import DEFAULT_CONFIG
 
-```bash
-export NOTION_RESEARCH_DB_ID="the-returned-id"
+data = b"Input-dependent transitions improve long-context modeling. See fig. 2."
+feats = np.random.default_rng(0).standard_normal((len(data), 8))
+spans = dynamic_patching(list(data), feats, np.zeros(len(data)))
+units = encode_information_units(list(data), spans, feats)
+print(len(units), "dynamic information units")
+print("core width:", DEFAULT_CONFIG.core.d_model)
 ```
 
-> Already have a database you want to reuse? Make sure it has the seven
-> properties above (exact names), share it with the integration, and just set
-> `NOTION_RESEARCH_DB_ID` to its ID — you can skip `research_setup_database`.
+## Research MCP server
 
-### 4. Register with Claude Desktop
+`research_mcp.py` is an independent, ready-to-run MCP server that stores and
+searches project research in a Notion database. Its setup and usage guide is in
+**[`docs/research_mcp.md`](docs/research_mcp.md)** (dependencies in
+`requirements.txt`).
 
-Add this to `claude_desktop_config.json`
-(macOS: `~/Library/Application Support/Claude/`,
-Windows: `%APPDATA%\Claude\`):
+## Status
 
-```json
-{
-  "mcpServers": {
-    "research": {
-      "command": "python",
-      "args": ["/absolute/path/to/research_mcp.py"],
-      "env": {
-        "NOTION_TOKEN": "ntn_xxx...",
-        "NOTION_RESEARCH_DB_ID": "your-database-id"
-      }
-    }
-  }
-}
-```
-
-Restart Claude Desktop. You should see the seven `research_*` tools available.
-
-## Test it standalone
-
-```bash
-npx @modelcontextprotocol/inspector python research_mcp.py
-```
-
-## Notes
-
-- Transport is **stdio** (local). To run it as a remote HTTP service instead,
-  change the last line to `mcp.run(transport="streamable_http", port=8000)`.
-- Search is keyword/full-text over titles + summaries — no embeddings, no Ollama,
-  nothing else to keep running. If you later want semantic search, the Summary
-  property is the natural place to hang an embedding index.
-- Errors come back as actionable strings (e.g. a 403 reminds you to share the
-  page with the integration), so the agent can self-correct.
+Prototype scaffold (v0.1.0). Build order and falsifiable research hypotheses
+(H1–H8) are in `docs/architecture.md` and `docs/CFNA_design.md`.

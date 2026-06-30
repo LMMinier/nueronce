@@ -1,0 +1,21 @@
+{
+  "source_id": "sha256:8f4e",
+  "canonical_url": "https://example.org/paper.pdf",
+  "source_type": "journal_article",
+  "title": "Selective Sequence Models for Efficient Long Context",
+  "authors": ["A. Researcher", "B. Researcher"],
+  "publication_date": "2025-04-10",
+  "crawl_timestamp": "2026-06-30T18:21:00Z",
+  "review_status": "peer_reviewed",
+  "license": "CC-BY-4.0",
+  "commercial_use": "allowed",
+  "derivatives": "allowed",
+  "redistribution": "allowed",
+  "robots_status": "allowed",
+  "terms_status": "approved",
+  "authority_scope": "evidence_only",
+  "content_hash": "sha256:8f4e",
+  "lineage_parent_id": null,
+  "quality_score": 0.93,
+  "pii_risk": 0.01
+}

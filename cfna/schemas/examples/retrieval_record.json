@@ -1,0 +1,17 @@
+{
+  "query_id": "q-20260630-00014",
+  "candidate_unit_id": "sha256:8f4e#sec3.claim2",
+  "dense_score": 0.82,
+  "sparse_score": 4.1,
+  "late_interaction_score": 19.3,
+  "goal_score": 0.76,
+  "temporal_validity": 0.94,
+  "provenance_quality": 0.93,
+  "contradiction_penalty": 0.04,
+  "combined_score": 0.887,
+  "relation_prediction": {
+    "support": 0.79,
+    "contradict": 0.04,
+    "unrelated": 0.17
+  }
+}

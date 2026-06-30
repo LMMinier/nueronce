@@ -1,0 +1,17 @@
+{
+  "unit_id": "sha256:8f4e#sec3.claim2",
+  "source_id": "sha256:8f4e",
+  "unit_type": "claim",
+  "text": "Input-dependent state transitions improve long-context language modeling.",
+  "byte_span": [18442, 18537],
+  "section_path": ["3", "Model", "Selective Transition"],
+  "concepts": ["state space model", "input-dependent transition", "language modeling"],
+  "entities": ["transition", "sequence", "context"],
+  "equations": ["x_t", "A(x_t)", "B(x_t)"],
+  "code_blocks": [],
+  "claim_ids": ["claim-2"],
+  "evidence_refs": ["fig-2", "tab-3"],
+  "contradiction_group": null,
+  "temporal_scope": ["2025-04-10", null],
+  "confidence_target": 0.88
+}

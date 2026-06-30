@@ -1,0 +1,26 @@
+{
+  "memory_id": "mem-epi-9981",
+  "memory_type": "episodic",
+  "content": "Tool run: unit tests passed after patch to parser.py",
+  "source_ids": ["tool:test_runner:job_9911"],
+  "embeddings": {
+    "dense_semantic": [0.11, -0.24, 0.09],
+    "sparse_lexical": {"parser.py": 3.1, "unit tests": 2.8}
+  },
+  "structured_repr": {
+    "tool": "pytest",
+    "result": "pass",
+    "files_touched": ["parser.py"]
+  },
+  "authority_level": "tool_observation",
+  "creation_time": "2026-06-30T18:42:13Z",
+  "last_verified_time": "2026-06-30T18:42:13Z",
+  "confidence": 0.98,
+  "contradiction_links": [],
+  "evidence_links": ["tool:test_runner:job_9911"],
+  "user_scope": null,
+  "privacy_scope": "session",
+  "expiration_time": null,
+  "review_status": "verified",
+  "consolidation_status": "episodic_only"
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cfna/source_record",
+  "title": "SourceRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_id", "source_type", "authors", "review_status", "license",
+    "commercial_use", "derivatives", "redistribution", "robots_status",
+    "terms_status", "authority_scope", "content_hash", "quality_score", "pii_risk"
+  ],
+  "properties": {
+    "source_id": {"type": "string"},
+    "canonical_url": {"type": ["string", "null"]},
+    "source_type": {"type": "string"},
+    "title": {"type": ["string", "null"]},
+    "authors": {"type": "array", "items": {"type": "string"}},
+    "publication_date": {"type": ["string", "null"]},
+    "crawl_timestamp": {"type": ["string", "null"]},
+    "review_status": {"type": "string"},
+    "license": {"type": "string"},
+    "commercial_use": {"enum": ["allowed", "prohibited", "unknown"]},
+    "derivatives": {"enum": ["allowed", "prohibited", "unknown"]},
+    "redistribution": {"enum": ["allowed", "prohibited", "unknown"]},
+    "robots_status": {"enum": ["allowed", "blocked", "unknown"]},
+    "terms_status": {"enum": ["approved", "blocked", "review_required"]},
+    "authority_scope": {"type": "string"},
+    "content_hash": {"type": "string"},
+    "lineage_parent_id": {"type": ["string", "null"]},
+    "quality_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "pii_risk": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}
