@@ -82,6 +82,64 @@ Ablation after training (value token = one of 10 digits, chance = 0.10):
 This is the RETRO-style result: retrieval substitutes for parametric memory, and
 the with-vs-without gap is the proof that the retrieval path is genuinely used.
 
+## Matched baselines on a held-out split (the honest signal)
+
+Reporting *training-corpus* loss as quality is meaningless. This harness
+(`cfna/eval.py`, `scripts/compare_baselines.py`) trains matched-parameter,
+from-scratch models on one region of a non-repeating corpus and measures
+bits/byte on a **disjoint held-out region**.
+
+Corpus 4,415 bytes → train 3,311 / held-out 1,104 (disjoint). ~1.1–1.2M params
+each, same optimizer/steps.
+
+| model | params | train bpb | held-out bpb (seed 0, 500 steps) |
+|---|---:|---:|---:|
+| CFNA | 1.22M | 0.83 | **6.54** |
+| ByteTransformer | 1.14M | 0.51 | 6.75 |
+| ByteSSM (pure) | 1.12M | 0.16 | 6.97 |
+
+Across seeds (held-out bpb), 400 steps:
+
+| seed | CFNA | Transformer | SSM |
+|---:|---:|---:|---:|
+| 1 | 6.12 | **5.59** | 6.68 |
+| 2 | 6.10 | **5.69** | 6.99 |
+
+**Honest reading:** held-out bpb (6–7) is well below the 8.0 uniform baseline, so
+the models learn *some* transferable byte statistics. CFNA is **competitive** with
+a matched byte Transformer but does **not** decisively beat it — the Transformer
+is better at 400 steps, CFNA was better at 500 steps; the margins are within
+seed/step noise. The one consistent finding is that the **pure SSM generalizes
+worst** despite memorizing the training region hardest (train bpb 0.16) — classic
+overfitting. No scaling or superiority claim is made: this is a ~4 KB corpus and
+~1.2M-param models. The value here is the *harness*, which makes the question
+answerable.
+
+## Trainable segmentation
+
+The boundary head previously learned only from a hand-built syntax target
+(`boundary_logits.detach()`). Now a differentiable per-unit boundary feature is
+injected into the unit representations, so the **next-byte loss flows gradient
+into the boundary head** (verified: LM-only gradient into `boundary_head` ≈ 4.55,
+`test_model_learns`/`test_pipeline_components`). The discrete segmentation
+structure stays straight-through; fully-differentiable discrete patching
+(Gumbel/soft-pool) remains future work.
+
+## Verify→revise actually revises
+
+The default pipeline previously passed `lambda d, f: d` (a no-op). It now removes
+unsupported/contradicted claims, hedges over-certain wording, and appends missing
+requirements (`impl.revise_draft`). `test_revise.py` shows a draft that fails
+verification (an unsupported claim) **passing after one real revision round**. The
+verifier's claim/evidence matching was also upgraded from char-n-gram overlap
+(which made unrelated English look "supported") to content-word overlap.
+
+## 350M is now a real model, not bookkeeping
+
+`cfna.model.large_config()` builds a **337M-parameter** CFNAModel (within ~4% of
+the design's 350M budget) that forwards correctly; `test_scaling.py` constructs
+and runs it. It is not trained here (that needs real data and compute).
+
 ## A correctness bug the tests caught
 
 The hybrid block's adaptive router originally mean-pooled path outputs over the

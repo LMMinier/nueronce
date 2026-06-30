@@ -34,9 +34,13 @@ class ModelRenderer:
     max_new: int = 96
 
     def render(self, semantic_draft: dict, style: dict) -> str:
-        prompt = semantic_draft.get("prompt", "")
-        out = self.model.generate(prompt.encode("utf-8"), max_new=self.max_new, greedy=True)
-        return out.decode("utf-8", errors="replace")
+        # Render once, then persist into the draft so verifier-driven revisions
+        # (which edit draft['text']) survive across revision rounds.
+        if "text" not in semantic_draft:
+            prompt = semantic_draft.get("prompt", "")
+            out = self.model.generate(prompt.encode("utf-8"), max_new=self.max_new, greedy=True)
+            semantic_draft["text"] = out.decode("utf-8", errors="replace")
+        return semantic_draft["text"]
 
 
 def _candidate_to_memory(text: str, doc_id: str) -> MemoryRecord:
@@ -104,7 +108,7 @@ def respond(
     text, report = verify_and_revise(
         plan=plan, semantic_draft=draft, style={"register": "neutral"},
         evidence_items=evidence, tool_obs=[], renderer=renderer, verifier=verifier,
-        revise_semantic_draft=lambda d, failures: d, max_rounds=max_rounds,
+        revise_semantic_draft=impl.revise_draft, max_rounds=max_rounds,
     )
 
     trace = {

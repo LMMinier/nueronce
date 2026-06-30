@@ -83,13 +83,20 @@ searches project research in a Notion database. Its setup and usage guide is in
 
 ## Status
 
-v0.2.0 — every operator is a real, hand-built implementation; the model trains
-end-to-end and is verified causal. The trained run, the causality check, and a
-correctness bug the tests caught are recorded in
-[`docs/RESULTS.md`](docs/RESULTS.md). Falsifiable research hypotheses (H1–H8) and
-the module map are in [`docs/architecture.md`](docs/architecture.md) and
+v0.3.0 — the **neural sequence core** is real, hand-built, trains end-to-end, and
+is verified causal. The **cognitive, ingestion, retrieval-quality, and large-scale
+training systems are earlier-stage** (real heuristics, interface-only hooks, or
+planned). Read [`docs/STATUS.md`](docs/STATUS.md) for an honest per-component
+breakdown (REAL/TRAINABLE · REAL/HEURISTIC · INTERFACE-ONLY · PLANNED) — don't
+take "from scratch" to mean the whole CFNA design is built; it isn't yet.
+
+What *is* trained/verified: the byte model (perception → dynamic patching → typed
+memory → hybrid core → decoder), trainable segmentation, retrieval-augmented
+training, and a matched-baseline **held-out** comparison. Numbers, the causality
+check, and a router bug the tests caught are in [`docs/RESULTS.md`](docs/RESULTS.md).
+Module map and hypotheses: [`docs/architecture.md`](docs/architecture.md),
 [`docs/CFNA_design.md`](docs/CFNA_design.md).
 
-> Scale note: the demo trains a ~2M-parameter model on a tiny corpus to prove the
+> Scale note: the demos train ~1–2M-parameter models on tiny corpora to prove the
 > architecture is wired correctly and *learns*. It is a correctness harness for
 > the design, not a web-scale training run.

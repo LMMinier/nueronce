@@ -1,9 +1,12 @@
 # CFNA module map
 
-How the design (`docs/CFNA_design.md`) maps onto the `cfna` package. As of v0.2.0
-every operator is a **real, hand-built implementation** and the full pipeline
-trains end-to-end. PyTorch is used **only** as a tensor / autograd / optimizer
-substrate — no `nn.Transformer`, `nn.MultiheadAttention`, `nn.Linear`,
+How the design (`docs/CFNA_design.md`) maps onto the `cfna` package. The
+**neural-core operators** are real, hand-built implementations and that path
+trains end-to-end; the cognitive/ingestion/training systems are earlier-stage.
+For honest per-component maturity see [`STATUS.md`](STATUS.md).
+
+For the neural operators, PyTorch is used **only** as a tensor / autograd /
+optimizer substrate — no `nn.Transformer`, `nn.MultiheadAttention`, `nn.Linear`,
 `nn.LayerNorm`, `nn.Embedding`, fused `scaled_dot_product_attention`, or any
 external state-space (Mamba) package. See `cfna/nn.py` for the from-scratch
 primitives.

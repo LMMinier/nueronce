@@ -210,22 +210,39 @@ def temporal_compat(a, b) -> float:
 # --------------------------------------------------------------------------- #
 
 def extract_claims(text: str) -> List[str]:
-    return [s for s, _ in _spans(text) if any(c in s.lower() for c in _CLAIM_CUES)] or \
-           [s for s, _ in _spans(text)]
+    # A verifier must check *every* declarative sentence, not only cue-matching
+    # ones — otherwise unsupported statements slip through unchecked.
+    return [s for s, _ in _spans(text) if len(_content_words(s)) >= 1]
 
 
 def _evidence_texts(items: List[MemoryRecord]) -> List[str]:
     return [it.content for it in items]
 
 
+_WORD = re.compile(r"[a-zA-Z]+")
+
+
+def _content_words(text: str) -> set:
+    stop = {"the", "and", "into", "with", "from", "that", "this", "are", "was",
+            "for", "its", "than", "then", "they", "have", "not"}
+    return {w for w in _WORD.findall(text.lower()) if len(w) > 2 and w not in stop}
+
+
+def _word_overlap(a_text: str, b_text: str) -> float:
+    aw = _content_words(a_text)
+    if not aw:
+        return 0.0
+    return len(aw & _content_words(b_text)) / len(aw)
+
+
 def match_claim_to_evidence(claim: str, evidence: List[MemoryRecord]) -> float:
+    """Fraction of the claim's content words attested by some evidence item.
+
+    Word-level (not char-n-gram) so two unrelated English sentences don't look
+    'supported' merely by sharing common n-grams."""
     if not evidence:
         return 0.0
-    cq = sparse_text(claim)
-    best = 0.0
-    for ev in evidence:
-        best = max(best, _overlap(cq, sparse_text(ev.content)))
-    return best
+    return max((_word_overlap(claim, ev.content) for ev in evidence), default=0.0)
 
 
 def _overlap(a: Dict[int, float], b: Dict[int, float]) -> float:
@@ -241,7 +258,7 @@ def detect_text_evidence_contradictions(text: str, evidence: List[MemoryRecord])
     for claim in extract_claims(text):
         c_neg = any(n in claim.lower().split() for n in _NEGATIONS)
         for ev in evidence:
-            if _overlap(sparse_text(claim), sparse_text(ev.content)) > 0.5:
+            if _word_overlap(claim, ev.content) > 0.5:
                 e_neg = any(n in ev.content.lower().split() for n in _NEGATIONS)
                 if c_neg != e_neg:
                     out.append(claim)
@@ -293,6 +310,41 @@ def default_verifier_hooks():
 # --------------------------------------------------------------------------- #
 # Planner hooks (real heuristics)
 # --------------------------------------------------------------------------- #
+
+_CERTAINTY_TO_HEDGE = [
+    ("definitely", "possibly"), ("certainly", "probably"), ("always", "often"),
+    ("guarantees", "suggests"), ("proven", "reported"), ("never", "rarely"),
+]
+
+
+def revise_draft(draft: dict, failures: list) -> dict:
+    """Actually revise the rendered text in response to verifier failures.
+
+    - unsupported / contradicted claims are removed,
+    - over-certain wording is hedged (fixes miscalibration),
+    - missing requirements are appended.
+    Operates on ``draft['text']`` (the rendered output) so the next verification
+    round sees a genuinely changed draft — replacing the old no-op ``lambda d,f: d``.
+    """
+    text = draft.get("text", "")
+    for f in failures:
+        cat = getattr(f, "category", "")
+        target = getattr(f, "target_claim", None)
+        if cat in ("unsupported_claim", "contradiction") and target:
+            text = text.replace(target, "")
+        elif cat == "incomplete":
+            instr = getattr(f, "instruction", "")
+            req = instr.replace("cover missing requirement:", "").strip()
+            if req and req.lower() not in text.lower():
+                text += f" {req}."
+    if any(getattr(f, "category", "") == "miscalibration" for f in failures):
+        low = text
+        for c, h in _CERTAINTY_TO_HEDGE:
+            low = low.replace(c, h)
+        text = low
+    draft["text"] = re.sub(r"\s+", " ", text).strip()
+    return draft
+
 
 def default_planner_hooks():
     from .planning import PlannerHooks
@@ -347,4 +399,5 @@ __all__ = [
     "late_interaction", "contradiction_penalty", "temporal_compat",
     "extract_claims", "match_claim_to_evidence", "detect_text_evidence_contradictions",
     "default_verifier_hooks", "default_planner_hooks", "default_consolidation_hooks",
+    "revise_draft",
 ]

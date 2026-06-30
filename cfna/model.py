@@ -62,6 +62,7 @@ class ModelConfig:
     min_patch: int = 3
     max_patch: int = 24
     boundary_loss_weight: float = 0.3
+    trainable_segmentation: bool = True   # let LM loss reach the boundary head
 
 
 class CFNAModel(nn.Module):
@@ -81,6 +82,11 @@ class CFNAModel(nn.Module):
         from .nn import Embedding
         self.ret_byte_embed = Embedding(256, c.ret_byte_dim)
         self.ret_proj = Linear(c.d_local + c.ret_byte_dim, c.d_model)  # retrieved -> model dim
+        # Differentiable boundary feature: the mean boundary probability inside a
+        # unit is projected and added to that unit's representation, so the
+        # next-byte loss flows gradient into the boundary head (the discrete
+        # segmentation structure stays straight-through / detached).
+        self.boundary_proj = Linear(1, c.d_model)
         self.register_buffer("_syntax", syntax_table(), persistent=False)
 
     # ------------------------------------------------------------------ #
@@ -116,13 +122,20 @@ class CFNAModel(nn.Module):
         contextual unit states + structures needed by the decoder."""
         c = self.cfg
         feats, boundary_logits = self.perception(byte_ids)
-        prob = torch.sigmoid(boundary_logits.detach())
+        # Discrete segmentation structure from a detached (hard) decision ...
+        prob_hard = torch.sigmoid(boundary_logits.detach())
         seg_ids, _ = segment_ids_from_boundaries(
-            prob, tau=c.tau, min_patch=c.min_patch, max_patch=c.max_patch, p_max=c.p_max
+            prob_hard, tau=c.tau, min_patch=c.min_patch, max_patch=c.max_patch, p_max=c.p_max
         )
         m, unit_mask = pool_matrix(seg_ids, c.p_max)        # [B,P,T], [B,P]
         pooled_local = m @ feats                            # [B,P,d_local]
         units = self.unit_embed(pooled_local)
+        if c.trainable_segmentation:
+            # ... but a *differentiable* per-unit boundary feature carries the LM
+            # gradient back to the boundary head (m is detached structure).
+            prob = torch.sigmoid(boundary_logits)           # [B,T] (grad-enabled)
+            unit_boundary = m.detach() @ prob[..., None]     # [B,P,1] mean prob per unit
+            units = units + self.boundary_proj(unit_boundary)
         units = units + self.memory(units)                 # typed-memory conditioning
         core_ret_mask = None
         if ret_ctx is not None:                            # units may attend all retrieved ctx
@@ -157,6 +170,12 @@ class CFNAModel(nn.Module):
                  "bpb": lm.detach().item() / 0.6931471805599453}
         return total, stats
 
+    def lm_loss(self, byte_ids: Tensor) -> Tensor:
+        """Next-byte cross-entropy only (no auxiliary terms). Common eval interface
+        shared with the baselines; bits/byte = lm_loss / ln 2."""
+        logits, _ = self.forward(byte_ids)
+        return F.cross_entropy(logits[:, :-1].reshape(-1, 256), byte_ids[:, 1:].reshape(-1))
+
     def masked_token_loss(self, logits: Tensor, byte_ids: Tensor, target_mask: Tensor) -> Tensor:
         """Cross-entropy only at positions flagged in ``target_mask`` (True at the
         *target* byte). logits[t] predicts byte[t+1], so target position v uses
@@ -190,4 +209,19 @@ class CFNAModel(nn.Module):
         return sum(p.numel() for p in self.parameters())
 
 
-__all__ = ["ModelConfig", "CFNAModel"]
+def large_config() -> ModelConfig:
+    """A ~337M-parameter configuration realizing the design's ~350M budget.
+
+    This makes the 350M target a *constructable, counted* model rather than the
+    bookkeeping-only ``cfna.config.CFNAConfig``. It is not trained here (that needs
+    real data and compute); ``test_scaling`` verifies it builds at the right scale.
+    """
+    return ModelConfig(
+        byte_embed_dim=128, d_local=512, d_model=1024, p_max=64, physical_blocks=6,
+        logical_depth=12, n_heads=8, unit_window=256, decoder_window=256,
+        decoder_layers=6, d_state=16, channel_dim=64, ret_byte_dim=64,
+        min_patch=4, max_patch=128,
+    )
+
+
+__all__ = ["ModelConfig", "CFNAModel", "large_config"]
