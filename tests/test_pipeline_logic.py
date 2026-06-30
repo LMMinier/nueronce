@@ -17,7 +17,7 @@ CFNA_MODULES = [
     "cfna.workspace", "cfna.planning", "cfna.verification", "cfna.tools",
     "cfna.runtime", "cfna.schemas",
     "cfna.nn", "cfna.blocks", "cfna.segment", "cfna.model", "cfna.data",
-    "cfna.impl", "cfna.pipeline",
+    "cfna.impl", "cfna.pipeline", "cfna.retrieval_train",
     "cfna.training", "cfna.training.curriculum", "cfna.training.episodes",
     "cfna.training.losses", "cfna.training.vgrft",
 ]

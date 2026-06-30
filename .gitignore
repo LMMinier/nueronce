@@ -33,3 +33,4 @@ indexes/
 
 # demo outputs
 scripts/train_metrics.json
+scripts/retrieval_metrics.json

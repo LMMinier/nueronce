@@ -210,19 +210,24 @@ class _DecoderLayer(nn.Module):
         self.norm1 = RMSNorm(d_model)
         self.self_attn = LocalAttention(d_model, n_heads, window=window)
         self.norm2 = RMSNorm(d_model)
-        self.cross_attn = CrossAttention(d_model, n_heads)
+        self.cross_attn = CrossAttention(d_model, n_heads)        # byte -> completed units (causal)
+        self.norm_r = RMSNorm(d_model)
+        self.ret_attn = CrossAttention(d_model, n_heads)          # byte -> retrieved context
         self.norm3 = RMSNorm(d_model)
         self.ffn = GatedMLP(d_model, 3 * d_model)
 
-    def forward(self, x, unit_ctx, cross_mask, key_padding):
+    def forward(self, x, unit_ctx, cross_mask, key_padding, ret_ctx=None, ret_mask=None):
         x = x + self.self_attn(self.norm1(x), key_padding)
         x = x + self.cross_attn(self.norm2(x), unit_ctx, cross_mask)
+        if ret_ctx is not None:
+            x = x + self.ret_attn(self.norm_r(x), ret_ctx, ret_mask)
         x = x + self.ffn(self.norm3(x))
         return x
 
 
 class ByteDecoder(nn.Module):
-    """Predict the next byte from causal byte history + completed-unit context."""
+    """Predict the next byte from causal byte history + completed-unit context +
+    (optionally) retrieved external context."""
 
     def __init__(self, d_model: int, n_layers: int = 2, n_heads: int = 4, window: int = 32):
         super().__init__()
@@ -232,10 +237,11 @@ class ByteDecoder(nn.Module):
         self.head = Linear(d_model, 256)
 
     def forward(self, byte_ids: Tensor, unit_ctx: Tensor, cross_mask: Tensor,
-                key_padding: Optional[Tensor] = None) -> Tensor:
+                key_padding: Optional[Tensor] = None,
+                ret_ctx: Optional[Tensor] = None, ret_mask: Optional[Tensor] = None) -> Tensor:
         x = self.embed(byte_ids)
         for layer in self.layers:
-            x = layer(x, unit_ctx, cross_mask, key_padding)
+            x = layer(x, unit_ctx, cross_mask, key_padding, ret_ctx, ret_mask)
         return self.head(self.norm(x))
 
 

@@ -59,6 +59,7 @@ pip install -e ".[dev]"                  # numpy + torch (CPU) + pytest
 pytest                                   # 70+ tests incl. learning + causality
 python scripts/train_demo.py --steps 400 # training curve + sample + metrics json
 python scripts/run_pipeline.py           # train, then end-to-end respond()
+python scripts/train_retrieval.py        # retrieval-augmented training + ablation
 ```
 
 ```python

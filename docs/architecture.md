@@ -17,7 +17,18 @@ primitives.
 | Patching | `cfna/segment.py` | segment ids from boundaries, mean-pool matrix, byte→unit causal mask, boundary targets |
 | Model | `cfna/model.py` | `CFNAModel` — the two-level byte LM tying it all together |
 | Training | `cfna/data.py`, `scripts/train_demo.py` | toy corpus, batching, training loop |
+| Retrieval training | `cfna/retrieval_train.py`, `scripts/train_retrieval.py` | RETRO-style retrieval-augmented training + with/without ablation |
 | Pipeline | `cfna/pipeline.py`, `cfna/impl.py` | end-to-end `respond()` + real symbolic-stage hooks |
+
+## Retrieval is trained, not bolted on
+
+The core's retrieval cross-attention (`HybridBlock.retrieval`) and a byte-decoder
+retrieval cross-attention both receive gradients during training. Retrieved
+neighbor bytes are encoded as *(left-context key, current-byte value)* so the
+reader can match on context and copy the answer (induction-style). The task in
+`cfna/retrieval_train.py` makes the answer recoverable *only* via retrieval (fresh
+random facts, used once), so the with-vs-without ablation cleanly measures whether
+retrieval is used. See `docs/RESULTS.md`.
 
 ## Design stage → module (all real)
 
