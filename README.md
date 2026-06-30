@@ -60,7 +60,26 @@ pytest                                   # 70+ tests incl. learning + causality
 python scripts/train_demo.py --steps 400 # training curve + sample + metrics json
 python scripts/run_pipeline.py           # train, then end-to-end respond()
 python scripts/train_retrieval.py        # retrieval-augmented training + ablation
+python scripts/compare_baselines.py      # CFNA vs Transformer/SSM on held-out bytes
 ```
+
+### Real corpus → weights → conversation
+
+A license-clean pipeline turns **public-domain** books and US-government speeches
+into a trained checkpoint (no blogs, no social media, no scraped web — sources are
+curated Project Gutenberg + US-gov texts mirrored by the NLTK data repo):
+
+```bash
+python scripts/build_corpus.py           # download + clean + license-check + manifest
+python scripts/train_checkpoint.py --minutes 20   # corpus -> CFNA weights (+ held-out bpb)
+python scripts/chat_demo.py              # hold a short conversation with the checkpoint
+```
+
+The pipeline is `trusted sources → clean → license check → dedupe → split by
+document → UTF-8 bytes → batches → gradient updates → saved weights`, with a
+provenance `manifest.jsonl` and license buckets (`safe_commercial/` only for the
+first checkpoint). Documents are sampled *per-document-uniform* so no single book
+dominates, and whole books are held out for validation. See `cfna/corpus/`.
 
 ```python
 import torch

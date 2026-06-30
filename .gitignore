@@ -35,3 +35,7 @@ indexes/
 scripts/train_metrics.json
 scripts/retrieval_metrics.json
 scripts/baseline_metrics.json
+
+# corpus data + trained weights (reproducible via scripts, not committed)
+# anchored to repo root so the cfna/corpus/ *source* package stays tracked
+/corpus/

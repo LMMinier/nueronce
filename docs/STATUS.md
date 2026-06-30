@@ -27,6 +27,9 @@ retrieval-quality, and large-scale training systems are earlier-stage.
 | Retrieval-augmented training | `cfna/retrieval_train.py` | REAL / TRAINABLE |
 | Baselines (byte Transformer, pure SSM) + held-out eval | `cfna/baselines.py`, `cfna/eval.py` | REAL / TRAINABLE |
 | 350M-scale constructor (`large_config`) | `cfna/model.py` | REAL / TRAINABLE (constructs + forwards; not trained) |
+| License-clean corpus pipeline (download→clean→dedupe→manifest→buckets) | `cfna/corpus/*` | REAL (public-domain only; trusted sources) |
+| Corpus→weights training + checkpoint | `scripts/train_checkpoint.py` | REAL / TRAINABLE (11M model on ~14 MB) |
+| Conversation interface | `cfna/chat.py` | REAL (small byte model: English-shaped continuations, not an instruct assistant) |
 
 ## Cognitive / knowledge layer
 
