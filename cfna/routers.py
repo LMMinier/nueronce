@@ -14,7 +14,6 @@ from typing import Callable, Dict, Optional
 
 import numpy as np
 
-from ._backend import needs_backend
 from .ops import cosine, sparse_dot
 from .types import CHANNELS, CognitiveEmbeddingBundle
 
@@ -29,9 +28,11 @@ def temporal_compatibility(a, b) -> float:
 
 
 class RelationRouters:
-    def __init__(self, evidence_classifier: Optional[Callable] = None):
+    def __init__(self, evidence_classifier: Optional[Callable] = None, d_sem: int = 768):
         # evidence_classifier: [3*d_sem] -> [3] logits (support/contradict/unrelated)
         self._evidence_classifier = evidence_classifier
+        self._d_sem = d_sem
+        self._default = None  # lazily-built real classifier
 
     def semantic_score(self, q: CognitiveEmbeddingBundle, c: CognitiveEmbeddingBundle) -> float:
         return cosine(q.dense_semantic, c.dense_semantic)
@@ -47,21 +48,35 @@ class RelationRouters:
     def temporal_score(self, q: CognitiveEmbeddingBundle, c: CognitiveEmbeddingBundle) -> float:
         return temporal_compatibility(q.temporal_vec, c.temporal_vec)
 
+    def _classifier(self) -> Callable:
+        if self._evidence_classifier is not None:
+            return self._evidence_classifier
+        if self._default is None:
+            import torch
+
+            from .nn import MLP
+
+            d = int(np.asarray(self._d_sem))
+            net = MLP(3 * d, 256, 3)
+            for p in net.parameters():
+                p.requires_grad_(False)
+
+            def run(x):
+                with torch.no_grad():
+                    return net(torch.tensor(np.asarray(x, dtype=np.float32))).numpy()
+
+            self._default = run
+        return self._default
+
     def evidence_relation(
         self, q: CognitiveEmbeddingBundle, c: CognitiveEmbeddingBundle
     ) -> Dict[str, float]:
-        if self._evidence_classifier is None:
-            raise needs_backend(
-                "RelationRouters.evidence_relation",
-                "Provide a trained classifier mapping "
-                "[q_sem, c_sem, |q_sem - c_sem|] -> 3 logits.",
-            )
         qs = np.asarray(q.dense_semantic, dtype=np.float64).ravel()
         cs = np.asarray(c.dense_semantic, dtype=np.float64).ravel()
         x = np.concatenate([qs, cs, np.abs(qs - cs)])
         from .ops import softmax
 
-        p = softmax(self._evidence_classifier(x))
+        p = softmax(self._classifier()(x))
         return {"support": float(p[0]), "contradict": float(p[1]), "unrelated": float(p[2])}
 
     def authority_allowed(self, q: CognitiveEmbeddingBundle, destination_channel: str) -> bool:

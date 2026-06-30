@@ -24,42 +24,61 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from ._backend import needs_backend
 from .config import MemoryConfig
 from .types import CHANNELS, MemoryRecord, Tensor
 
 
 @dataclass
 class TypedState:
-    cell: Dict[str, Tensor]      # per channel [B, Dk]
-    hidden: Dict[str, Tensor]    # per channel [B, Dk]
+    """Fused typed-memory state. ``cell``/``hidden`` are [B, K*Dk] tensors; the
+    per-channel views are recoverable by reshaping to [B, K, Dk]."""
+
+    cell: Tensor
+    hidden: Tensor
 
 
 class TypedRecurrentMemoryCell:
-    def __init__(self, cfg: Optional[MemoryConfig] = None):
+    """Real typed multi-timescale gated memory (delegates to the torch operator).
+
+    Provides both a single-step API (``init_state`` / ``step``) realizing the
+    design's per-channel forget/write/read/retention/authority equations, and a
+    sequence API (``forward``) that returns a causal per-unit read-out summary.
+    """
+
+    def __init__(self, cfg: Optional[MemoryConfig] = None, d_model: Optional[int] = None):
         self.cfg = cfg or MemoryConfig()
-        self.retention = dict(self.cfg.retention)
+        from .config import CoreConfig
+        from .blocks import TypedRecurrentMemory
+
+        self.d_model = d_model or CoreConfig().d_model
+        self.module = TypedRecurrentMemory(self.d_model, channel_dim=self.cfg.channel_dim)
 
     def init_state(self, batch: int = 1) -> TypedState:
-        raise needs_backend(
-            "TypedRecurrentMemoryCell.init_state",
-            "Allocate zero cell/hidden tensors per channel using the backend.",
-        )
+        import torch
 
-    def step(
-        self,
-        x_t: Tensor,
-        prev: TypedState,
-        memory_ctx: Tensor,
-        evidence_ctx: Tensor,
-        goal_ctx: Tensor,
-        authority_mask: Tensor,
-    ) -> TypedState:
-        raise needs_backend(
-            "TypedRecurrentMemoryCell.step",
-            "Per-channel gated update with authority-masked writes; the evidence "
-            "channel may use signed triple registers.",
-        )
+        z = torch.zeros(batch, self.module.state_dim)
+        return TypedState(cell=z.clone(), hidden=z.clone())
+
+    def step(self, x_t, prev: TypedState, authority_mask=None) -> TypedState:
+        """One fused gated update. ``x_t``: [B, d_model]; ``authority_mask``:
+        optional [B, K] permission in [0,1]."""
+        import torch
+
+        m = self.module
+        z = torch.cat([x_t, prev.hidden], dim=-1)
+        f = torch.sigmoid(m.forget(z))
+        w = torch.sigmoid(m.write(z))
+        r = torch.sigmoid(m.read(z))
+        dc = torch.tanh(m.cand(z))
+        a = (authority_mask.repeat_interleave(m.dk, dim=-1)
+             if authority_mask is not None else torch.ones_like(f))
+        c = m.retention * f * prev.cell + a * w * dc
+        h = r * torch.tanh(c)
+        return TypedState(cell=c, hidden=h)
+
+    def forward(self, units, authority=None):
+        """Sequence read-out summary [B, P, d_model] (causal)."""
+        return self.module(units, authority)
 
 
 # --------------------------------------------------------------------------- #

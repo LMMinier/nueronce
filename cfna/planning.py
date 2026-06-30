@@ -72,13 +72,27 @@ class SemanticRenderer:
 
 
 class CausalLanguageRenderer:
-    """Constrained autoregressive renderer: paragraph intent -> surface text."""
+    """Constrained autoregressive renderer: realizes a draft into surface text.
+
+    Backed by a real byte model (``cfna.model.CFNAModel`` or anything exposing
+    ``generate(prompt: bytes, max_new, greedy) -> bytes``). The draft's
+    ``"prompt"`` seeds generation; the full pipeline uses
+    ``cfna.pipeline.ModelRenderer`` which is the same contract.
+    """
+
+    def __init__(self, model=None, max_new: int = 96):
+        self.model = model
+        self.max_new = max_new
 
     def render(self, semantic_draft: dict, style: dict) -> str:
-        raise needs_backend(
-            "CausalLanguageRenderer.render",
-            "Per paragraph: para_to_span_intent -> render_span_autoregressive(intent, style).",
-        )
+        if self.model is None:
+            raise needs_backend(
+                "CausalLanguageRenderer.render",
+                "Pass a trained model (CFNAModel) to render; see cfna.pipeline.",
+            )
+        prompt = semantic_draft.get("prompt", "")
+        out = self.model.generate(prompt.encode("utf-8"), max_new=self.max_new, greedy=True)
+        return out.decode("utf-8", errors="replace")
 
 
 __all__ = ["PlannerHooks", "Planner", "SemanticRenderer", "CausalLanguageRenderer"]

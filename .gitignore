@@ -30,3 +30,6 @@ indexes/
 .idea/
 .vscode/
 .DS_Store
+
+# demo outputs
+scripts/train_metrics.json

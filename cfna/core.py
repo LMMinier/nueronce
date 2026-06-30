@@ -1,72 +1,79 @@
-"""Hybrid cognitive fabric: the shared core that is reused recurrently.
+"""Hybrid cognitive fabric: the shared core, reused recurrently.
 
-Each :class:`HybridBlock` merges a selective state-space / recurrent path, local
-attention, sparse global attention, and a retrieval-injection path via an
-adaptive (softmax-weighted) router, then a gated FFN with residuals. A small
-number of *physical* blocks are reused over a larger number of *logical* steps
-to cut memory pressure — one of the main goals of the 350M prototype.
+Real implementation. Each block merges a selective state-space path, local
+attention, sparse global attention, and (optional) retrieval injection via a
+*per-position* adaptive router, then a gated FFN with residuals. A few physical
+blocks are reused over mode-dependent logical depth to cut memory pressure.
 
-These are learned modules; their forward passes need a neural backend. The
-mode→depth control flow in :class:`CFNACore.run` is real.
+The actual torch modules live in :mod:`cfna.blocks` (built from the hand-rolled
+primitives in :mod:`cfna.nn`); this module exposes the design-named classes and
+the mode→depth control flow on top of them.
 """
 
 from __future__ import annotations
 
 from typing import List, Optional
 
-from ._backend import needs_backend
 from .config import CoreConfig
-from .memory import TypedState
 
 
 class HybridBlock:
-    """Shared physical block reused recurrently.
-
-    forward(x[B, N, d_model], state, retrieval_ctx, importance_mask)
-        -> (x[B, N, d_model], state)
-    """
+    """Design-named wrapper around :class:`cfna.blocks.HybridBlock`."""
 
     def __init__(self, cfg: Optional[CoreConfig] = None):
         self.cfg = cfg or CoreConfig()
+        from .blocks import HybridBlock as _HybridBlock
 
-    def forward(self, x, state: TypedState, retrieval_ctx, importance_mask):
-        raise needs_backend(
-            "HybridBlock.forward",
-            "Paths: selective-SSM, local attention, sparse-global attention "
-            "(on important positions), retrieval cross-integration; merged by a "
-            "softmax router, then gated FFN + residuals.",
+        self.module = _HybridBlock(
+            self.cfg.d_model,
+            n_heads=self.cfg.n_local_heads,
+            local_window=self.cfg.local_window,
+            sparse_topk=self.cfg.sparse_global_topk,
+            ffn_mult=self.cfg.ffn_mult,
         )
+
+    def forward(self, x, key_padding=None, retrieval_ctx=None, retrieval_mask=None, importance=None):
+        return self.module(x, key_padding, retrieval_ctx, retrieval_mask, importance)
 
 
 def convergence_detected(x, step: int, mode: str) -> bool:
-    """Hook for early-exit of the logical recurrence. Default: never early-exit.
-
-    A real implementation compares successive states (e.g. small relative delta)
-    and may be mode-dependent. Kept conservative so depth == configured depth.
-    """
+    """Hook for early-exit of the logical recurrence. Default: never early-exit."""
     return False
 
 
 class CFNACore:
-    """Drives a few physical blocks over mode-dependent logical depth."""
+    """Drives a few physical blocks over mode-dependent logical depth.
 
-    def __init__(self, blocks: List[HybridBlock], cfg: Optional[CoreConfig] = None):
-        if not blocks:
-            raise ValueError("CFNACore requires at least one HybridBlock")
-        self.blocks = blocks
+    Wraps :class:`cfna.blocks.HybridCoreStack`; ``run`` keeps the design's
+    block-reuse loop and accepts a string ``mode`` (FAST/DELIBERATE/RESEARCH).
+    """
+
+    def __init__(self, cfg: Optional[CoreConfig] = None, physical_blocks: Optional[int] = None):
         self.cfg = cfg or CoreConfig()
+        from .blocks import HybridCoreStack
+
+        self.stack = HybridCoreStack(
+            self.cfg.d_model,
+            physical_blocks=physical_blocks or self.cfg.physical_blocks,
+            n_heads=self.cfg.n_local_heads,
+            local_window=self.cfg.local_window,
+            sparse_topk=self.cfg.sparse_global_topk,
+            ffn_mult=self.cfg.ffn_mult,
+        )
 
     def depth_for(self, mode: str) -> int:
         return self.cfg.logical_depth[mode]
 
-    def run(self, x, state: TypedState, retrieval_ctx, importance_mask, mode: str):
-        depth = self.depth_for(mode)
-        for t in range(depth):
-            block = self.blocks[t % len(self.blocks)]
-            x, state = block.forward(x, state, retrieval_ctx, importance_mask)
-            if convergence_detected(x, t, mode):
-                break
-        return x, state
+    def run(self, x, mode: str = "DELIBERATE", key_padding=None, retrieval_ctx=None,
+            retrieval_mask=None, importance=None):
+        return self.stack(
+            x, self.depth_for(mode), key_padding=key_padding,
+            retrieval_ctx=retrieval_ctx, retrieval_mask=retrieval_mask, importance=importance,
+        )
+
+    @property
+    def blocks(self) -> List:
+        return list(self.stack.blocks)
 
 
 __all__ = ["HybridBlock", "convergence_detected", "CFNACore"]

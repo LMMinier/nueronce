@@ -4,19 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cfna"
-version = "0.1.0"
-description = "CFNA — a hybrid foundational model architecture (perceive → reason → plan → verify)."
+version = "0.2.0"
+description = "CFNA — a from-scratch hybrid foundational model (perceive → reason → plan → verify)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "lmminier" }]
 dependencies = [
     "numpy>=1.24",
+    "torch>=2.2",
 ]
 
 [project.optional-dependencies]
-# Neural backend(s) needed to make the learned components runnable.
-torch = ["torch>=2.2"]
 dev = ["pytest>=7.4"]
 
 [tool.setuptools]

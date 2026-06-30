@@ -18,26 +18,32 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from ._backend import needs_backend
 from .config import PerceptionConfig
 from .ops import SYNTAX_BYTES, hash_ngram_features, l2, mean_pool, norm, sigmoid
 
 
 class ByteCharPerception:
-    """Byte embedding + stacked (dilated) 1D convolutions + a boundary head.
+    """Byte embedding + stacked causal (dilated) 1D convolutions + a boundary head.
 
-    forward(input_bytes: uint8[B, T]) -> (local_feats[B, T, d_local],
-                                          boundary_logits[B, T])
+    forward(input_bytes: long[B, T]) -> (local_feats[B, T, d_local],
+                                         boundary_logits[B, T])
+
+    Thin adapter over the real torch operator in :mod:`cfna.blocks`. torch is
+    imported lazily so the pure-logic functions in this module (``dynamic_patching``,
+    ``encode_information_units``) stay importable without a backend.
     """
 
     def __init__(self, cfg: Optional[PerceptionConfig] = None):
         self.cfg = cfg or PerceptionConfig()
+        from .blocks import BytePerceptionEncoder
+
+        self.module = BytePerceptionEncoder(self.cfg.byte_embed_dim, self.cfg.d_local)
 
     def forward(self, input_bytes):
-        raise needs_backend(
-            "ByteCharPerception.forward",
-            "Implements byte embedding -> conv3 -> +conv7 -> +dilated -> boundary head.",
-        )
+        return self.module(input_bytes)
+
+    def __call__(self, input_bytes):
+        return self.module(input_bytes)
 
 
 def dynamic_patching(

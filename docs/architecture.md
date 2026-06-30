@@ -1,65 +1,80 @@
 # CFNA module map
 
-How the design (`docs/CFNA_design.md`) maps onto the `cfna` package, and what is
-**implemented** vs. a **typed stub** awaiting a neural backend.
+How the design (`docs/CFNA_design.md`) maps onto the `cfna` package. As of v0.2.0
+every operator is a **real, hand-built implementation** and the full pipeline
+trains end-to-end. PyTorch is used **only** as a tensor / autograd / optimizer
+substrate — no `nn.Transformer`, `nn.MultiheadAttention`, `nn.Linear`,
+`nn.LayerNorm`, `nn.Embedding`, fused `scaled_dot_product_attention`, or any
+external state-space (Mamba) package. See `cfna/nn.py` for the from-scratch
+primitives.
 
-Legend: ✅ implemented & tested · 🧩 control-flow implemented, leaf ops injected ·
-⛔ needs a neural backend (raises `BackendNotConfigured`).
+## From-scratch substrate
 
-| Design stage | Module | Key symbols | Status |
-|---|---|---|---|
-| Data model | `cfna/types.py` | `SourceRecord`, `KnowledgeUnit`, `CognitiveEmbeddingBundle`, `MemoryRecord`, `TaskState`, `WorkspaceSlot`, `Verification*` | ✅ |
-| Numeric/hash utils | `cfna/ops.py` | `cosine`, `sparse_dot`, `softmax`, `sigmoid`, `gelu`, `hash_ngram_features`, `sha256_bytes`, `now_iso` | ✅ |
-| Config | `cfna/config.py` | `CFNAConfig` + per-subsystem configs, `DEFAULT_CONFIG` | ✅ |
-| Backend boundary | `cfna/_backend.py` | `BackendNotConfigured`, `needs_backend` | ✅ |
-| Ingestion / provenance gate | `cfna/ingestion.py` | `PolicyGate`, `IngestionCrawler`, `score_quality` | 🧩 (gate ✅, fetcher injected) |
-| Parser / KU compiler | `cfna/parsing.py` | `DocumentParser`, `KnowledgeUnitCompiler`, `CompilerHooks` | 🧩 |
-| Perception / patching | `cfna/perception.py` | `dynamic_patching`, `encode_information_units` ✅; `ByteCharPerception` ⛔ | mixed |
-| Cognitive embeddings | `cfna/embeddings.py` | `CognitiveEmbeddingCompiler` | ⛔ |
-| Typed recurrent memory | `cfna/memory.py` | `consolidation_score`/`_decision` ✅; `TypedRecurrentMemoryCell` ⛔ | mixed |
-| Relation routers | `cfna/routers.py` | semantic/lexical/structural/temporal/authority ✅; `evidence_relation` ⛔ | mixed |
-| Hybrid retrieval | `cfna/retrieval.py` | `combine_scores` ✅; `HybridRetriever` 🧩 (indexes injected) | mixed |
-| Hybrid cognitive fabric | `cfna/core.py` | `CFNACore.run` 🧩; `HybridBlock.forward` ⛔ | mixed |
-| Global workspace | `cfna/workspace.py` | `GlobalWorkspace` (roles ✅, neural ops ⛔) | mixed |
-| Planner / renderer | `cfna/planning.py` | `Planner` 🧩; `SemanticRenderer` 🧩; `CausalLanguageRenderer` ⛔ | mixed |
-| Verifier | `cfna/verification.py` | `verify_and_revise` 🧩, `IndependentVerifier` 🧩 (checkers injected) | 🧩 |
-| Tools / authority | `cfna/tools.py` | `ToolExecutor` (authority gate ✅, runner injected) | 🧩 |
-| Compact runtime | `cfna/runtime.py` | `LoRAAdapter` ✅, `SSDBackedMemoryStore` ✅ | mixed |
-| Schemas | `cfna/schemas/` | `load_schema`, `load_example`, 4 record schemas + examples | ✅ |
-| WPGCP training | `cfna/training/{curriculum,episodes,losses}.py` | scheduler/weights/aggregation ✅; data transforms injected | 🧩 |
-| VGRFT training | `cfna/training/vgrft.py` | `ContinualLearner` 🧩; `VGRFTTrainer` ⛔ | mixed |
+| Layer | File | What's hand-built |
+|---|---|---|
+| Primitives | `cfna/nn.py` | `Linear`, `Embedding`, `RMSNorm`, `MLP`, `GatedMLP`, masked softmax, `LocalAttention`, `SparseGlobalAttention` (top-k causal), `CrossAttention`, `SelectiveSSM` (selective scan) |
+| Operators | `cfna/blocks.py` | `BytePerceptionEncoder` (causal byte CNN + boundary head), `TypedRecurrentMemory` (typed gated cell), `HybridBlock`/`HybridCoreStack` (per-position router), `UnitEmbedder`, `ByteDecoder` |
+| Patching | `cfna/segment.py` | segment ids from boundaries, mean-pool matrix, byte→unit causal mask, boundary targets |
+| Model | `cfna/model.py` | `CFNAModel` — the two-level byte LM tying it all together |
+| Training | `cfna/data.py`, `scripts/train_demo.py` | toy corpus, batching, training loop |
+| Pipeline | `cfna/pipeline.py`, `cfna/impl.py` | end-to-end `respond()` + real symbolic-stage hooks |
 
-## The backend boundary
+## Design stage → module (all real)
 
-The data model and pure-logic paths run with only `numpy`. Learned components
-(`ByteCharPerception`, `CognitiveEmbeddingCompiler`, `TypedRecurrentMemoryCell`,
-`HybridBlock`, workspace iteration, `CausalLanguageRenderer`, the VGRFT trainer)
-raise `cfna.BackendNotConfigured` until a PyTorch/JAX backend is wired in. This
-keeps the whole package importable and the architecture navigable before any
-training infrastructure exists. To find every backend seam:
+| Design stage | Module(s) | Notes |
+|---|---|---|
+| Data model | `cfna/types.py` | typed records + vocabularies |
+| Numeric/hash utils | `cfna/ops.py` | cosine, sparse_dot, hash n-grams, sha256 |
+| Config | `cfna/config.py`, `cfna/model.py:ModelConfig` | 350M defaults + trainable tiny config |
+| Ingestion / provenance gate | `cfna/ingestion.py` | `PolicyGate`, `IngestionCrawler` |
+| Parser / KU compiler | `cfna/parsing.py` + `cfna/impl.py` | regex detectors via `default_compiler_hooks()` |
+| Perception / patching | `cfna/perception.py` → `cfna/blocks.py` | `ByteCharPerception` adapter + real CNN; `dynamic_patching` (numpy) |
+| Cognitive embeddings | `cfna/embeddings.py` | real typed MLP heads |
+| Typed recurrent memory | `cfna/memory.py` → `cfna/blocks.py` | real gated cell (step + sequence) + pure consolidation scoring |
+| Relation routers | `cfna/routers.py` | geometric scores + real default evidence classifier |
+| Hybrid retrieval | `cfna/retrieval.py` + `cfna/impl.py` | score fusion + in-memory dense/sparse indexes |
+| Hybrid cognitive fabric | `cfna/core.py` → `cfna/blocks.py` | SSM + local/sparse attention + router |
+| Global workspace | `cfna/workspace.py` | real slot self-attention + update + confidence heads |
+| Planner / renderer | `cfna/planning.py` + `cfna/pipeline.py` | heuristic planner + model-backed renderer |
+| Verifier | `cfna/verification.py` + `cfna/impl.py` | verify→revise loop + real evidence-grounded checkers |
+| Tools / authority | `cfna/tools.py` | authority-gated executor |
+| Compact runtime | `cfna/runtime.py` | LoRA (numpy) + SSD-backed store |
+| WPGCP / VGRFT training | `cfna/training/*` | curriculum, episodes, loss aggregation, VGRFT drivers |
 
-```bash
-grep -rn "needs_backend\|BackendNotConfigured" cfna/
+## What "trains end-to-end" means
+
+`CFNAModel` is a two-level byte language model:
+
+```
+bytes → causal byte CNN + learned boundary head
+      → dynamic patching into variable-length units
+      → unit embedding + typed recurrent memory
+      → hybrid core (SSM + local/sparse attention), reused over logical depth
+      → byte decoder cross-attending to *completed* units (causal)
+      → next-byte logits
 ```
 
-## Injected-hooks pattern
+Objective = next-byte cross-entropy + an auxiliary boundary loss (so the patcher
+is genuinely learned). Because every path is causal, the model is a valid
+autoregressive LM — the test `tests/test_model_learns.py::test_model_is_causal`
+asserts that editing a future byte changes **zero** earlier-position logits.
 
-Subsystems whose control flow is real but whose leaf operations are
-corpus/model-specific (parser, knowledge-unit compiler, consolidator, planner,
-verifier, retriever, episode generator, continual learner) accept their leaf ops
-as injected callables (often grouped in a `*Hooks` dataclass). This makes the
-orchestration unit-testable today and lets you drop in real implementations
-incrementally.
+## Reproducing the run
 
-## Suggested build order
+```bash
+pip install -e ".[dev]"
+pytest                                   # 70+ tests incl. learning + causality
+python scripts/train_demo.py --steps 400 # full training curve + sample + metrics
+python scripts/run_pipeline.py           # train, then end-to-end respond()
+```
 
-1. Wire a tensor backend behind `cfna/_backend.py` (PyTorch first).
-2. Implement `ByteCharPerception` + train the boundary head; validate against
-   `dynamic_patching` (H1).
-3. Implement `CognitiveEmbeddingCompiler` heads; stand up dense + sparse indexes
-   behind `HybridRetriever` (H3).
-4. Implement `TypedRecurrentMemoryCell` and `HybridBlock`; run `CFNACore` over
-   FAST depth (H2).
-5. Add workspace iteration, planner hooks, and the renderer (H4).
-6. Train the verifier and residual experts via VGRFT (H5, H8).
-7. Turn on authority masks end-to-end (H6) and run the ablation matrix.
+See `docs/RESULTS.md` for a recorded run.
+
+## A bug this structure caught
+
+The first hybrid-block router mean-pooled over the **whole** unit sequence to
+compute mixing weights, then applied them per position — leaking future units into
+past positions' routing (the causality test failed with a ~0.04 logit change
+before an edited byte). Fixed by switching to **per-position routing**; the test
+now reports exactly `0.0`. This is the kind of subtle correctness issue the
+"is it built right?" tests exist to surface.

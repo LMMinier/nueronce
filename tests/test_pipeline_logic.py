@@ -16,6 +16,8 @@ CFNA_MODULES = [
     "cfna.memory", "cfna.routers", "cfna.retrieval", "cfna.core",
     "cfna.workspace", "cfna.planning", "cfna.verification", "cfna.tools",
     "cfna.runtime", "cfna.schemas",
+    "cfna.nn", "cfna.blocks", "cfna.segment", "cfna.model", "cfna.data",
+    "cfna.impl", "cfna.pipeline",
     "cfna.training", "cfna.training.curriculum", "cfna.training.episodes",
     "cfna.training.losses", "cfna.training.vgrft",
 ]
