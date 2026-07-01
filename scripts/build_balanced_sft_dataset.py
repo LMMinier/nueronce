@@ -44,6 +44,18 @@ def _with_id(rec: dict, prefix: str, i: int) -> dict:
     return out
 
 
+def _unique_by_normalized_hash(records):
+    seen = set()
+    out = []
+    for rec in records:
+        h = record_normalized_hash(rec)
+        if h in seen:
+            continue
+        seen.add(h)
+        out.append(rec)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default="data/sft_balanced")
@@ -63,8 +75,10 @@ def main():
     train, val, test = [], [], []
     unique_counts = {}
     train_unique_counts = {}
+    train_pools = {}
+    heldout_hashes = set()
     for name, gen_fn in GENERATORS:
-        records = list(gen_fn())
+        records = _unique_by_normalized_hash(list(gen_fn()))
         unique_counts[name] = len(records)
         order = rng.permutation(len(records))
         need_holdout = args.val_per_category + args.test_per_category
@@ -73,9 +87,19 @@ def main():
         val_idx = order[:args.val_per_category]
         test_idx = order[args.val_per_category:need_holdout]
         train_idx = order[need_holdout:]
-        val.extend(_with_id(records[int(i)], f"val-{name}", j) for j, i in enumerate(val_idx))
-        test.extend(_with_id(records[int(i)], f"test-{name}", j) for j, i in enumerate(test_idx))
-        train_pool = [records[int(i)] for i in train_idx]
+        val_records = [records[int(i)] for i in val_idx]
+        test_records = [records[int(i)] for i in test_idx]
+        heldout_hashes.update(record_normalized_hash(r) for r in val_records)
+        heldout_hashes.update(record_normalized_hash(r) for r in test_records)
+        val.extend(_with_id(r, f"val-{name}", j) for j, r in enumerate(val_records))
+        test.extend(_with_id(r, f"test-{name}", j) for j, r in enumerate(test_records))
+        train_pools[name] = [records[int(i)] for i in train_idx]
+
+    for name, _ in GENERATORS:
+        train_pool = [r for r in train_pools[name]
+                      if record_normalized_hash(r) not in heldout_hashes]
+        if not train_pool:
+            raise ValueError(f"{name} has no train records after global holdout filtering")
         train_unique_counts[name] = len(train_pool)
         weighted = itertools.islice(itertools.cycle(train_pool), args.train_examples_per_category)
         train.extend(_with_id(rec, f"train-repeat-{name}", j) for j, rec in enumerate(weighted))
