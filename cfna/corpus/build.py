@@ -26,7 +26,7 @@ _HEADER = re.compile(r"^\[([^\]]+?)\s+by\s+(.+?)(?:\s+(\d{3,4}))?\]\s*$", re.MUL
 _GUTEN_START = re.compile(r"\*\*\*\s*START OF.*?\*\*\*", re.IGNORECASE | re.DOTALL)
 _GUTEN_END = re.compile(r"\*\*\*\s*END OF.*", re.IGNORECASE | re.DOTALL)
 _MULTIBLANK = re.compile(r"\n{3,}")
-_ALLOWED_SOURCE_HOSTS = frozenset({"raw.githubusercontent.com"})
+_ALLOWED_SOURCE_HOSTS = frozenset({"raw.githubusercontent.com", "www.gutenberg.org"})
 _ALLOWED_LICENSE_IDS = frozenset({"public-domain-us", "public-domain-usgov", "CC0-1.0"})
 
 
@@ -78,6 +78,19 @@ def _iter_zip_texts(blob: bytes):
             if name.endswith("/") or not name.lower().endswith(".txt"):
                 continue
             yield Path(name).name, z.read(name).decode("utf-8", errors="replace")
+
+
+def _iter_source_texts(source: Source, blob: bytes):
+    """Yield (filename, text) pairs for a source.
+
+    Zip archives (the NLTK corpora) expand to their member ``.txt`` files; a
+    direct ``.txt`` URL (a single Project Gutenberg book) yields one document
+    named after the URL.
+    """
+    if source.url.lower().endswith(".zip"):
+        yield from _iter_zip_texts(blob)
+    else:
+        yield Path(source.url).name, blob.decode("utf-8", errors="replace")
 
 
 # --------------------------------------------------------------------------- #
@@ -149,10 +162,15 @@ def build_corpus(out_dir: Path, sources: Optional[List[Source]] = None,
         ):
             continue
         blob = _fetch(source.url, cache_dir)
-        for filename, raw in _iter_zip_texts(blob):
+        for filename, raw in _iter_source_texts(source, blob):
             if filename.lower() in ("readme", "readme.txt"):
                 continue
             meta = parse_header(raw)
+            # Single-document book sources carry their own metadata; prefer it
+            # over the NLTK "[Title by Author]" header which these texts lack.
+            if source.title and not meta["title"]:
+                meta = {"title": source.title, "author": source.author,
+                        "year": source.publication_year}
             text = clean_text(raw)
             if len(text) < min_bytes:
                 continue
