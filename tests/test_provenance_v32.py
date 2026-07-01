@@ -6,7 +6,7 @@ from cfna.cognition_v2 import Query, Trial, policy
 from cfna.contract import EvidenceItem, content_hash
 from cfna.impl import default_verifier_hooks
 from cfna.ingestion import IngestionCrawler, PolicyGate
-from cfna.pipeline import _candidate_to_memory
+from cfna.evidence import source_to_memory as _candidate_to_memory
 from cfna.provenance import Authenticity, Issuer, KeyRegistry
 from cfna.provenance_v32 import FAMILIES, run
 from cfna.types import MemoryRecord

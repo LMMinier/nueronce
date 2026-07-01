@@ -98,7 +98,8 @@ class TypedRecurrentMemory(Module):
         lam = np.array([0.98, 0.97, 0.95, 0.99, 0.90, 0.999, 0.98])
         self.retention = Tensor(np.repeat(lam, channel_dim))  # fixed, not trained
 
-    def forward(self, units: Tensor, authority: Optional[np.ndarray] = None) -> Tensor:
+    def forward(self, units: Tensor, authority: Optional[np.ndarray] = None,
+                channel_mask: Optional[np.ndarray] = None) -> Tensor:
         b, p, _ = units.shape
         c = Tensor(np.zeros((b, self.state_dim)))
         h = Tensor(np.zeros((b, self.state_dim)))
@@ -106,6 +107,15 @@ class TypedRecurrentMemory(Module):
             a = Tensor(np.ones((b, self.state_dim)))
         else:
             a = Tensor(np.repeat(np.asarray(authority), self.dk, axis=-1))
+        # Optional per-channel ablation for the H2 specialization probe: a length-K
+        # 0/1 vector, expanded to the state slice for each channel, zeroes a
+        # channel's contribution to the read-out (never trained through — used at
+        # eval time to measure how much each typed channel a task depends on).
+        if channel_mask is None:
+            channel_mask = getattr(self, "_probe_channel_mask", None)
+        cmask = None
+        if channel_mask is not None:
+            cmask = Tensor(np.repeat(np.asarray(channel_mask, dtype=np.float64), self.dk)[None, :])
         outs = []
         for i in range(p):
             x = units[:, i]
@@ -116,7 +126,8 @@ class TypedRecurrentMemory(Module):
             dc = self.cand(z).tanh()
             c = self.retention * f * c + a * w * dc
             h = r * c.tanh()
-            outs.append(self.readout(h))
+            hk = h if cmask is None else h * cmask
+            outs.append(self.readout(hk))
         return stack(outs, axis=1)  # [B, P, d_model], causal
 
 

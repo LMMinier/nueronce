@@ -43,42 +43,10 @@ class ModelRenderer:
         return semantic_draft["text"]
 
 
-def _candidate_to_memory(
-    text: str,
-    doc_id: str,
-    source: Optional[SourceRecord] = None,
-) -> MemoryRecord:
-    authority_level = "verified_secondary_source"
-    review_status = "verified"
-    confidence = 0.8
-    provenance = {}
-    if source is not None:
-        if source.authenticity_status in ("failed", "revoked"):
-            authority_level = "unverified_external_content"
-            review_status = "rejected"
-            confidence = 0.0
-        elif source.authenticity_status == "unverified":
-            authority_level = "unverified_external_content"
-            review_status = "restricted"
-            confidence = 0.4
-        provenance = {
-            "issuer_id": source.issuer_id,
-            "key_id": source.key_id,
-            "content_hash": source.content_hash,
-            "signature": source.signature,
-            "authenticity_status": source.authenticity_status,
-            "verification_timestamp": source.verification_timestamp,
-            "revocation_status": source.revocation_status,
-            "provenance_failure_reason": source.provenance_failure_reason,
-        }
-    return MemoryRecord(
-        memory_id=doc_id, memory_type="semantic", content=text,
-        source_ids=[doc_id], embeddings={"dense_semantic": impl.embed_text(text)},
-        structured_repr={"provenance": provenance} if provenance else {},
-        authority_level=authority_level,
-        creation_time=now_iso(), last_verified_time=now_iso(), confidence=confidence,
-        review_status=review_status, consolidation_status="semantic", **provenance,
-    )
+# Evidence gating lives in the torch-free cfna.evidence so the microtorch
+# pipeline and the provenance tests share the exact same gate; re-exported
+# here under the original name for backward compatibility.
+from .evidence import gate_hits as _gate_hits, source_to_memory as _candidate_to_memory  # noqa: E402
 
 
 def respond(
@@ -107,17 +75,7 @@ def respond(
     id_to_source = {
         f"doc{i}": rec for i, rec in enumerate(source_records or [])
     }
-    evidence = []
-    rejected = []
-    for h in hits:
-        doc_id = h.bundle.source_id
-        if doc_id not in id_to_text:
-            continue
-        src = id_to_source.get(doc_id)
-        if src is not None and src.authenticity_status in ("failed", "revoked"):
-            rejected.append(doc_id)
-            continue
-        evidence.append(_candidate_to_memory(id_to_text[doc_id], doc_id, src))
+    evidence, rejected = _gate_hits(hits, id_to_text, id_to_source)
 
     # 2. perceive the query through the real core to seed reasoning
     with torch.no_grad():

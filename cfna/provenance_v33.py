@@ -361,6 +361,60 @@ def _relevant(case: BlindCase, docs: Iterable[BlindDocument]) -> List[BlindDocum
     return [d for d in docs if d.entity == case.entity and d.attribute == case.attribute]
 
 
+def contract_resolve(
+    assessed: List[Tuple[BlindDocument, Authenticity, str, FinalTrust]],
+    scope_context: Dict[str, str],
+    ablation: Optional[str] = None,
+    contract: bool = True,
+) -> Tuple[List[str], Optional[BlindDocument], List[str]]:
+    """The deterministic trust/temporal/scope/supersession resolution core.
+
+    Extracted verbatim from ``_resolve`` (guarded by a golden-metrics
+    regression test) so the integrated Wave-2 loop and the frozen v3.3
+    baseline share one code path, and so counterfactual citation attribution
+    can re-run resolution over document subsets cheaply.
+
+    Returns ``(rejected_ids, winner, conflict_document_ids)``.
+    """
+    valid = []
+    rejected: List[str] = []
+    for d, auth, reason, final in assessed:
+        reject = False
+        if final is FinalTrust.REJECTED:
+            reject = True
+        if final is FinalTrust.ESCALATE and d.source_channel != "legacy_archive":
+            reject = True
+        if ablation != "minus_temporal_checks":
+            if d.effective_from and d.effective_from > AS_OF:
+                reject = True
+            if d.effective_until and d.effective_until <= AS_OF:
+                reject = True
+        if ablation != "minus_scope_checks":
+            for k, v in d.scope.items():
+                if scope_context.get(k) != v:
+                    reject = True
+        if reject:
+            rejected.append(d.document_id)
+        else:
+            valid.append((d, auth))
+    if not contract:
+        # Baselines select the newest valid-looking evidence without conflict/supersession logic.
+        winner = max(valid, key=lambda x: x[0].publication_date)[0] if valid else None
+        return rejected, winner, []
+    if ablation != "minus_supersession":
+        superseded = {s for d, _ in valid for s in d.supersedes}
+        valid = [(d, a) for d, a in valid if d.document_id not in superseded]
+    by_date: Dict[str, List[BlindDocument]] = {}
+    for d, a in valid:
+        by_date.setdefault(d.effective_from or d.publication_date, []).append(d)
+    latest = max(by_date) if by_date else None
+    top = by_date.get(latest, [])
+    values = {d.value for d in top}
+    conflict_docs = [d.document_id for d in top] if len(values) > 1 else []
+    winner = None if conflict_docs else (top[0] if top else None)
+    return rejected, winner, conflict_docs
+
+
 def _resolve(case: BlindCase, docs: List[BlindDocument], system: str,
              ablation: Optional[str] = None) -> SystemOutput:
     t0 = time.perf_counter()
@@ -391,42 +445,11 @@ def _resolve(case: BlindCase, docs: List[BlindDocument], system: str,
     timings["provenance_verification_time_ms"] = (time.perf_counter() - p0) * 1000
 
     c0 = time.perf_counter()
-    valid = []
-    for d, auth, reason, final in assessed:
-        reject = False
-        if final is FinalTrust.REJECTED:
-            reject = True
-        if final is FinalTrust.ESCALATE and d.source_channel != "legacy_archive":
-            reject = True
-        if ablation != "minus_temporal_checks":
-            if d.effective_from and d.effective_from > AS_OF:
-                reject = True
-            if d.effective_until and d.effective_until <= AS_OF:
-                reject = True
-        if ablation != "minus_scope_checks":
-            for k, v in d.scope.items():
-                if case.scope_context.get(k) != v:
-                    reject = True
-        if reject:
-            rejected.append(d.document_id)
-        else:
-            valid.append((d, auth))
-    if ablation == "minus_contract" or system in ("classifier_only", "metadata_rules_only", "signature_gate_only"):
-        # Baselines select the newest valid-looking evidence without conflict/supersession logic.
-        winner = max(valid, key=lambda x: x[0].publication_date)[0] if valid else None
-        conflict_docs: List[str] = []
-    else:
-        if ablation != "minus_supersession":
-            superseded = {s for d, _ in valid for s in d.supersedes}
-            valid = [(d, a) for d, a in valid if d.document_id not in superseded]
-        by_date = {}
-        for d, a in valid:
-            by_date.setdefault(d.effective_from or d.publication_date, []).append(d)
-        latest = max(by_date) if by_date else None
-        top = by_date.get(latest, [])
-        values = {d.value for d in top}
-        conflict_docs = [d.document_id for d in top] if len(values) > 1 else []
-        winner = None if conflict_docs else (top[0] if top else None)
+    contract = not (ablation == "minus_contract"
+                    or system in ("classifier_only", "metadata_rules_only", "signature_gate_only"))
+    rej_ids, winner, conflict_docs = contract_resolve(
+        assessed, case.scope_context, ablation=ablation, contract=contract)
+    rejected.extend(rej_ids)
     timings["contract_resolution_time_ms"] = (time.perf_counter() - c0) * 1000
 
     g0 = time.perf_counter()
