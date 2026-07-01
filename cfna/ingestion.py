@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Protocol, Tuple
 
 from .ops import now_iso, sha256_bytes
+from .provenance import Authenticity, KeyRegistry, SignedDocument, verify_document
 from .types import SourceRecord
 
 
@@ -56,10 +57,19 @@ def score_quality(meta: dict) -> float:
 
 
 class IngestionCrawler:
-    def __init__(self, policy_gate: PolicyGate, source_vault: SourceVault, fetcher: Fetcher):
+    def __init__(
+        self,
+        policy_gate: PolicyGate,
+        source_vault: SourceVault,
+        fetcher: Fetcher,
+        key_registry: Optional[KeyRegistry] = None,
+        verification_as_of: str = "99999999",
+    ):
         self.policy_gate = policy_gate
         self.source_vault = source_vault
         self.fetcher = fetcher
+        self.key_registry = key_registry
+        self.verification_as_of = verification_as_of
 
     def ingest_url(self, url: str) -> Optional[SourceRecord]:
         raw = self.fetcher.fetch(url)
@@ -70,12 +80,40 @@ class IngestionCrawler:
             return None
 
         raw_hash = sha256_bytes(raw.body)
-        record = self.build_record(url, meta, raw_hash)
+        record = self.build_record(
+            url, meta, raw_hash, self.key_registry, self.verification_as_of
+        )
         self.source_vault.store_raw(record, raw)
         return record
 
     @staticmethod
-    def build_record(url: str, meta: Dict[str, Any], raw_hash: str) -> SourceRecord:
+    def build_record(
+        url: str,
+        meta: Dict[str, Any],
+        raw_hash: str,
+        key_registry: Optional[KeyRegistry] = None,
+        verification_as_of: str = "99999999",
+    ) -> SourceRecord:
+        signed_doc = meta.get("signed_document")
+        authenticity_status = "unverified"
+        failure_reason = None
+        issuer_id = meta.get("issuer_id")
+        key_id = meta.get("key_id")
+        signature = meta.get("signature")
+        revocation_status = "not_checked"
+
+        if isinstance(signed_doc, SignedDocument):
+            issuer_id = signed_doc.issuer_id
+            key_id = signed_doc.key_id
+            signature = signed_doc.signature
+            if key_registry is not None:
+                result = verify_document(signed_doc, key_registry, verification_as_of)
+                authenticity_status = result.authenticity.value
+                failure_reason = None if result.reason == "ok" else result.reason
+                revocation_status = (
+                    "revoked" if result.authenticity is Authenticity.REVOKED else "not_revoked"
+                )
+
         return SourceRecord(
             source_id=f"sha256:{raw_hash}",
             canonical_url=url,
@@ -93,6 +131,13 @@ class IngestionCrawler:
             terms_status=meta.get("terms_status", "review_required"),
             authority_scope=meta.get("authority_scope", "evidence_only"),
             content_hash=f"sha256:{raw_hash}",
+            issuer_id=issuer_id,
+            key_id=key_id,
+            signature=signature,
+            authenticity_status=authenticity_status,
+            verification_timestamp=now_iso() if signed_doc is not None else None,
+            revocation_status=revocation_status,
+            provenance_failure_reason=failure_reason,
             lineage_parent_id=meta.get("lineage_parent_id"),
             quality_score=score_quality(meta),
             pii_risk=float(meta.get("pii_risk", 0.0)),

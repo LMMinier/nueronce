@@ -22,4 +22,5 @@ def __getattr__(name):
         return importlib.import_module(f".{name}", __name__)
     raise AttributeError(f"module 'cfna.corpus' has no attribute {name!r}")
 
+
 __all__ = ["sources", "build", "dataset", "stack"]
