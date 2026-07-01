@@ -20,7 +20,7 @@ from .model import CFNAModel
 from .ops import now_iso
 from .planning import Planner
 from .retrieval import HybridRetriever
-from .types import MemoryRecord, TaskState, VerificationReport
+from .types import MemoryRecord, SourceRecord, TaskState, VerificationReport
 from .verification import IndependentVerifier, verify_and_revise
 from .workspace import GlobalWorkspace
 
@@ -43,13 +43,41 @@ class ModelRenderer:
         return semantic_draft["text"]
 
 
-def _candidate_to_memory(text: str, doc_id: str) -> MemoryRecord:
+def _candidate_to_memory(
+    text: str,
+    doc_id: str,
+    source: Optional[SourceRecord] = None,
+) -> MemoryRecord:
+    authority_level = "verified_secondary_source"
+    review_status = "verified"
+    confidence = 0.8
+    provenance = {}
+    if source is not None:
+        if source.authenticity_status in ("failed", "revoked"):
+            authority_level = "unverified_external_content"
+            review_status = "rejected"
+            confidence = 0.0
+        elif source.authenticity_status == "unverified":
+            authority_level = "unverified_external_content"
+            review_status = "restricted"
+            confidence = 0.4
+        provenance = {
+            "issuer_id": source.issuer_id,
+            "key_id": source.key_id,
+            "content_hash": source.content_hash,
+            "signature": source.signature,
+            "authenticity_status": source.authenticity_status,
+            "verification_timestamp": source.verification_timestamp,
+            "revocation_status": source.revocation_status,
+            "provenance_failure_reason": source.provenance_failure_reason,
+        }
     return MemoryRecord(
         memory_id=doc_id, memory_type="semantic", content=text,
         source_ids=[doc_id], embeddings={"dense_semantic": impl.embed_text(text)},
-        structured_repr={}, authority_level="verified_secondary_source",
-        creation_time=now_iso(), last_verified_time=now_iso(), confidence=0.8,
-        review_status="verified", consolidation_status="semantic",
+        structured_repr={"provenance": provenance} if provenance else {},
+        authority_level=authority_level,
+        creation_time=now_iso(), last_verified_time=now_iso(), confidence=confidence,
+        review_status=review_status, consolidation_status="semantic", **provenance,
     )
 
 
@@ -59,6 +87,7 @@ def respond(
     corpus_texts: List[str],
     mode: str = "DELIBERATE",
     max_rounds: int = 2,
+    source_records: Optional[List[SourceRecord]] = None,
 ) -> Tuple[str, VerificationReport, dict]:
     """Run the full pipeline and return (answer, verification_report, trace)."""
     d_model = model.cfg.d_model
@@ -75,8 +104,20 @@ def respond(
     qbundle = impl.build_corpus_candidates([query], dim=768)[0].bundle
     hits = retriever.retrieve(qbundle)
     id_to_text = {f"doc{i}": t for i, t in enumerate(corpus_texts)}
-    evidence = [_candidate_to_memory(id_to_text[h.bundle.source_id], h.bundle.source_id)
-                for h in hits if h.bundle.source_id in id_to_text]
+    id_to_source = {
+        f"doc{i}": rec for i, rec in enumerate(source_records or [])
+    }
+    evidence = []
+    rejected = []
+    for h in hits:
+        doc_id = h.bundle.source_id
+        if doc_id not in id_to_text:
+            continue
+        src = id_to_source.get(doc_id)
+        if src is not None and src.authenticity_status in ("failed", "revoked"):
+            rejected.append(doc_id)
+            continue
+        evidence.append(_candidate_to_memory(id_to_text[doc_id], doc_id, src))
 
     # 2. perceive the query through the real core to seed reasoning
     with torch.no_grad():
@@ -113,12 +154,24 @@ def respond(
 
     trace = {
         "retrieved": [h.bundle.source_id for h in hits],
+        "rejected_by_provenance": rejected,
+        "provenance": {
+            ev.memory_id: {
+                "authenticity_status": ev.authenticity_status,
+                "issuer_id": ev.issuer_id,
+                "key_id": ev.key_id,
+                "failure_reason": ev.provenance_failure_reason,
+            }
+            for ev in evidence
+        },
         "reasoning": reasoning,
         "plan_sections": plan["section_order"],
         "verification": {
             "passes": report.passes,
             "supported_fraction": report.supported_claim_fraction,
             "n_failures": len(report.failures),
+            "provenance_statuses": report.provenance_statuses,
+            "rejected_evidence": report.rejected_evidence,
         },
     }
     return text, report, trace

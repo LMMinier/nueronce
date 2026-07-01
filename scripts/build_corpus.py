@@ -14,11 +14,15 @@ from pathlib import Path
 
 from cfna.corpus.build import build_corpus
 
-# Whole documents held out for validation (never trained on).
+# Whole documents held out for validation (never trained on). Spans the small
+# NLTK sample, a US speech, and two full-length Gutenberg books so held-out
+# bits/byte reflects generalization on the literary register we train on.
 VAL_DOCS = {
     "gutenberg_classics__carroll_alice",
     "gutenberg_classics__shakespeare_macbeth",
     "us_inaugural_addresses__1861_lincoln",
+    "gutenberg_books__pg158",   # Emma — Jane Austen
+    "gutenberg_books__pg120",   # Treasure Island — R. L. Stevenson
 }
 
 
