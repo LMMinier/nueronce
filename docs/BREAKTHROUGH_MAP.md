@@ -13,7 +13,7 @@ lineage; benchmark reproductions in this doc were re-run on this branch.*
 | Hyp | Claim | Evidence state |
 |---|---|---|
 | H1 | Dynamic byte patches cut compute while preserving exactness | Mechanism real (learned boundary head, ~7-byte patches, non-degenerate); the compute claim untested — attention still computes dense-then-mask |
-| H2 | Typed recurrent state improves long-trajectory stability | **Untested.** Channels are structurally typed only; "the names are intent until trained." This is the design's central novelty claim and it rests on an unrun experiment (Lane G) |
+| H2 | Typed recurrent state improves long-trajectory stability | **Tested (Wave 3) — unsupported at this scale.** Channel-ablation probe (`benchmarks/h2_channel_probe.json`): removing *all* typed channels raises loss only on the long-range recall task (~3.5%) and near-zero elsewhere; removing any *single* channel changes loss <0.3% for every task. The channels are a diffuse redundant pool, not specialized roles — the dense read-out redistributes. H2's specialization claim is falsified at this scale/training; see §3.3 |
 | H3 | Dense+sparse+late retrieval improves citation precision | Retrieval is *load-bearing* (0.10→~0.7 accuracy in the RETRO-style ablation) — but that proves the retrieval **path**, not the three-way fusion vs dense-only |
 | H4 | Planner-before-renderer improves completeness | Not measured |
 | H5 | Independent verification reduces unsupported claims | Supported (V3.3 ablation: unsupported 0.090 → 0.000), heuristic verifier |
@@ -84,13 +84,23 @@ the strongest result (§2), so it wasn't wasted — but the integration debt is
 now the single blocking item between "two good systems" and "one defensible
 architecture."
 
-### 3.3 H2 is the thesis and nobody has tried to falsify it
+### 3.3 H2 is the thesis — and Wave 3 falsified it at this scale
 Every differentiation argument for CFNA over a plain decoder ultimately
-leans on typed state. The design's own specialization-claim requirement
-(Lane G: probe, ablate, permute channels) has never run. If channels
-specialize, the architecture story strengthens enormously; if they don't,
-the honest move the plan itself mandates is to record and remove. Either
-outcome is progress; only not-running-it is loss.
+leans on typed state. Lane G has now run (`scripts/probe_typed_channels.py`):
+train one model on tasks with distinct memory demands (local structure,
+long-range key recall, running count), then zero each typed channel and
+measure per-task loss increase. Result: the typed memory as a whole is
+load-bearing only for long-range recall (~3.5%), and **no single channel
+matters (<0.3% for every task)** — the channels are a redundant pool the
+dense read-out routes around, not specialized roles. Per the concurrent
+plan's own rule, H2 is recorded as unsupported at this scale. This does not
+kill the idea: it says specialization must be *forced* (per-channel read-out
+heads, channel-specific auxiliary losses, or the WPGCP typed objectives of
+H7) rather than hoped for — a concrete redesign target, not a dead end. The
+honest consequence for now: **the differentiation story cannot lean on typed
+channels until specialization is engineered and re-probed.** What it *can*
+lean on is the provenance/authority result (§2), which does not depend on H2
+at all.
 
 ### 3.4 The renderer's known weakness will be blamed on the wrong layer
 The 100K SFT report proved the micro renderer generalizes *structure* but

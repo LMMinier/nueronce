@@ -1,0 +1,86 @@
+{
+  "seed": 0,
+  "channels": [
+    "sem",
+    "str",
+    "goal",
+    "evid",
+    "unc",
+    "auth",
+    "proc"
+  ],
+  "tasks": [
+    "local",
+    "recall",
+    "count"
+  ],
+  "retention_timescales": [
+    0.98,
+    0.97,
+    0.95,
+    0.99,
+    0.9,
+    0.999,
+    0.98
+  ],
+  "base_bpb": {
+    "local": 3.4737,
+    "recall": 3.1065,
+    "count": 0.9674
+  },
+  "all_channels_off_relative_increase": {
+    "local": 0.0002,
+    "recall": 0.0353,
+    "count": -0.0094
+  },
+  "ablation_relative_loss_increase": {
+    "sem": {
+      "local": 0.0,
+      "recall": 0.0002,
+      "count": 0.0
+    },
+    "str": {
+      "local": 0.0,
+      "recall": 0.0003,
+      "count": 0.0
+    },
+    "goal": {
+      "local": 0.0,
+      "recall": 0.0027,
+      "count": -0.0002
+    },
+    "evid": {
+      "local": 0.0,
+      "recall": 0.0011,
+      "count": -0.0003
+    },
+    "unc": {
+      "local": -0.0,
+      "recall": 0.0019,
+      "count": -0.0003
+    },
+    "auth": {
+      "local": -0.0,
+      "recall": 0.0016,
+      "count": -0.0002
+    },
+    "proc": {
+      "local": 0.0,
+      "recall": -0.0007,
+      "count": -0.0001
+    }
+  },
+  "max_relative_effect": 0.0027,
+  "worst_task_per_channel": {
+    "sem": "recall",
+    "str": "recall",
+    "goal": "recall",
+    "evid": "recall",
+    "unc": "recall",
+    "auth": "recall",
+    "proc": "local"
+  },
+  "distinct_worst_tasks": 2,
+  "H2_supported": false,
+  "verdict_rule": "supported iff max relative ablation effect > 0.10 AND the task hurt most differs across channels"
+}
