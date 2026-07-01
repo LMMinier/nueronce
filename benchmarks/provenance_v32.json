@@ -1,0 +1,1188 @@
+{
+  "seed": 0,
+  "as_of": "00000100",
+  "families": [
+    "valid_trusted_signature",
+    "altered_content",
+    "altered_scope",
+    "altered_effective_date",
+    "copied_signature",
+    "wrong_signing_key",
+    "unknown_signing_key",
+    "expired_key",
+    "revoked_key",
+    "official_looking_unsigned",
+    "fake_signed_true_metadata",
+    "compromised_key_before_revocation",
+    "compromised_key_after_revocation",
+    "genuine_unsigned_legacy",
+    "valid_signature_outside_authority_scope",
+    "valid_but_expired_policy",
+    "valid_signed_amendment",
+    "conflicting_signed_authorities",
+    "missing_provenance_escalation"
+  ],
+  "composition": {
+    "valid_trusted_signature": 1,
+    "altered_content": 1,
+    "altered_scope": 1,
+    "altered_effective_date": 1,
+    "copied_signature": 1,
+    "wrong_signing_key": 1,
+    "unknown_signing_key": 1,
+    "expired_key": 1,
+    "revoked_key": 1,
+    "official_looking_unsigned": 1,
+    "fake_signed_true_metadata": 1,
+    "compromised_key_before_revocation": 1,
+    "compromised_key_after_revocation": 1,
+    "genuine_unsigned_legacy": 1,
+    "valid_signature_outside_authority_scope": 1,
+    "valid_but_expired_policy": 1,
+    "valid_signed_amendment": 1,
+    "conflicting_signed_authorities": 1,
+    "missing_provenance_escalation": 1
+  },
+  "baselines": {
+    "classifier_only": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": null,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.0,
+        "poison_acceptance": 1.0,
+        "false_rejection": 0.0,
+        "abstention": 0.0,
+        "coverage": 1.0,
+        "selective_accuracy": 0.15789473684210525,
+        "safe_outcome_rate": 0.15789473684210525,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 1.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": null,
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": null,
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": null,
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "apparent_authority",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": null,
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": null,
+          "expected_outcome": "conflict",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": null,
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "apparent_authority",
+          "notes": ""
+        }
+      }
+    },
+    "metadata_rules_only": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": 0.47368421052631576,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.0,
+        "poison_acceptance": 0.8333333333333334,
+        "false_rejection": 0.0,
+        "abstention": 0.15789473684210525,
+        "coverage": 0.8421052631578947,
+        "selective_accuracy": 0.1875,
+        "safe_outcome_rate": 0.3157894736842105,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 1.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "escalate",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unsigned",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "signed_metadata",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unsigned",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "conflict",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "signed_metadata",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unsigned",
+          "notes": ""
+        }
+      }
+    },
+    "signature_gate_only": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": 1.0,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.8,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention": 0.2631578947368421,
+        "coverage": 0.7368421052631579,
+        "selective_accuracy": 0.7857142857142857,
+        "safe_outcome_rate": 0.8421052631578947,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 0.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "verified",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "verified",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "verified",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "verified",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "verified",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "conflict",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "verified",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        }
+      }
+    },
+    "classifier_plus_provenance": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": 1.0,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.8,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention": 0.2631578947368421,
+        "coverage": 0.7368421052631579,
+        "selective_accuracy": 0.7857142857142857,
+        "safe_outcome_rate": 0.8421052631578947,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 0.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "trusted",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "escalate",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "escalate",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "escalate",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "trusted",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "escalate",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "trusted",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "trusted",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "trusted",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "conflict",
+          "outcome": "accept",
+          "safe": false,
+          "reason": "trusted",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "escalate",
+          "notes": ""
+        }
+      }
+    },
+    "classifier_plus_provenance_contract": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": 1.0,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.8,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention": 0.3157894736842105,
+        "coverage": 0.6842105263157895,
+        "selective_accuracy": 1.0,
+        "safe_outcome_rate": 1.0,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 0.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "outside_scope",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "policy_expired",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "conflict",
+          "outcome": "conflict",
+          "safe": true,
+          "reason": "conflict",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        }
+      }
+    },
+    "full_retrieval_resolution_verifier": {
+      "metrics": {
+        "n": 19,
+        "verification_accuracy": 1.0,
+        "genuine_acceptance": 1.0,
+        "forgery_rejection": 0.8,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention": 0.3157894736842105,
+        "coverage": 0.6842105263157895,
+        "selective_accuracy": 1.0,
+        "safe_outcome_rate": 1.0,
+        "compromised_key_acceptance_before_revocation": 1.0,
+        "compromised_key_acceptance_after_revocation": 0.0
+      },
+      "by_family": {
+        "valid_trusted_signature": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": ""
+        },
+        "altered_content": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_scope": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "altered_effective_date": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "copied_signature": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "wrong_signing_key": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "unknown_signing_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "expired_key": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "revoked_key": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "official_looking_unsigned": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        },
+        "fake_signed_true_metadata": {
+          "expected_authenticity": "failed",
+          "predicted_authenticity": "failed",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "failed",
+          "notes": ""
+        },
+        "compromised_key_before_revocation": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": "Valid crypto cannot detect theft before revocation."
+        },
+        "compromised_key_after_revocation": {
+          "expected_authenticity": "revoked",
+          "predicted_authenticity": "revoked",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "revoked",
+          "notes": ""
+        },
+        "genuine_unsigned_legacy": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": "Escalation is safe, not ordinary failure."
+        },
+        "valid_signature_outside_authority_scope": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "outside_scope",
+          "notes": ""
+        },
+        "valid_but_expired_policy": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "reject",
+          "outcome": "reject",
+          "safe": true,
+          "reason": "policy_expired",
+          "notes": ""
+        },
+        "valid_signed_amendment": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "accept",
+          "outcome": "accept",
+          "safe": true,
+          "reason": "ok",
+          "notes": ""
+        },
+        "conflicting_signed_authorities": {
+          "expected_authenticity": "verified",
+          "predicted_authenticity": "verified",
+          "expected_outcome": "conflict",
+          "outcome": "conflict",
+          "safe": true,
+          "reason": "conflict",
+          "notes": ""
+        },
+        "missing_provenance_escalation": {
+          "expected_authenticity": "unverified",
+          "predicted_authenticity": "unverified",
+          "expected_outcome": "escalate",
+          "outcome": "escalate",
+          "safe": true,
+          "reason": "unverified",
+          "notes": ""
+        }
+      }
+    }
+  },
+  "gate": {
+    "near_zero_invalid_poison": true,
+    "compromise_limitation_explicit": true,
+    "revocation_catches_compromise": true,
+    "improves_over_classifier_only": true
+  }
+}

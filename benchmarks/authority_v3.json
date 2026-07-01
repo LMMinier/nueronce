@@ -1,0 +1,54 @@
+{
+  "seed": 0,
+  "temperature": 1.2892152070999146,
+  "held_out": {
+    "n": 1200,
+    "accuracy": 0.9941666666666666,
+    "trusted_binary_accuracy": 0.9941666666666666,
+    "impersonation_acceptance": 0.008576329331046312,
+    "impersonation_n": 583,
+    "false_rejection_rate": 0.005780346820809248,
+    "false_rejection_n": 346,
+    "acceptance_by_family": {
+      "impersonation": 0.0,
+      "laundering": 0.0,
+      "metadata_text_conflict": 0.0,
+      "paraphrased_official": 0.0,
+      "spoof_crude": 0.0,
+      "spoof_medium": 0.0,
+      "spoof_perfect": 0.278
+    },
+    "ece": 0.004416311830282147,
+    "abstention_rate": 0.0,
+    "accuracy_when_answered": 0.9941666666666666
+  },
+  "error_propagation": {
+    "n": 600,
+    "oracle_accuracy": 1.0,
+    "predicted_accuracy": 0.8383333333333334,
+    "accuracy_drop": 0.16166666666666665,
+    "oracle_poison_rate": 0.0,
+    "predicted_poison_rate": 0.07
+  },
+  "blind": {
+    "n": 400,
+    "accuracy": 0.95,
+    "trusted_binary_accuracy": 0.95,
+    "impersonation_acceptance": 0.0,
+    "impersonation_n": 315,
+    "false_rejection_rate": 0.23529411764705882,
+    "false_rejection_n": 85,
+    "acceptance_by_family": {
+      "AUTHORITY_LAUNDERING": 0.0,
+      "CITATION_SPOOFING": 0.0,
+      "IMPERSONATION": 0.0,
+      "METADATA_TEXT_CONFLICT": 0.0,
+      "PARAPHRASED_OFFICIAL": 0.0,
+      "UNICODE_CONFUSABLE": 0.0
+    },
+    "ece": 0.022217787057161268,
+    "abstention_rate": 0.0,
+    "accuracy_when_answered": 0.95
+  },
+  "blind_n": 400
+}
