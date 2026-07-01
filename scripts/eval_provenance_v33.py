@@ -10,7 +10,11 @@ from pathlib import Path
 
 import cryptography
 import numpy
-import torch
+try:
+    import torch
+    _TORCH_VERSION = torch.__version__
+except ModuleNotFoundError:  # classifier falls back to the microtorch backend
+    _TORCH_VERSION = "not installed (microtorch backend)"
 
 from cfna.provenance_v33 import ABLATIONS, SYSTEMS, dev_cases_json, run
 
@@ -140,7 +144,7 @@ def markdown(res: dict) -> str:
         f"- Python: {platform.python_version()}",
         f"- OS: {platform.platform()}",
         f"- CPU: {platform.processor() or 'unknown'}",
-        f"- PyTorch: {torch.__version__}",
+        f"- PyTorch: {_TORCH_VERSION}",
         f"- NumPy: {numpy.__version__}",
         f"- cryptography: {cryptography.__version__}",
         "- GPU used: no; CPU-only evaluation",

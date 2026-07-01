@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
+provenance = ["cryptography>=41.0", "cffi>=1.15"]
 
 [tool.setuptools.packages.find]
 include = ["cfna*"]
