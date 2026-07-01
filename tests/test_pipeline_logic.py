@@ -20,6 +20,8 @@ CFNA_MODULES = [
     "cfna.impl", "cfna.pipeline", "cfna.retrieval_train",
     "cfna.baselines", "cfna.eval", "cfna.chat",
     "cfna.corpus", "cfna.corpus.sources", "cfna.corpus.build", "cfna.corpus.dataset",
+    "cfna.microtorch", "cfna.microtorch.tensor", "cfna.microtorch.functional",
+    "cfna.microtorch.nn", "cfna.microtorch.optim", "cfna.microtorch.models",
     "cfna.training", "cfna.training.curriculum", "cfna.training.episodes",
     "cfna.training.losses", "cfna.training.vgrft",
 ]

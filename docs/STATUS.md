@@ -17,6 +17,7 @@ retrieval-quality, and large-scale training systems are earlier-stage.
 | Component | File | Status |
 |---|---|---|
 | Primitives (Linear, RMSNorm, attention, SelectiveSSM, …) | `cfna/nn.py` | REAL / TRAINABLE |
+| From-scratch autograd engine (tensors, backprop, ops, optimizers) | `cfna/microtorch/` | REAL / TRAINABLE (NumPy-only; grad-checked + torch-parity; for correctness/clarity, not speed) |
 | Byte perception CNN + boundary head | `cfna/blocks.py` | REAL / TRAINABLE |
 | Dynamic patching (segments, pooling, causal masks) | `cfna/segment.py` | REAL / TRAINABLE |
 | Typed recurrent memory cell | `cfna/blocks.py` | REAL / TRAINABLE (structurally typed; channel *semantics* not yet supervised — see Limitations) |
