@@ -15,16 +15,19 @@ import urllib.request
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import date
+from hashlib import sha256
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Dict, List, Optional
 
-from ..ops import sha256_bytes
 from .sources import Source, safe_commercial_sources
 
 _HEADER = re.compile(r"^\[([^\]]+?)\s+by\s+(.+?)(?:\s+(\d{3,4}))?\]\s*$", re.MULTILINE)
 _GUTEN_START = re.compile(r"\*\*\*\s*START OF.*?\*\*\*", re.IGNORECASE | re.DOTALL)
 _GUTEN_END = re.compile(r"\*\*\*\s*END OF.*", re.IGNORECASE | re.DOTALL)
 _MULTIBLANK = re.compile(r"\n{3,}")
+_ALLOWED_SOURCE_HOSTS = frozenset({"raw.githubusercontent.com"})
+_ALLOWED_LICENSE_IDS = frozenset({"public-domain-us", "public-domain-usgov", "CC0-1.0"})
 
 
 @dataclass
@@ -55,6 +58,9 @@ class DocRecord:
 # --------------------------------------------------------------------------- #
 
 def _fetch(url: str, cache_dir: Path) -> bytes:
+    host = urlparse(url).hostname
+    if host not in _ALLOWED_SOURCE_HOSTS:
+        raise ValueError(f"source host is not allowed for corpus training: {host!r}")
     cache_dir.mkdir(parents=True, exist_ok=True)
     cached = cache_dir / Path(url).name
     if cached.exists():
@@ -135,7 +141,12 @@ def build_corpus(out_dir: Path, sources: Optional[List[Source]] = None,
 
     for source in sources:
         # license check: only commercial-safe public-domain/CC0/CC-BY here
-        if source.bucket != "safe_commercial":
+        if (
+            source.bucket != "safe_commercial"
+            or not source.commercial_use
+            or source.attribution_required
+            or source.license_id not in _ALLOWED_LICENSE_IDS
+        ):
             continue
         blob = _fetch(source.url, cache_dir)
         for filename, raw in _iter_zip_texts(blob):
@@ -145,7 +156,7 @@ def build_corpus(out_dir: Path, sources: Optional[List[Source]] = None,
             text = clean_text(raw)
             if len(text) < min_bytes:
                 continue
-            content_hash = sha256_bytes(text.encode("utf-8"))
+            content_hash = sha256(text.encode("utf-8")).hexdigest()
             if content_hash in seen_hashes:        # exact-duplicate dedupe
                 continue
             seen_hashes.add(content_hash)
