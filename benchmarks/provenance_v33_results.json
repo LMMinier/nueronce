@@ -1,0 +1,2438 @@
+{
+  "seed": 0,
+  "n_dev_cases": 100,
+  "case_composition": {
+    "supersession": 9,
+    "amendment": 9,
+    "altered_copy": 9,
+    "unsigned_attack": 9,
+    "revoked_key": 8,
+    "unknown_key": 8,
+    "legacy_unsigned": 8,
+    "out_of_scope": 8,
+    "expired_policy": 8,
+    "conflict": 8,
+    "incomplete_evidence": 8,
+    "distractor_heavy": 8
+  },
+  "v32_limitation_note": "V3.2 contained 19 constructed families with one canonical case each; contract and full pipeline aggregate results were identical. V3.2 therefore demonstrated deterministic wiring and expected security behavior, not external generalization or retrieval/verifier superiority. Safe-outcome rate must be read alongside abstention and coverage.",
+  "utility_weights": {
+    "correct_answer_reward": 1.0,
+    "incorrect_answer_penalty": 1.0,
+    "poison_acceptance_penalty": 2.0,
+    "unnecessary_abstention_penalty": 0.25
+  },
+  "systems": {
+    "classifier_only": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.5,
+        "source_selection_precision": 0.45652173913043476,
+        "source_selection_recall": 0.6176470588235294,
+        "citation_precision": 0.45652173913043476,
+        "citation_recall": 0.6176470588235294,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.26,
+        "false_rejection": 0.34,
+        "abstention_rate": 0.08,
+        "coverage": 0.92,
+        "selective_accuracy": 0.45652173913043476,
+        "safe_outcome_rate": 0.5,
+        "conflict_detection_accuracy": 0.92,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": -0.52,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.006932998076081276,
+          "provenance_verification_time_ms": 0.4493820032803342,
+          "contract_resolution_time_ms": 0.026633001980371773,
+          "generation_time_ms": 0.00639299803879112,
+          "verification_time_ms": 0.002197004505433142,
+          "total_latency_ms": 0.5229789984878153
+        },
+        "mean_peak_memory_kb": 2.10173828125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.4,
+          "high": 0.6
+        },
+        "poison_acceptance": {
+          "low": 0.18,
+          "high": 0.34
+        },
+        "abstention_rate": {
+          "low": 0.03,
+          "high": 0.14
+        },
+        "safe_outcome_rate": {
+          "low": 0.4,
+          "high": 0.6
+        },
+        "utility": {
+          "low": -0.84,
+          "high": -0.18
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "classifier_only",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "classifier_only",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Xtown",
+          "selected_evidence": [
+            "2-altered"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "2-altered"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "classifier_only",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "3-unsigned"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "3-unsigned"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "classifier_only",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": "Belport",
+          "selected_evidence": [
+            "4-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "4-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "classifier_only",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "verified",
+                "reason": "apparent_only",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    },
+    "metadata_rules_only": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.59,
+        "source_selection_precision": 0.5543478260869565,
+        "source_selection_recall": 0.75,
+        "citation_precision": 0.5543478260869565,
+        "citation_recall": 0.75,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.17,
+        "false_rejection": 0.25,
+        "abstention_rate": 0.08,
+        "coverage": 0.92,
+        "selective_accuracy": 0.5543478260869565,
+        "safe_outcome_rate": 0.59,
+        "conflict_detection_accuracy": 0.92,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": -0.16,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007012003334239125,
+          "provenance_verification_time_ms": 0.44515099842101336,
+          "contract_resolution_time_ms": 0.025815996923483908,
+          "generation_time_ms": 0.005634005647152662,
+          "verification_time_ms": 0.0022939994232729077,
+          "total_latency_ms": 0.5153960024472326
+        },
+        "mean_peak_memory_kb": 2.00126953125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.49,
+          "high": 0.69
+        },
+        "poison_acceptance": {
+          "low": 0.11,
+          "high": 0.24
+        },
+        "abstention_rate": {
+          "low": 0.03,
+          "high": 0.14
+        },
+        "safe_outcome_rate": {
+          "low": 0.49,
+          "high": 0.69
+        },
+        "utility": {
+          "low": -0.46,
+          "high": 0.1
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "metadata_rules_only",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "metadata_rules_only",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Xtown",
+          "selected_evidence": [
+            "2-altered"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "2-altered"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "metadata_rules_only",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "3-new"
+          ],
+          "rejected_evidence": [
+            "3-unsigned"
+          ],
+          "citations": [
+            "3-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "metadata_rules_only",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "unverified",
+                "reason": "signed_metadata",
+                "final_trust": "escalate"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": "Belport",
+          "selected_evidence": [
+            "4-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "4-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "metadata_rules_only",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "verified",
+                "reason": "signed_metadata",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    },
+    "signature_gate_only": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.84,
+        "source_selection_precision": 0.8095238095238095,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8095238095238095,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.16,
+        "coverage": 0.84,
+        "selective_accuracy": 0.8095238095238095,
+        "safe_outcome_rate": 0.84,
+        "conflict_detection_accuracy": 0.92,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.68,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.006806994788348675,
+          "provenance_verification_time_ms": 0.489376001060009,
+          "contract_resolution_time_ms": 0.02901199972257018,
+          "generation_time_ms": 0.006567999953404069,
+          "verification_time_ms": 0.002326004905626178,
+          "total_latency_ms": 0.5660209996858612
+        },
+        "mean_peak_memory_kb": 2.00126953125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.77,
+          "high": 0.9
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.1,
+          "high": 0.23
+        },
+        "safe_outcome_rate": {
+          "low": 0.77,
+          "high": 0.9
+        },
+        "utility": {
+          "low": 0.54,
+          "high": 0.8
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "signature_gate_only",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "signature_gate_only",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Dana Lee",
+          "selected_evidence": [
+            "2-new"
+          ],
+          "rejected_evidence": [
+            "2-altered"
+          ],
+          "citations": [
+            "2-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "signature_gate_only",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "failed",
+                "reason": "content_hash_mismatch",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "3-new"
+          ],
+          "rejected_evidence": [
+            "3-unsigned"
+          ],
+          "citations": [
+            "3-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "signature_gate_only",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "unverified",
+                "reason": "unsigned",
+                "final_trust": "escalate"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": null,
+          "selected_evidence": [],
+          "rejected_evidence": [
+            "4-new",
+            "4-old"
+          ],
+          "citations": [],
+          "confidence": 0.2,
+          "escalation_status": "escalate",
+          "decision_trace": {
+            "system": "signature_gate_only",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    },
+    "provenance_contract": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.09,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.83,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007019001059234142,
+          "provenance_verification_time_ms": 0.42580800072755665,
+          "contract_resolution_time_ms": 0.05975600332021713,
+          "generation_time_ms": 0.00649800174869597,
+          "verification_time_ms": 0.0019299995619803667,
+          "total_latency_ms": 0.5301020015031099
+        },
+        "mean_peak_memory_kb": 2.21025390625
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.86,
+          "high": 0.97
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.17,
+          "high": 0.32
+        },
+        "safe_outcome_rate": {
+          "low": 0.75,
+          "high": 0.9
+        },
+        "utility": {
+          "low": 0.72,
+          "high": 0.94
+        },
+        "unsupported_claim_rate": {
+          "low": 0.04,
+          "high": 0.15
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Dana Lee",
+          "selected_evidence": [
+            "2-new"
+          ],
+          "rejected_evidence": [
+            "2-altered"
+          ],
+          "citations": [
+            "2-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "failed",
+                "reason": "content_hash_mismatch",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "3-new"
+          ],
+          "rejected_evidence": [
+            "3-unsigned"
+          ],
+          "citations": [
+            "3-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "unverified",
+                "reason": "unsigned",
+                "final_trust": "escalate"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": null,
+          "selected_evidence": [],
+          "rejected_evidence": [
+            "4-new",
+            "4-old"
+          ],
+          "citations": [],
+          "confidence": 0.2,
+          "escalation_status": "escalate",
+          "decision_trace": {
+            "system": "provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    },
+    "retrieval_plus_provenance_contract": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.09,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.83,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.008636005222797394,
+          "provenance_verification_time_ms": 0.5066900001838803,
+          "contract_resolution_time_ms": 0.06732699868734926,
+          "generation_time_ms": 0.011677003931254148,
+          "verification_time_ms": 0.0020800030324608088,
+          "total_latency_ms": 0.6282320013269782
+        },
+        "mean_peak_memory_kb": 2.21025390625
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.86,
+          "high": 0.97
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.17,
+          "high": 0.32
+        },
+        "safe_outcome_rate": {
+          "low": 0.75,
+          "high": 0.9
+        },
+        "utility": {
+          "low": 0.72,
+          "high": 0.94
+        },
+        "unsupported_claim_rate": {
+          "low": 0.04,
+          "high": 0.15
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "retrieval_plus_provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "retrieval_plus_provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Dana Lee",
+          "selected_evidence": [
+            "2-new"
+          ],
+          "rejected_evidence": [
+            "2-altered"
+          ],
+          "citations": [
+            "2-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "retrieval_plus_provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "failed",
+                "reason": "content_hash_mismatch",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "3-new"
+          ],
+          "rejected_evidence": [
+            "3-unsigned"
+          ],
+          "citations": [
+            "3-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "retrieval_plus_provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "unverified",
+                "reason": "unsigned",
+                "final_trust": "escalate"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": null,
+          "selected_evidence": [],
+          "rejected_evidence": [
+            "4-new",
+            "4-old"
+          ],
+          "citations": [],
+          "confidence": 0.2,
+          "escalation_status": "escalate",
+          "decision_trace": {
+            "system": "retrieval_plus_provenance_contract",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    },
+    "full_retrieval_resolution_renderer_verifier": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.92,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007193997735157609,
+          "provenance_verification_time_ms": 0.43208599905483425,
+          "contract_resolution_time_ms": 0.05658000067342073,
+          "generation_time_ms": 0.0064830033807083964,
+          "verification_time_ms": 0.0022800022270530462,
+          "total_latency_ms": 0.5334550002589822
+        },
+        "mean_peak_memory_kb": 2.21025390625
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.86,
+          "high": 0.97
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.17,
+          "high": 0.32
+        },
+        "safe_outcome_rate": {
+          "low": 0.86,
+          "high": 0.97
+        },
+        "utility": {
+          "low": 0.72,
+          "high": 0.94
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      },
+      "outputs_sample": {
+        "dev-000": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "0-new"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "0-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "full_retrieval_resolution_renderer_verifier",
+            "ablation": null,
+            "documents_seen": [
+              "0-dist2",
+              "0-dist4",
+              "0-new",
+              "0-old",
+              "0-dist3",
+              "0-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "0-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "0-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-001": {
+          "answer": "Rule 17",
+          "selected_evidence": [
+            "1-amend"
+          ],
+          "rejected_evidence": [],
+          "citations": [
+            "1-amend"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "full_retrieval_resolution_renderer_verifier",
+            "ablation": null,
+            "documents_seen": [
+              "1-dist3",
+              "1-amend",
+              "1-old",
+              "1-dist4",
+              "1-new",
+              "1-dist5"
+            ],
+            "assessed": [
+              {
+                "document_id": "1-amend",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "1-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-002": {
+          "answer": "Dana Lee",
+          "selected_evidence": [
+            "2-new"
+          ],
+          "rejected_evidence": [
+            "2-altered"
+          ],
+          "citations": [
+            "2-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "full_retrieval_resolution_renderer_verifier",
+            "ablation": null,
+            "documents_seen": [
+              "2-dist4",
+              "2-altered",
+              "2-new",
+              "2-dist3",
+              "2-old"
+            ],
+            "assessed": [
+              {
+                "document_id": "2-altered",
+                "authenticity": "failed",
+                "reason": "content_hash_mismatch",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "2-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "2-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-003": {
+          "answer": "suspended",
+          "selected_evidence": [
+            "3-new"
+          ],
+          "rejected_evidence": [
+            "3-unsigned"
+          ],
+          "citations": [
+            "3-new"
+          ],
+          "confidence": 0.85,
+          "escalation_status": "none",
+          "decision_trace": {
+            "system": "full_retrieval_resolution_renderer_verifier",
+            "ablation": null,
+            "documents_seen": [
+              "3-dist3",
+              "3-new",
+              "3-unsigned",
+              "3-dist5",
+              "3-old",
+              "3-dist4"
+            ],
+            "assessed": [
+              {
+                "document_id": "3-new",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-old",
+                "authenticity": "verified",
+                "reason": "ok",
+                "final_trust": "trusted"
+              },
+              {
+                "document_id": "3-unsigned",
+                "authenticity": "unverified",
+                "reason": "unsigned",
+                "final_trust": "escalate"
+              }
+            ],
+            "conflict_documents": []
+          }
+        },
+        "dev-004": {
+          "answer": null,
+          "selected_evidence": [],
+          "rejected_evidence": [
+            "4-new",
+            "4-old"
+          ],
+          "citations": [],
+          "confidence": 0.2,
+          "escalation_status": "escalate",
+          "decision_trace": {
+            "system": "full_retrieval_resolution_renderer_verifier",
+            "ablation": null,
+            "documents_seen": [
+              "4-dist4",
+              "4-dist5",
+              "4-dist2",
+              "4-new",
+              "4-old",
+              "4-dist3"
+            ],
+            "assessed": [
+              {
+                "document_id": "4-new",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              },
+              {
+                "document_id": "4-old",
+                "authenticity": "revoked",
+                "reason": "key_revoked",
+                "final_trust": "rejected"
+              }
+            ],
+            "conflict_documents": []
+          }
+        }
+      }
+    }
+  },
+  "ablations": {
+    "full_pipeline": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.92,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.0074840005254372954,
+          "provenance_verification_time_ms": 0.43210400035604835,
+          "contract_resolution_time_ms": 0.053418001043610275,
+          "generation_time_ms": 0.004314001998864114,
+          "verification_time_ms": 0.002115000388585031,
+          "total_latency_ms": 0.528577997465618
+        },
+        "mean_peak_memory_kb": 1.64837890625
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.16,
+          "high": 0.33
+        },
+        "safe_outcome_rate": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "utility": {
+          "low": 0.74,
+          "high": 0.92
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_retrieval": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.48,
+        "source_selection_precision": 0.35789473684210527,
+        "source_selection_recall": 0.5,
+        "citation_precision": 0.35789473684210527,
+        "citation_recall": 0.5,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.18,
+        "abstention_rate": 0.05,
+        "coverage": 0.95,
+        "selective_accuracy": 0.45263157894736844,
+        "safe_outcome_rate": 0.48,
+        "conflict_detection_accuracy": 0.95,
+        "supersession_accuracy": 0.91,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 0.97,
+        "utility": -0.04,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.0012459995923563838,
+          "provenance_verification_time_ms": 0.6581530021503568,
+          "contract_resolution_time_ms": 0.06658500351477414,
+          "generation_time_ms": 0.004451001295819879,
+          "verification_time_ms": 0.0025549990823492408,
+          "total_latency_ms": 0.7651980017544702
+        },
+        "mean_peak_memory_kb": 1.715185546875
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.39,
+          "high": 0.58
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.01,
+          "high": 0.1
+        },
+        "safe_outcome_rate": {
+          "low": 0.39,
+          "high": 0.58
+        },
+        "utility": {
+          "low": -0.22,
+          "high": 0.16
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_provenance": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.58,
+        "source_selection_precision": 0.5,
+        "source_selection_recall": 0.6176470588235294,
+        "citation_precision": 0.5,
+        "citation_recall": 0.6176470588235294,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.26,
+        "false_rejection": 0.34,
+        "abstention_rate": 0.16,
+        "coverage": 0.84,
+        "selective_accuracy": 0.5,
+        "safe_outcome_rate": 0.58,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": -0.36,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007274997769854963,
+          "provenance_verification_time_ms": 0.42618900479283184,
+          "contract_resolution_time_ms": 0.05273400282021612,
+          "generation_time_ms": 0.004335998673923314,
+          "verification_time_ms": 0.0022799993166700006,
+          "total_latency_ms": 0.5199760006507859
+        },
+        "mean_peak_memory_kb": 1.63517578125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.48,
+          "high": 0.68
+        },
+        "poison_acceptance": {
+          "low": 0.17,
+          "high": 0.35
+        },
+        "abstention_rate": {
+          "low": 0.09,
+          "high": 0.24
+        },
+        "safe_outcome_rate": {
+          "low": 0.48,
+          "high": 0.68
+        },
+        "utility": {
+          "low": -0.72,
+          "high": 0.0
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_contract": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.84,
+        "source_selection_precision": 0.8095238095238095,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8095238095238095,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.16,
+        "coverage": 0.84,
+        "selective_accuracy": 0.8095238095238095,
+        "safe_outcome_rate": 0.84,
+        "conflict_detection_accuracy": 0.92,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.68,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007193997153081,
+          "provenance_verification_time_ms": 0.4664190055336803,
+          "contract_resolution_time_ms": 0.02642200153786689,
+          "generation_time_ms": 0.0043090019607916474,
+          "verification_time_ms": 0.002029002644121647,
+          "total_latency_ms": 0.5379690014524385
+        },
+        "mean_peak_memory_kb": 1.56517578125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.76,
+          "high": 0.91
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.1,
+          "high": 0.23
+        },
+        "safe_outcome_rate": {
+          "low": 0.76,
+          "high": 0.91
+        },
+        "utility": {
+          "low": 0.52,
+          "high": 0.82
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_verifier": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.09,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.83,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.0068279990227892995,
+          "provenance_verification_time_ms": 0.47602300299331546,
+          "contract_resolution_time_ms": 0.05756099824793637,
+          "generation_time_ms": 0.004735999391414225,
+          "verification_time_ms": 0.0024929974460974336,
+          "total_latency_ms": 0.5790760001400486
+        },
+        "mean_peak_memory_kb": 1.63517578125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.16,
+          "high": 0.33
+        },
+        "safe_outcome_rate": {
+          "low": 0.74,
+          "high": 0.9
+        },
+        "utility": {
+          "low": 0.74,
+          "high": 0.92
+        },
+        "unsupported_claim_rate": {
+          "low": 0.03,
+          "high": 0.15
+        }
+      }
+    },
+    "minus_supersession": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.0,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.92,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.00812599842902273,
+          "provenance_verification_time_ms": 0.5131030030315742,
+          "contract_resolution_time_ms": 0.048006996512413025,
+          "generation_time_ms": 0.004407005617395043,
+          "verification_time_ms": 0.002731999265961349,
+          "total_latency_ms": 0.6093910010531545
+        },
+        "mean_peak_memory_kb": 1.60142578125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.16,
+          "high": 0.33
+        },
+        "safe_outcome_rate": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "utility": {
+          "low": 0.74,
+          "high": 0.92
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_temporal_checks": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.92,
+        "source_selection_precision": 0.8947368421052632,
+        "source_selection_recall": 1.0,
+        "citation_precision": 0.8947368421052632,
+        "citation_recall": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.08,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.8947368421052632,
+        "safe_outcome_rate": 0.92,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 1.0,
+        "utility": 0.84,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007245001615956426,
+          "provenance_verification_time_ms": 0.4505269991932437,
+          "contract_resolution_time_ms": 0.053505998803302646,
+          "generation_time_ms": 0.003992001875303686,
+          "verification_time_ms": 0.002275004517287016,
+          "total_latency_ms": 0.5458710016682744
+        },
+        "mean_peak_memory_kb": 1.63400390625
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.16,
+          "high": 0.33
+        },
+        "safe_outcome_rate": {
+          "low": 0.87,
+          "high": 0.96
+        },
+        "utility": {
+          "low": 0.74,
+          "high": 0.92
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    },
+    "minus_scope_checks": {
+      "metrics": {
+        "n": 100,
+        "answer_accuracy": 0.84,
+        "source_selection_precision": 0.7894736842105263,
+        "source_selection_recall": 0.8823529411764706,
+        "citation_precision": 0.7894736842105263,
+        "citation_recall": 0.8823529411764706,
+        "unsupported_claim_rate": 0.0,
+        "poison_acceptance": 0.0,
+        "false_rejection": 0.08,
+        "abstention_rate": 0.24,
+        "coverage": 0.76,
+        "selective_accuracy": 0.7894736842105263,
+        "safe_outcome_rate": 0.84,
+        "conflict_detection_accuracy": 1.0,
+        "supersession_accuracy": 1.0,
+        "temporal_accuracy": 1.0,
+        "scope_accuracy": 0.92,
+        "utility": 0.68,
+        "mean_latency_ms": {
+          "retrieval_time_ms": 0.007842000341042876,
+          "provenance_verification_time_ms": 0.46966200054157525,
+          "contract_resolution_time_ms": 0.04537799919489771,
+          "generation_time_ms": 0.004196002264507115,
+          "verification_time_ms": 0.002233001869171858,
+          "total_latency_ms": 0.5593920015962794
+        },
+        "mean_peak_memory_kb": 1.63517578125
+      },
+      "confidence_intervals": {
+        "answer_accuracy": {
+          "low": 0.77,
+          "high": 0.91
+        },
+        "poison_acceptance": {
+          "low": 0.0,
+          "high": 0.0
+        },
+        "abstention_rate": {
+          "low": 0.16,
+          "high": 0.33
+        },
+        "safe_outcome_rate": {
+          "low": 0.77,
+          "high": 0.91
+        },
+        "utility": {
+          "low": 0.54,
+          "high": 0.82
+        },
+        "unsupported_claim_rate": {
+          "low": 0.0,
+          "high": 0.0
+        }
+      }
+    }
+  },
+  "gate": {
+    "full_beats_classifier_only": true,
+    "full_beats_signature_only": true,
+    "full_beats_contract_only": false,
+    "invalid_poison_near_zero": true,
+    "citations_identify_decisive_evidence": false,
+    "verifier_reduces_unsupported": true,
+    "unnecessary_abstention_reported": true,
+    "final_blind_not_used": true
+  },
+  "public_dev_cases_sample": [
+    {
+      "case_id": "dev-000",
+      "domain": "provenance_policy",
+      "question": "What is the status of Vantia in CA as of 00000100?",
+      "documents": [
+        {
+          "document_id": "0-dist2",
+          "raw_text": "city.clerk states that the permit level of Zedland is suspended.",
+          "issuer_claim": "city.clerk",
+          "publication_date": "00000030",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "CITY0",
+          "signature": "meKrYlWLRaMKggBEp3b+I0wiwkaNCMSd1z9W70KNxPE0xLCs6BP92tr5AILBkN1VsbCSD0Gu9DD3go01iplrDQ==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "0-dist4",
+          "raw_text": "gov.health states that the status of Riverton is Dana Lee.",
+          "issuer_claim": "gov.health",
+          "publication_date": "00000083",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "HEALTH0",
+          "signature": "5gZAX22aIlgVrboQA28DwczURwqM2ZWj7J4q4+jMsPgJy5KtKkCLk3YSRRtmJUfuQiL+5GK3IGTCZK6tTLwCBw==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "0-new",
+          "raw_text": "gov.health states that the status of Vantia is suspended.",
+          "issuer_claim": "gov.health",
+          "publication_date": "00000070",
+          "effective_from": "00000070",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [
+            "0-old"
+          ],
+          "revokes": [],
+          "key_id": "HEALTH0",
+          "signature": "ilC7Zc8QzcDGZAcRq6RuEeOPJbRpD69xxF7qeh82Atuw8A4J0wz/wOWuSaTYwpswaL445PyU7X5JT5ADElt0CQ==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "0-old",
+          "raw_text": "gov.health states that the status of Vantia is Level B.",
+          "issuer_claim": "gov.health",
+          "publication_date": "00000020",
+          "effective_from": "00000020",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "HEALTH0",
+          "signature": "qF+50/vps1gfGQ17k7tsQdBkPKXn+SNRASKjaSSUFxFEsz45rCbOrwy9tMW7gtApMIuP8u+NkAb1/w0HLbgTBw==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "0-dist3",
+          "raw_text": "court.state states that the permit level of Acme Clinic is Rule 17.",
+          "issuer_claim": "court.state",
+          "publication_date": "00000035",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "COURT0",
+          "signature": "CiH7sjP7azixLADbC0QJzqjoJN/nfurVZr50o3+dZKxAmFDNSZWS3MW02yLQytkoc6kNDAFaXskfr0pnhJC4Cw==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "0-dist5",
+          "raw_text": "court.state states that the status of Zedland is Dana Lee.",
+          "issuer_claim": "court.state",
+          "publication_date": "00000044",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "COURT0",
+          "signature": "EgTjQ7SO33jGlA/dSZyWRZlbzZZnTZTUBCoWD/BrMNclqKvmXWWa5mu3m7dE7Vy/WWWXueH8vAswQhgEGGx6DQ==",
+          "source_channel": "gov_portal"
+        }
+      ]
+    },
+    {
+      "case_id": "dev-001",
+      "domain": "provenance_policy",
+      "question": "What is the director of Zedland in WA as of 00000100?",
+      "documents": [
+        {
+          "document_id": "1-dist3",
+          "raw_text": "gov.transport states that the status of Riverton is Xtown.",
+          "issuer_claim": "gov.transport",
+          "publication_date": "00000022",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "TRANS1",
+          "signature": "1atA0T7vfmu+6Oq/vMmByFBqMT9iw0RJhn1+fzD9j0mvgemPuZaMEP+J/Des5GNmGJLz8sscRIguW91rF1+0Dw==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "1-amend",
+          "raw_text": "gov.transport states that the director of Zedland is Rule 17.",
+          "issuer_claim": "gov.transport",
+          "publication_date": "00000085",
+          "effective_from": "00000085",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [
+            "1-new"
+          ],
+          "revokes": [],
+          "key_id": "TRANS1",
+          "signature": "EO41piaEGTsg3uJJ3y0P5nEWEG5A9/OvTWPouSTmD/dlZO+aiD5yElSGLFwKU2Yg8JxNc50Qdt/H8g197Jm8BQ==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "1-old",
+          "raw_text": "gov.transport states that the director of Zedland is Xtown.",
+          "issuer_claim": "gov.transport",
+          "publication_date": "00000020",
+          "effective_from": "00000020",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "TRANS1",
+          "signature": "auU/Dm4Qn7aRBbl6XDBYeT+bb2jO88jCLZJx3oQ/vvSQWkyb/IR1blD0K24Ph7JLnkFlhHXjp06MWFZMQ59QAw==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "1-dist4",
+          "raw_text": "gov.transport states that the capital of Acme Clinic is Rule 17.",
+          "issuer_claim": "gov.transport",
+          "publication_date": "00000029",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "TRANS1",
+          "signature": "HBm4+G3XmU60i+qZztnGmKU8xDqNvkGlvqsiyAUsuQK4CaIloooZyCyWw/UbW170hPfTZ65IeRkxGld4CVwmBg==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "1-new",
+          "raw_text": "gov.transport states that the director of Zedland is active.",
+          "issuer_claim": "gov.transport",
+          "publication_date": "00000070",
+          "effective_from": "00000070",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [
+            "1-old"
+          ],
+          "revokes": [],
+          "key_id": "TRANS1",
+          "signature": "PHSdHi5A196oHAe7c4aiORijtH6TWgN+MdlEqb5dIqn6IgcH6XFgqonGqEzRIBwGeIycpa8Eb4Fks8D5W5C5AQ==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "1-dist5",
+          "raw_text": "court.state states that the status of Vantia is active.",
+          "issuer_claim": "court.state",
+          "publication_date": "00000080",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "WA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "COURT1",
+          "signature": "wngW39s3ly/VvyI/LsApDCIeZP1P7FQx+CiGWQY1Q7hKjFF7CS+pH5kLnjTMdHdmPyydhQRAvnAJWts8lIAXAw==",
+          "source_channel": "gov_portal"
+        }
+      ]
+    },
+    {
+      "case_id": "dev-002",
+      "domain": "provenance_policy",
+      "question": "What is the director of Riverton in CA as of 00000100?",
+      "documents": [
+        {
+          "document_id": "2-dist4",
+          "raw_text": "gov.health states that the status of Vantia is Xtown.",
+          "issuer_claim": "gov.health",
+          "publication_date": "00000063",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "HEALTH2",
+          "signature": "avFW7ClvgVw1IxfwjKuBKFM0Na/gE5QSahi51i58J5B5FbM+RssQmX9lFdWUptjcAxjIZLf8dFEVYQiS9MIIDA==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "2-altered",
+          "raw_text": "city.clerk states that the director of Riverton is XtownX.",
+          "issuer_claim": "city.clerk",
+          "publication_date": "00000090",
+          "effective_from": "00000090",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "CITY2",
+          "signature": "3VUAde96sINgJR8kCJXB5zJJut2jIRYEmAv+2/tRQMXjlFpaO7SFdmqRN5OjKLD4pKB9sWuSBkgYgvTnfizNDg==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "2-new",
+          "raw_text": "city.clerk states that the director of Riverton is Dana Lee.",
+          "issuer_claim": "city.clerk",
+          "publication_date": "00000070",
+          "effective_from": "00000070",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [
+            "2-old"
+          ],
+          "revokes": [],
+          "key_id": "CITY2",
+          "signature": "7UA8zxRc9vAXJ8aWL8nVzhUto/z3Oi5SD8bBdzrobO4EcsRPqIe59ig4qVgmpmwVYIayGJBYf+n3TpvPSz8YBQ==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "2-dist3",
+          "raw_text": "gov.health states that the status of Vantia is Dana Lee.",
+          "issuer_claim": "gov.health",
+          "publication_date": "00000087",
+          "effective_from": null,
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "HEALTH2",
+          "signature": "kxLgxZA7s/UQaDDbOTsAhoS3Axgd2gyOXDv9U74aKt7irpAHaf+2tYyT3tEzF8VX5kX/ytN3BfWcE/+XCPrOAA==",
+          "source_channel": "gov_portal"
+        },
+        {
+          "document_id": "2-old",
+          "raw_text": "city.clerk states that the director of Riverton is active.",
+          "issuer_claim": "city.clerk",
+          "publication_date": "00000020",
+          "effective_from": "00000020",
+          "effective_until": null,
+          "scope": {
+            "jurisdiction": "CA"
+          },
+          "supersedes": [],
+          "revokes": [],
+          "key_id": "CITY2",
+          "signature": "C9hL0fEq8PW8KQyIXhSOIq2XPRdbg3uHPWFZOG8qNZmMOeo8BL4I1yoVEEIxpfWHo/m86nbhGg4FxhwZ7pUODA==",
+          "source_channel": "gov_portal"
+        }
+      ]
+    }
+  ]
+}

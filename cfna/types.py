@@ -34,6 +34,8 @@ AuthorityLevel = Literal[
     "generated_hypothesis",
 ]
 
+ProvenanceStatus = Literal["verified", "unverified", "failed", "revoked"]
+
 # Ordered from most to least trusted; index is usable as a priority.
 AUTHORITY_ORDER: Tuple[AuthorityLevel, ...] = (
     "system_policy",
@@ -97,9 +99,16 @@ class SourceRecord:
     terms_status: Literal["approved", "blocked", "review_required"]
     authority_scope: str
     content_hash: str
-    lineage_parent_id: Optional[str]
-    quality_score: float
-    pii_risk: float
+    issuer_id: Optional[str] = None
+    key_id: Optional[str] = None
+    signature: Optional[bytes] = None
+    authenticity_status: ProvenanceStatus = "unverified"
+    verification_timestamp: Optional[str] = None
+    revocation_status: str = "not_checked"
+    provenance_failure_reason: Optional[str] = None
+    lineage_parent_id: Optional[str] = None
+    quality_score: float = 0.0
+    pii_risk: float = 0.0
 
 
 @dataclass
@@ -170,6 +179,14 @@ class MemoryRecord:
     expiration_time: Optional[str] = None
     review_status: str = "unverified"
     consolidation_status: str = "episodic_only"
+    issuer_id: Optional[str] = None
+    key_id: Optional[str] = None
+    content_hash: Optional[str] = None
+    signature: Optional[bytes] = None
+    authenticity_status: ProvenanceStatus = "unverified"
+    verification_timestamp: Optional[str] = None
+    revocation_status: str = "not_checked"
+    provenance_failure_reason: Optional[str] = None
 
 
 # --------------------------------------------------------------------------- #
@@ -222,11 +239,14 @@ class VerificationReport:
     supported_claim_fraction: float
     contradiction_fraction: float
     calibration_error: float
+    provenance_statuses: Dict[str, ProvenanceStatus] = field(default_factory=dict)
+    rejected_evidence: List[str] = field(default_factory=list)
 
 
 __all__ = [
     "Tensor",
     "AuthorityLevel",
+    "ProvenanceStatus",
     "AUTHORITY_ORDER",
     "MemoryType",
     "UnitType",

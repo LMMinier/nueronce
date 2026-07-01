@@ -1,0 +1,186 @@
+{
+  "seed": 0,
+  "results": {
+    "FULL": {
+      "passed": 4,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": true,
+          "answer": "The capital of Zedland is Belport. (source: verified_primary_source:gov_gazette)",
+          "why": "correct value with required citation"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": true,
+          "answer": "The CEO of Acme Corp is Sam Ortiz. (source: verified_secondary_source:filing_2024)",
+          "why": "correct value with required citation"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": true,
+          "answer": "I don't have a trusted source for the moon count of Planet Qx.",
+          "why": "declined as required"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": true,
+          "answer": "The population of Riverton is 50000. (source: verified_primary_source:census_2022)",
+          "why": "correct value with required citation"
+        }
+      ]
+    },
+    "no_retrieval": {
+      "passed": 1,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": false,
+          "answer": "The capital of Zedland is Aanport. (source: user_provided_fact:user_turn)",
+          "why": "wrong value (expected 'Belport')"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": false,
+          "answer": "I don't have a trusted source for the CEO of Acme Corp.",
+          "why": "wrong value (expected 'Sam Ortiz')"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": true,
+          "answer": "I don't have a trusted source for the moon count of Planet Qx.",
+          "why": "declined as required"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": false,
+          "answer": "I don't have a trusted source for the population of Riverton.",
+          "why": "wrong value (expected '50000')"
+        }
+      ]
+    },
+    "no_authority": {
+      "passed": 2,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": false,
+          "answer": "The capital of Zedland is Xtown. (source: unverified_external_content:random_blog)",
+          "why": "wrong value (expected 'Belport')"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": true,
+          "answer": "The CEO of Acme Corp is Sam Ortiz. (source: verified_secondary_source:filing_2024)",
+          "why": "correct value with required citation"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": false,
+          "answer": "The moon count of Planet Qx is 42.",
+          "why": "asserted an unsupported value"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": true,
+          "answer": "The population of Riverton is 50000. (source: verified_primary_source:census_2022)",
+          "why": "correct value with required citation"
+        }
+      ]
+    },
+    "no_supersession": {
+      "passed": 2,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": false,
+          "answer": "The capital of Zedland is Aanport. (source: user_provided_fact:user_turn)",
+          "why": "wrong value (expected 'Belport')"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": false,
+          "answer": "The CEO of Acme Corp is Dana Lee. (source: verified_secondary_source:filing_2019)",
+          "why": "wrong value (expected 'Sam Ortiz')"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": true,
+          "answer": "I don't have a trusted source for the moon count of Planet Qx.",
+          "why": "declined as required"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": true,
+          "answer": "The population of Riverton is 50000. (source: verified_primary_source:census_2022)",
+          "why": "correct value with required citation"
+        }
+      ]
+    },
+    "no_planning": {
+      "passed": 1,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": false,
+          "answer": "The capital of Zedland is Belport.",
+          "why": "missing required citation"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": false,
+          "answer": "The CEO of Acme Corp is Sam Ortiz.",
+          "why": "missing required citation"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": true,
+          "answer": "I don't have a trusted source for the moon count of Planet Qx.",
+          "why": "declined as required"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": false,
+          "answer": "The population of Riverton is 50000.",
+          "why": "missing required citation"
+        }
+      ]
+    },
+    "no_verification": {
+      "passed": 1,
+      "total": 4,
+      "rows": [
+        {
+          "scenario": "authority_overwrite",
+          "passed": false,
+          "answer": "The capital of Zedland is Belport.",
+          "why": "missing required citation"
+        },
+        {
+          "scenario": "temporal_supersession",
+          "passed": false,
+          "answer": "The CEO of Acme Corp is Sam Ortiz.",
+          "why": "missing required citation"
+        },
+        {
+          "scenario": "uncertainty_on_untrusted",
+          "passed": true,
+          "answer": "I don't have a trusted source for the moon count of Planet Qx.",
+          "why": "declined as required"
+        },
+        {
+          "scenario": "distractor_resistance",
+          "passed": false,
+          "answer": "The population of Riverton is 50000.",
+          "why": "missing required citation"
+        }
+      ]
+    }
+  },
+  "milestone_passed": true
+}
