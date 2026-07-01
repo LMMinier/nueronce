@@ -1,0 +1,2 @@
+# Keep notebooks from creating noisy line-ending diffs and reduce merge churn.
+*.ipynb text eol=lf

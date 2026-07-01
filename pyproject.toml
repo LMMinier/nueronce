@@ -18,8 +18,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
 
-[tool.setuptools]
-packages = ["cfna", "cfna.schemas", "cfna.training"]
+[tool.setuptools.packages.find]
+include = ["cfna*"]
 
 [tool.setuptools.package-data]
 "cfna.schemas" = ["*.json", "examples/*.json"]
