@@ -1,0 +1,20 @@
+{
+  "seed": 0,
+  "n": 300,
+  "signed_genuine_share": 0.85,
+  "classifier_only": {
+    "accuracy": 0.0,
+    "poison_acceptance": 1.0,
+    "abstain_or_escalate": 0.0
+  },
+  "gated": {
+    "accuracy": 0.85,
+    "poison_acceptance": 0.0,
+    "abstain_or_escalate": 0.15
+  },
+  "compromised_key": {
+    "stolen_key_before_revocation": "verified",
+    "after_revocation": "revoked",
+    "note": "crypto proves key possession, not non-theft; revocation is the mitigation"
+  }
+}

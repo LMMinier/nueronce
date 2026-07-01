@@ -34,9 +34,11 @@ def test_text_based_attacks_are_resisted():
         assert acc.get(fam, 0.0) == 0.0, (fam, acc.get(fam))
 
 
-def test_perfect_forgeries_are_not_fully_resistable():
-    # Feature-identical to genuine records => information-theoretic ceiling.
-    assert _RES["held_out"]["acceptance_by_family"].get("spoof_perfect", 0.0) > 0.0
+def test_training_excludes_feature_identical_forgeries():
+    # Perfect forgeries are unlearnable label noise; they must not be in training data.
+    # They are handled by the cryptographic provenance gate, not the classifier.
+    fams = {d.family for d in gen_examples(0, 900)}
+    assert "spoof_perfect" not in fams
 
 
 def test_error_propagates_but_stays_bounded():

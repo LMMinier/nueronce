@@ -136,12 +136,18 @@ def _mk(rng, channel, family, entity=None, attribute=None, value=None,
 # Families used for TRAINING (the blind adversarial set is generated separately)
 # --------------------------------------------------------------------------- #
 
-def _spoofed(rng: random.Random, e, a, v, fam="spoofed_channel") -> Doc:
+def _spoofed(rng: random.Random, e, a, v, fam="spoofed_channel", allow_perfect=True) -> Doc:
     """A metadata-spoofing attack: the *claimed* channel looks trusted, but the true
     provenance (junk domain, no signature) is not — so the label stays untrusted.
     A classifier that blindly trusts the channel field is fooled; a good one learns
-    that trust requires channel AND a consistent domain/signature."""
-    q = rng.random()
+    that trust requires channel AND a consistent domain/signature.
+
+    ``allow_perfect=False`` excludes the feature-identical "perfect forgery" tier.
+    Those are NOT learnable from observable features (identical inputs, opposite
+    labels = pure label noise), so they must never enter training. They are handled
+    by the cryptographic provenance gate (:mod:`cfna.provenance`), not the classifier.
+    """
+    q = rng.random() * (0.85 if not allow_perfect else 1.0)
     if q < 0.5:            # TIER 1 crude: junk domain, unsigned, loud text (detectable)
         claim = rng.choice(["gov_portal", "corporate_filing", "press_release"])
         domain, signed = rng.choice(_JUNK_DOMAINS), False
@@ -174,7 +180,8 @@ def _gen_doc(rng: random.Random) -> Doc:
                       "metadata_text_conflict", "spoofed_channel", "tool"])
     e, a, v = rng.choice(_ENTS), rng.choice(_ATTRS), rng.choice(_VALS)
     if fam == "spoofed_channel":
-        return _spoofed(rng, e, a, v)
+        # Training excludes the feature-identical "perfect" tier (unlearnable noise).
+        return _spoofed(rng, e, a, v, allow_perfect=False)
 
     if fam == "clean_trusted":
         ch = rng.choice(["gov_portal", "court_record", "corporate_filing", "press_release"])
