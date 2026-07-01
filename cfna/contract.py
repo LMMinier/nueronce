@@ -8,8 +8,10 @@ architecture's claim is testable: intelligence is split across explicit stages
 
 and every stage consumes and produces a named, inspectable structure with
 provenance — never just an opaque tensor handed silently from one module to the
-next. A plain next-token decoder has no such interface; these dataclasses are the
-contract a continuation network would have to fake.
+next. This makes the system modular and auditable. It does *not* prove a
+decoder-only network could not reproduce the same behavior — a decoder could emit
+equivalent structures; the value here is inspectability and control, not
+irreducibility.
 
 Design rules for this file:
 
