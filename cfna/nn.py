@@ -21,7 +21,6 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
-NEG_INF = -1e30
 
 
 # --------------------------------------------------------------------------- #
@@ -60,8 +59,11 @@ class RMSNorm(nn.Module):
         self.eps = eps
 
     def forward(self, x: Tensor) -> Tensor:
-        scale = x.pow(2).mean(dim=-1, keepdim=True).add(self.eps).rsqrt()
-        return x * scale * self.gain
+        # Norm statistics in fp32 regardless of autocast dtype: squaring fp16
+        # activations overflows past |x| ~ 16 under AMP, so the reduction must
+        # not run in half precision (the standard LLaMA-style RMSNorm pattern).
+        scale = x.float().pow(2).mean(dim=-1, keepdim=True).add(self.eps).rsqrt()
+        return (x.float() * scale).to(x.dtype) * self.gain.to(x.dtype)
 
 
 class MLP(nn.Module):
@@ -95,15 +97,21 @@ def masked_softmax(scores: Tensor, mask: Optional[Tensor]) -> Tensor:
     """Softmax over the last dim with an additive boolean mask (True = keep).
 
     Rows that are fully masked out return all-zero weights instead of NaN.
+
+    Dtype-aware constants so this stays NaN-free under AMP/fp16: a fixed -1e30
+    fill overflows to -inf in half precision, and for a fully-masked row
+    ``-inf - (-inf)`` is NaN; a fixed 1e-20 denominator clamp underflows to 0.
+    ``finfo.min``/``finfo.tiny`` are finite in every dtype, so the fully-masked
+    row degrades to exact zeros in fp16 the same way it does in fp32.
     """
     if mask is not None:
-        scores = scores.masked_fill(~mask, NEG_INF)
+        scores = scores.masked_fill(~mask, torch.finfo(scores.dtype).min)
     scores = scores - scores.max(dim=-1, keepdim=True).values
     weights = torch.exp(scores)
     if mask is not None:
         weights = weights * mask
     denom = weights.sum(dim=-1, keepdim=True)
-    return weights / denom.clamp_min(1e-20)
+    return weights / denom.clamp_min(torch.finfo(weights.dtype).tiny)
 
 
 class MultiHeadProjection(nn.Module):
@@ -189,9 +197,10 @@ class SparseGlobalAttention(nn.Module):
         if importance is not None:  # bias toward important keys before top-k
             scores = scores + importance[:, None, None, :]
 
-        # keep top-k keys per query (within the causal mask)
+        # keep top-k keys per query (within the causal mask); finfo.min instead
+        # of a fixed -1e30 so the fill stays finite under AMP/fp16
         if self.topk < t:
-            masked_scores = scores.masked_fill(~mask, NEG_INF)
+            masked_scores = scores.masked_fill(~mask, torch.finfo(scores.dtype).min)
             kth = masked_scores.topk(self.topk, dim=-1).values[..., -1:]
             mask = mask & (masked_scores >= kth)
 
