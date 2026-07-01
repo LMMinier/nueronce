@@ -80,7 +80,8 @@ def selected_entries(args) -> list[CorpusStackEntry]:
 
 
 def write_records(entries: list[CorpusStackEntry], out_dir: Path, target_bytes: int,
-                  max_docs_per_source: Optional[int], min_chars: int) -> list[dict]:
+                  max_docs_per_source: Optional[int], min_chars: int,
+                  val_every: int = 20) -> list[dict]:
     docs_dir = out_dir / "stack_text"
     docs_dir.mkdir(parents=True, exist_ok=True)
     records: list[dict] = []
@@ -92,10 +93,15 @@ def write_records(entries: list[CorpusStackEntry], out_dir: Path, target_bytes: 
             print(f"skip {entry.source_id}: loader={entry.loader} needs a dedicated extractor")
             continue
         print(f"dump {entry.source_id}: {entry.dataset_name or entry.dataset_page}")
+        split_files = {
+            "train": docs_dir / f"{entry.source_id}__train.txt",
+            "val": docs_dir / f"{entry.source_id}__val.txt",
+        }
+        split_docs = {"train": 0, "val": 0}
+        split_bytes = {"train": 0, "val": 0}
         source_docs = 0
-        source_bytes = 0
-        source_file = docs_dir / f"{entry.source_id}.txt"
-        with source_file.open("w", encoding="utf-8") as fh:
+        handles = {split: path.open("w", encoding="utf-8") for split, path in split_files.items()}
+        try:
             for idx, row in enumerate(iter_huggingface(entry)):
                 text = row_text(entry, row)
                 if not text:
@@ -108,41 +114,55 @@ def write_records(entries: list[CorpusStackEntry], out_dir: Path, target_bytes: 
                     break
                 if max_docs_per_source is not None and source_docs >= max_docs_per_source:
                     break
-                fh.write(text)
-                fh.write(_END)
+                split = "val" if val_every > 0 and (source_docs + 1) % val_every == 0 else "train"
+                handles[split].write(text)
+                handles[split].write(_END)
                 source_docs += 1
-                source_bytes += len(encoded)
+                split_docs[split] += 1
+                split_bytes[split] += len(encoded)
                 total_bytes += len(encoded)
+        finally:
+            for fh in handles.values():
+                fh.close()
         if source_docs == 0:
-            source_file.unlink(missing_ok=True)
+            for path in split_files.values():
+                path.unlink(missing_ok=True)
             continue
-        digest = sha256(source_file.read_bytes()).hexdigest()
-        records.append({
-            "document_id": entry.source_id,
-            "title": entry.name,
-            "author": "dataset",
-            "document_type": entry.role,
-            "source_collection": entry.name,
-            "source_locator": entry.dataset_page,
-            "files_page": entry.files_page,
-            "license": entry.license,
-            "license_id": entry.license,
-            "commercial_use": "noncommercial" not in entry.license.lower(),
-            "attribution_required": any(token in entry.license.lower() for token in ("by", "sharing", "share")),
-            "language": "en",
-            "publication_year": None,
-            "retrieved_at": today,
-            "content_hash": f"sha256:{digest}",
-            "quality_score": 1.0,
-            "n_bytes": source_bytes,
-            "n_docs": source_docs,
-            "split": "train",
-            "bucket": f"phase_{entry.phase}_{entry.role}",
-            "phase": entry.phase,
-            "role": entry.role,
-            "path": str(source_file.relative_to(out_dir)),
-        })
-        print(f"  wrote {source_docs:,} docs / {source_bytes/1e6:.2f} MB")
+        for split, source_file in split_files.items():
+            if split_docs[split] == 0:
+                source_file.unlink(missing_ok=True)
+                continue
+            digest = sha256(source_file.read_bytes()).hexdigest()
+            records.append({
+                "document_id": f"{entry.source_id}_{split}",
+                "title": f"{entry.name} ({split})",
+                "author": "dataset",
+                "document_type": entry.role,
+                "source_collection": entry.name,
+                "source_locator": entry.dataset_page,
+                "files_page": entry.files_page,
+                "license": entry.license,
+                "license_id": entry.license,
+                "commercial_use": "noncommercial" not in entry.license.lower(),
+                "attribution_required": any(token in entry.license.lower() for token in ("by", "sharing", "share")),
+                "language": "en",
+                "publication_year": None,
+                "retrieved_at": today,
+                "content_hash": f"sha256:{digest}",
+                "quality_score": 1.0,
+                "n_bytes": split_bytes[split],
+                "n_docs": split_docs[split],
+                "split": split,
+                "bucket": f"phase_{entry.phase}_{entry.role}",
+                "phase": entry.phase,
+                "role": entry.role,
+                "path": str(source_file.relative_to(out_dir)),
+            })
+        print(
+            f"  wrote {source_docs:,} docs / "
+            f"{(split_bytes['train'] + split_bytes['val'])/1e6:.2f} MB "
+            f"(train docs={split_docs['train']:,}, val docs={split_docs['val']:,})"
+        )
         if total_bytes >= target_bytes:
             break
     return records
@@ -168,13 +188,15 @@ def main() -> None:
                     help="Stop after this many UTF-8 bytes across selected sources")
     ap.add_argument("--max-docs-per-source", type=int, default=None)
     ap.add_argument("--min-chars", type=int, default=200)
+    ap.add_argument("--val-every", type=int, default=20,
+                    help="Route every Nth accepted document to validation")
     args = ap.parse_args()
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     write_stack_catalog(out_dir)
     entries = selected_entries(args)
-    records = write_records(entries, out_dir, args.target_bytes, args.max_docs_per_source, args.min_chars)
+    records = write_records(entries, out_dir, args.target_bytes, args.max_docs_per_source, args.min_chars, args.val_every)
     manifest = out_dir / "manifest.jsonl"
     with manifest.open("w", encoding="utf-8") as fh:
         for record in records:
