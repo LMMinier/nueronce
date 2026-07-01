@@ -8,7 +8,8 @@ clarity, not speed.
 
 from __future__ import annotations
 
-from typing import List
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 
@@ -46,6 +47,17 @@ class MicroByteLM(Module):
         targets = np.asarray(ids[:, 1:]).reshape(b * t)
         return F.cross_entropy(flat, targets)
 
+    def masked_loss(self, ids: np.ndarray, target_mask: np.ndarray) -> Tensor:
+        """Next-byte CE restricted to positions flagged True in ``target_mask``
+        (e.g. SFT: only the assistant's response bytes, not the user's turn).
+        Same shift convention as :meth:`loss`."""
+        logits = self.forward(ids[:, :-1])
+        b, t, c = logits.shape
+        flat = logits.reshape(b * t, c)
+        targets = np.asarray(ids[:, 1:]).reshape(b * t)
+        mask = np.asarray(target_mask)[:, 1:].reshape(b * t)
+        return F.masked_cross_entropy(flat, targets, mask)
+
     def generate(self, prompt: bytes, max_new: int = 40, greedy: bool = True) -> bytes:
         ids = list(prompt)
         with no_grad():
@@ -79,4 +91,56 @@ def train_overfit(text: bytes, steps: int = 300, lr: float = 5e-3, seed: int = 0
     return curve
 
 
-__all__ = ["MicroByteLM", "train_overfit"]
+def train_dialogue_sft(model, examples: Sequence, *, steps: int = 300,
+                        batch_size: int = 8, val_examples: Optional[Sequence] = None,
+                        lr: float = 5e-3, seed: int = 0, log_every: int = 25) -> List[Dict[str, float]]:
+    """Masked SFT training loop, entirely on the from-scratch microtorch
+    engine (NumPy only, no PyTorch). Fine-tunes on (prompt, response) turns
+    from ``cfna.training.dialogue_data``, masking the loss to response bytes
+    only — the same idea as ``cfna.training.sft.train_sft``, minus the torch
+    dependency. Duck-typed on ``.masked_loss(ids, mask)`` / ``.parameters()`` /
+    ``.zero_grad()``, so it runs equally over the smaller :class:`MicroByteLM`
+    demo model or the full, faithfully-ported
+    :class:`~cfna.microtorch.cfna_model.MicroCFNAModel`."""
+    from ..training.dialogue_data import make_sft_batch
+
+    rng = np.random.default_rng(seed)
+    opt = AdamW(list(model.parameters()), lr=lr, weight_decay=0.0)
+    val_batch = make_sft_batch(val_examples) if val_examples else None
+    history: List[Dict[str, float]] = []
+    for step in range(1, steps + 1):
+        idx = rng.integers(0, len(examples), size=min(batch_size, len(examples)))
+        batch = make_sft_batch([examples[i] for i in idx])
+        loss = model.masked_loss(batch["byte_ids"], batch["target_mask"])
+        model.zero_grad()
+        loss.backward()
+        clip_grad_norm_(model.parameters(), 1.0)
+        opt.step()
+        if step % log_every == 0 or step == steps:
+            rec = {"step": step, "train_loss": loss.item()}
+            if val_batch is not None:
+                with no_grad():
+                    rec["val_loss"] = model.masked_loss(val_batch["byte_ids"], val_batch["target_mask"]).item()
+            history.append(rec)
+    return history
+
+
+@dataclass
+class MicroSFTBackend:
+    """``VGRFTTrainer`` backend for stage 1 (supervised instruction tuning)
+    running entirely on the from-scratch microtorch engine — useful wherever
+    PyTorch isn't installed. ``model`` can be the small ``MicroByteLM`` demo
+    or the full ``MicroCFNAModel`` (the real, ported production architecture);
+    both satisfy the same duck-typed interface. See
+    ``cfna.training.sft.TorchSFTBackend`` for the PyTorch/``CFNAModel``
+    counterpart."""
+
+    model: object
+    lr: float = 5e-3
+
+    def train(self, dataset: Sequence, **kwargs) -> List[Dict[str, float]]:
+        kwargs.setdefault("lr", self.lr)
+        return train_dialogue_sft(self.model, dataset, **kwargs)
+
+
+__all__ = ["MicroByteLM", "train_overfit", "train_dialogue_sft", "MicroSFTBackend"]

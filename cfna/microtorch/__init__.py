@@ -15,6 +15,10 @@ implements the machinery CFNA needs, hand-built from first principles:
 It is verified two ways (see ``tests/test_microtorch.py``): finite-difference
 gradient checks, and parity with PyTorch on the same random inputs. It trades
 speed for transparency — every gradient is code you can read.
+
+:mod:`cfna.microtorch.cfna_model` builds on this engine to port the *full*
+CFNA architecture (not just the ``MicroByteLM`` demo below) — see
+``tests/test_microtorch_cfna_model.py``.
 """
 
 from .tensor import Tensor, tensor, no_grad

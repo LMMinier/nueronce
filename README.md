@@ -44,7 +44,14 @@ cfna/
   workspace.py planning.py         Latent workspace, planner + renderer
   verification.py tools.py         Verify→revise loop, authority-gated tools
   retrieval.py runtime.py          Hybrid retriever, LoRA + SSD-backed memory
+  chat.py                          Conversation loop; real turn-taking after SFT
   schemas/  training/              JSON schemas; WPGCP/VGRFT pipelines
+                                    (training/sft.py + dialogue_data.py: real
+                                    dialogue SFT, VGRFT stage 1)
+  microtorch/               From-scratch (NumPy-only) tensor + autograd engine;
+                            cfna_model.py/cfna_blocks.py/segment.py port the
+                            *full* CFNA architecture onto it (see below) —
+                            the real model, not a smaller stand-in
 docs/                     Design doc, architecture map, RESULTS, research_mcp
 scripts/                  train_demo.py, run_pipeline.py
 tests/                    70+ tests incl. learning + causality proofs
@@ -73,6 +80,7 @@ curated Project Gutenberg + US-gov texts mirrored by the NLTK data repo):
 python scripts/build_corpus.py           # download + clean + license-check + manifest
 python scripts/train_checkpoint.py --minutes 20   # corpus -> CFNA weights (+ held-out bpb)
 python scripts/chat_demo.py              # hold a short conversation with the checkpoint
+python scripts/train_sft.py              # + dialogue SFT pass (VGRFT stage 1) -> real turn-taking
 ```
 
 The pipeline is `trusted sources → clean → license check → dedupe → split by
@@ -80,6 +88,39 @@ document → UTF-8 bytes → batches → gradient updates → saved weights`, wi
 provenance `manifest.jsonl` and license buckets (`safe_commercial/` only for the
 first checkpoint). Documents are sampled *per-document-uniform* so no single book
 dominates, and whole books are held out for validation. See `cfna/corpus/`.
+
+The base checkpoint is trained with pure next-byte cross-entropy on monologic
+prose, which teaches what English looks like, not what to say back when spoken
+to. `scripts/train_sft.py` closes that gap: it runs `VGRFTTrainer.supervised_
+instruction_tune` (VGRFT stage 1) over a small hand-written (prompt, response)
+set in `cfna/training/dialogue_data.py`, masking the loss to response bytes
+only. It works with two interchangeable backends — `cfna.training.sft.
+TorchSFTBackend` (PyTorch, fine-tunes `CFNAModel`) and `cfna.microtorch.
+models.MicroSFTBackend` (the from-scratch, NumPy-only engine described under
+`cfna/microtorch/`, so this stage runs with no PyTorch dependency at all).
+Stages 2-4 of VGRFT (tool grounding, verifier
+training, residual experts) still raise `NotImplementedError` — they need
+tool traces / verifier ground truth that don't exist yet.
+
+### The full architecture on the from-scratch engine
+
+`cfna/microtorch/` is a hand-built (NumPy-only) tensor + reverse-mode autograd
+engine — not a toy or a fallback for a missing PyTorch install, but its own
+foundation: `Tensor.backward()`, matmul, attention, and a selective-scan SSM
+all built from primitives, grad-checked against finite differences and
+PyTorch parity (`tests/test_microtorch.py`).
+
+`cfna/microtorch/cfna_model.py` (+ `cfna_blocks.py`, `segment.py`) is a
+module-for-module port of the *real* `CFNAModel` onto that engine — the same
+byte perception CNN, dynamic patching, typed recurrent memory, hybrid
+SSM/attention/retrieval core, and retrieval-aware decoder, not a smaller
+stand-in. `MicroCFNAModel` matches `CFNAModel`'s interface (`forward`, `loss`,
+`masked_token_loss`, `generate`) and its guarantees: exactly 0.0 logit leakage
+from future to past bytes, and a verified from-scratch learning curve on a toy
+corpus. It also plugs directly into VGRFT stage 1 via
+`cfna.microtorch.models.MicroSFTBackend`, so the full production architecture
+— not just the smaller `MicroByteLM` demo — can be dialogue-SFT-tuned with
+zero PyTorch dependency. See `tests/test_microtorch_cfna_model.py`.
 
 ```python
 import torch

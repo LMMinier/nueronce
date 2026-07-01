@@ -10,6 +10,15 @@ training generators.
 These are training drivers whose inner steps (forward passes, backprop) require a
 backend; the structure and control flow (including the rollback gate) are laid out
 explicitly. Methods raise NotImplementedError where a backend/optimizer is needed.
+
+Stage 1 (``supervised_instruction_tune``) is real when given a backend that
+implements ``.train(dataset, **kwargs)`` — e.g.
+:class:`cfna.training.sft.TorchSFTBackend` (PyTorch, fine-tunes the real
+``CFNAModel``) or :class:`cfna.microtorch.models.MicroSFTBackend` (the
+from-scratch NumPy-only autograd engine). Either runs an actual masked-loss SFT
+pass over (prompt, response) turns from :mod:`cfna.training.dialogue_data`.
+Stages 2-4 still need tool traces / verifier ground truth that don't exist
+yet, so they remain stubs.
 """
 
 from __future__ import annotations
@@ -33,12 +42,25 @@ class VGRFTTrainer:
             )
         return self.backend
 
-    def supervised_instruction_tune(self, dataset) -> None:
-        self._require_backend("supervised_instruction_tune")
-        raise NotImplementedError(
-            "Per example: forward_task(goal, constraints, retrieved, mode=DELIBERATE); "
-            "loss = plan_loss + answer_loss + citation_loss + uncertainty_loss; backprop."
-        )
+    def supervised_instruction_tune(self, dataset, **train_kwargs) -> List[dict]:
+        """Run SFT over (prompt, response) turns, e.g.
+        ``cfna.training.dialogue_data.SFT_DATASET``.
+
+        Requires a backend implementing ``.train(dataset, **kwargs) -> history``
+        — see ``cfna.training.sft.TorchSFTBackend`` (PyTorch) or
+        ``cfna.microtorch.models.MicroSFTBackend`` (from-scratch, NumPy-only).
+        Deliberately backend-agnostic: this module never imports torch or
+        numpy itself, only whichever autograd engine the backend brings.
+        """
+        backend = self._require_backend("supervised_instruction_tune")
+        train_fn = getattr(backend, "train", None)
+        if train_fn is None:
+            raise NotImplementedError(
+                "supervised_instruction_tune needs a backend with a "
+                ".train(dataset, **kwargs) method; see cfna.training.sft.TorchSFTBackend "
+                "or cfna.microtorch.models.MicroSFTBackend."
+            )
+        return train_fn(dataset, **train_kwargs)
 
     def tool_grounded_tune(self, tool_dataset) -> None:
         self._require_backend("tool_grounded_tune")
