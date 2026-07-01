@@ -149,15 +149,29 @@ class EvidenceItem:
     value: str
     source_id: str
     authority: AuthorityLevel
-    timestamp: str                       # ISO-8601; used for supersession
+    timestamp: str                       # when the item was asserted; used for supersession
     content_hash: str
     score: float = 0.0
     trusted: bool = True                 # passed the provenance/authority gate
     claim_key: Optional[Tuple[str, str]] = None
+    # --- extended provenance for temporal validity, scope, revocation, and
+    #     impersonation resistance (all optional; V1 items leave them defaulted) ---
+    effective_date: Optional[str] = None            # None => effective from `timestamp`
+    expiry_date: Optional[str] = None               # None => never expires
+    scope: Optional[Tuple[Tuple[str, str], ...]] = None  # e.g. (("jurisdiction","CA"),)
+    revoked: bool = False
+    revokes: Optional[str] = None                   # source_id this record revokes
+    raw_text: str = ""                              # surface text (for injection screening)
+    uncertain: bool = False                         # the source itself expresses uncertainty
+    is_working: bool = False                         # came from working memory, not retrieval
 
     @property
     def rank(self) -> int:
         return authority_rank(self.authority)
+
+    @property
+    def effective(self) -> str:
+        return self.effective_date or self.timestamp
 
 
 @dataclass(frozen=True)
