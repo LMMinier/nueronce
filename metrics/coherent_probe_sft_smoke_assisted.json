@@ -1,0 +1,48 @@
+{
+  "n": 5,
+  "pass_rate": 0.8,
+  "tool_rate": 0.8,
+  "fallback_rate": 0.2,
+  "rows": [
+    {
+      "prompt": "Hello, who are you?",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "repetitive_output",
+      "expected_substring": "assistant",
+      "passed": false
+    },
+    {
+      "prompt": "What is 17 plus 25?",
+      "response": "17 plus 25 equals 42.",
+      "source": "tool",
+      "warning": null,
+      "expected_substring": "42",
+      "passed": true
+    },
+    {
+      "prompt": "Calculate 9 * 8.",
+      "response": "9 times 8 equals 72.",
+      "source": "tool",
+      "warning": null,
+      "expected_substring": "72",
+      "passed": true
+    },
+    {
+      "prompt": "What is the capital of France?",
+      "response": "The capital of France is Paris.",
+      "source": "tool",
+      "warning": null,
+      "expected_substring": "Paris",
+      "passed": true
+    },
+    {
+      "prompt": "What can you do?",
+      "response": "I can answer simple questions, use narrow tools for exact arithmetic, and generate short text from the CFNA byte model.",
+      "source": "tool",
+      "warning": null,
+      "expected_substring": "simple questions",
+      "passed": true
+    }
+  ]
+}
