@@ -17,6 +17,8 @@ retrieval-quality, and large-scale training systems are earlier-stage.
 | Component | File | Status |
 |---|---|---|
 | Primitives (Linear, RMSNorm, attention, SelectiveSSM, …) | `cfna/nn.py` | REAL / TRAINABLE |
+| From-scratch autograd engine (tensors, backprop, ops, optimizers) | `cfna/microtorch/` | REAL / TRAINABLE (NumPy-only; grad-checked + torch-parity; for correctness/clarity, not speed) |
+| `MicroCFNAModel` — the *full* CFNA architecture on microtorch (perception, patching, typed memory, hybrid core, retrieval, decoder), not a smaller stand-in | `cfna/microtorch/cfna_model.py`, `cfna_blocks.py`, `segment.py` | REAL / TRAINABLE (NumPy-only; same causal shift conventions, gradient- and causality-checked, learns on a toy corpus, plugs into VGRFT stage 1) |
 | Byte perception CNN + boundary head | `cfna/blocks.py` | REAL / TRAINABLE |
 | Dynamic patching (segments, pooling, causal masks) | `cfna/segment.py` | REAL / TRAINABLE |
 | Typed recurrent memory cell | `cfna/blocks.py` | REAL / TRAINABLE (structurally typed; channel *semantics* not yet supervised — see Limitations) |
@@ -29,7 +31,8 @@ retrieval-quality, and large-scale training systems are earlier-stage.
 | 350M-scale constructor (`large_config`) | `cfna/model.py` | REAL / TRAINABLE (constructs + forwards; not trained) |
 | License-clean corpus pipeline (download→clean→dedupe→manifest→buckets) | `cfna/corpus/*` | REAL (public-domain only; trusted sources) |
 | Corpus→weights training + checkpoint | `scripts/train_checkpoint.py` | REAL / TRAINABLE (11M model on ~14 MB) |
-| Conversation interface | `cfna/chat.py` | REAL (small byte model: English-shaped continuations, not an instruct assistant) |
+| Conversation interface | `cfna/chat.py` | REAL (small byte model: English-shaped continuations by default; real turn-taking signal only after `scripts/train_sft.py`) |
+| Supervised instruction tuning (dialogue SFT) | `cfna/training/sft.py`, `cfna/training/dialogue_data.py`, `cfna/microtorch/models.py` | REAL / TRAINABLE (small hand-written prompt→response set; masked-loss fine-tune on top of a pretrained checkpoint; PyTorch `CFNAModel` and from-scratch-microtorch `MicroByteLM`/`MicroCFNAModel` backends, interchangeably) |
 
 ## Cognitive / knowledge layer
 
@@ -56,7 +59,8 @@ retrieval-quality, and large-scale training systems are earlier-stage.
 | Component | File | Status |
 |---|---|---|
 | WPGCP curriculum / phase weights / loss aggregation | `cfna/training/*` | REAL (scaffolding); episode/data compilers INTERFACE ONLY |
-| VGRFT (instruction/tool/verifier/residual training) | `cfna/training/vgrft.py` | INTERFACE ONLY (raise `NotImplementedError`) |
+| VGRFT stage 1: supervised instruction tuning (SFT) | `cfna/training/vgrft.py` + `cfna/training/sft.py` | REAL / TRAINABLE (backend-injected; `TorchSFTBackend` / `MicroSFTBackend` both run) |
+| VGRFT stages 2-4 (tool grounding/verifier/residual training) | `cfna/training/vgrft.py` | INTERFACE ONLY (raise `NotImplementedError`; need tool traces / verifier ground truth that don't exist yet) |
 | Continual-learning controller | `cfna/training/vgrft.py` | REAL orchestration (training steps injected) |
 | LoRA adapters | `cfna/runtime.py` | REAL (numpy) |
 | Quantized / streaming runtime | — | PLANNED |

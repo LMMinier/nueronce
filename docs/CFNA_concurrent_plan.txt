@@ -1,0 +1,1114 @@
+CFNA CONCURRENT IMPLEMENTATION PLAN
+Encoding: UTF-8
+Format: Plain text
+Repository: https://github.com/LMMinier/nueronce
+
+MISSION
+
+Turn the current CFNA prototype into a reproducible, CPU-first, compact foundation-model research system.
+
+PRIMARY TARGET
+
+Build CFNA Research Model A with these properties:
+
+1. 10M to 40M parameters.
+2. Trains on a real, balanced corpus.
+3. Produces coherent text.
+4. Follows simple unseen instructions.
+5. Saves and resumes training reliably.
+6. Performs true incremental streaming inference.
+7. Uses retrieval for external knowledge.
+8. Is compared against matched baselines.
+9. Reports CPU time, RAM use, and inference speed.
+10. Exposes ablations for every major mechanism.
+11. Can be reproduced from a clean repository clone.
+
+NON-NEGOTIABLE RULES
+
+1. CPU is the reference runtime.
+2. GPU support is optional and must not dictate the architecture.
+3. Do not hide a pretrained language model inside CFNA.
+4. Open models may only be used as explicit teachers, external renderers, retrievers, or evaluators.
+5. Do not train on unverified web scrapes.
+6. Do not use arbitrary remote code execution for datasets.
+7. Do not load untrusted pickle, PT, or PTH files.
+8. Every subsystem must be labeled as one of:
+   - REAL / TRAINABLE
+   - REAL / HEURISTIC
+   - INTERFACE ONLY
+   - PLANNED
+9. Never report training loss as proof of generalization.
+10. Never claim superiority without matched baselines, multiple seeds, and ablations.
+11. Do not scale to 337M until Research Model A passes all gates.
+12. When a hypothesis fails, record it and simplify or remove it.
+
+CURRENT REPOSITORY BASELINE
+
+The repository already contains:
+
+- Trainable byte-level CFNA core.
+- Dynamic patching.
+- Typed recurrent state.
+- Hybrid SSM and attention paths.
+- Retrieval training path.
+- Byte Transformer and pure SSM baselines.
+- Public-domain corpus pipeline.
+- Checkpoint training.
+- Chat-style continuation wrapper.
+- Heuristic planner and verifier.
+- Real but untrained 337M constructor.
+
+Current known gaps:
+
+- No true streaming inference.
+- No true conditional execution.
+- Sparse attention still uses dense score computation.
+- Typed channels are not proven semantically specialized.
+- No mature instruction-tuning pipeline.
+- Checkpoint resume is incomplete.
+- No strong real-corpus benchmark.
+- No proof of CPU efficiency advantage.
+
+CONCURRENCY MODEL
+
+Use five agents in parallel.
+
+AGENT 1: TRAINING RELIABILITY
+AGENT 2: CORPUS AND DATA
+AGENT 3: STREAMING RUNTIME
+AGENT 4: INSTRUCTION TRAINING
+AGENT 5: EVALUATION AND CPU PROFILING
+
+Each agent must:
+
+1. Declare owned files.
+2. Avoid editing files owned by another active agent.
+3. Define acceptance tests before implementation.
+4. Produce machine-readable metrics.
+5. Use an isolated branch or worktree.
+6. Merge only after tests pass.
+7. Record unresolved limitations.
+
+CORE FILE OWNERSHIP
+
+Conflict-prone files:
+
+- cfna/model.py
+- cfna/blocks.py
+- cfna/nn.py
+- cfna/config.py
+
+Only one agent may edit each core file at a time.
+
+Prefer additive modules and adapters instead of simultaneous core rewrites.
+
+Before editing a core file, an agent must record:
+
+- File name.
+- Symbols to change.
+- Reason for change.
+- Expected tests.
+- Expected merge order.
+
+==================================================
+LANE A: TRAINING SYSTEM AND CHECKPOINT RELIABILITY
+==================================================
+
+OWNER FILES
+
+- scripts/train_checkpoint.py
+- cfna/training/*
+- cfna/checkpoint.py
+- tests/test_checkpointing.py
+- configs/*
+
+GOAL
+
+Make CPU training reliable, resumable, measurable, and reproducible.
+
+IMPLEMENT
+
+1. Save separate checkpoints:
+   - checkpoints/best.pt
+   - checkpoints/last.pt
+   - checkpoints/step_N.pt
+
+2. Save all training state:
+   - model_state
+   - optimizer_state
+   - scheduler_state
+   - current_step
+   - best_validation_bpb
+   - training_history
+   - python_rng_state
+   - numpy_rng_state
+   - torch_rng_state
+   - thread_count
+   - corpus_manifest_hash
+   - model_config
+   - training_config
+   - git_commit_sha
+   - elapsed_wall_time
+
+3. Add command-line arguments:
+   - --resume
+   - --max-steps
+   - --minutes
+   - --threads
+   - --grad-accum
+   - --save-every
+   - --eval-every
+   - --seed
+   - --config
+   - --allow-manifest-mismatch
+
+4. Add:
+   - learning-rate warmup
+   - learning-rate decay
+   - gradient accumulation
+   - gradient clipping
+   - non-finite loss detection
+   - crash checkpoint
+   - append-only JSONL metrics
+   - deterministic test mode
+   - parameter count
+   - estimated optimizer RAM
+   - clean restart from checkpoint
+
+ACCEPTANCE TESTS
+
+1. Train 10 steps.
+2. Save checkpoint.
+3. Reload checkpoint.
+4. Continue 10 steps.
+5. Confirm final step equals 20.
+6. Confirm optimizer state is restored.
+7. Confirm uninterrupted and resumed runs match within tolerance.
+8. Confirm best.pt is not overwritten by last.pt.
+9. Confirm corpus manifest mismatch blocks resume unless explicitly overridden.
+
+DELIVERABLES
+
+- configs/cfna_11m_cpu.yaml
+- configs/cfna_20m_cpu.yaml
+- docs/TRAINING_RUNTIME.md
+- metrics/training_schema.json
+- tests/test_checkpointing.py
+
+DO NOT
+
+Do not modify the model architecture in this lane.
+
+========================================
+LANE B: CORPUS EXPANSION AND DATA SYSTEM
+========================================
+
+OWNER FILES
+
+- cfna/corpus/*
+- scripts/build_corpus.py
+- scripts/audit_corpus.py
+- tests/test_corpus_*.py
+- data_manifests/*
+
+GOAL
+
+Create a balanced, safe, reproducible 100MB to 500MB corpus stage.
+
+IMPLEMENT
+
+1. Replace hard-coded source lists with a registry manifest.
+2. Add source classes:
+   - public-domain
+   - CC0
+   - CC BY
+   - research-only
+   - evaluation-only
+   - rejected
+
+3. Add:
+   - source-level mixing weights
+   - category-level sampling weights
+   - document boundary preservation
+   - exact deduplication
+   - near-duplicate detection using MinHash or SimHash
+   - checksum verification
+   - compressed-size limits
+   - expanded-size limits
+   - archive-member limits
+   - compression-ratio limits
+   - safe archive extraction
+   - file extension allowlist
+   - UTF-8 validation
+   - language detection
+   - quality scoring
+   - benchmark contamination exclusion
+   - author-aware split controls
+   - source-aware split controls
+   - memory-mapped binary shards
+   - shard index files
+
+4. Keep stages separate:
+   - raw source
+   - cleaned source
+   - deduplicated source
+   - training shards
+
+TARGET CORPUS MIX
+
+- 25 percent modern educational prose
+- 20 percent public-domain fiction
+- 15 percent public-domain nonfiction
+- 15 percent scientific and technical writing
+- 10 percent government material
+- 10 percent instruction and dialogue
+- 5 percent code and structured text
+
+CORPUS STAGES
+
+Stage 0:
+- Current approximately 14MB public-domain corpus.
+
+Stage 1:
+- 100MB to 500MB balanced English corpus.
+
+Stage 2:
+- 1GB to 5GB only after Stage 1 training succeeds.
+
+ACCEPTANCE TESTS
+
+1. No rejected license enters safe_commercial.
+2. Manifest generation is deterministic.
+3. Exact duplicates are removed.
+4. Near duplicates are flagged.
+5. Train and validation share no documents.
+6. Archive traversal is blocked.
+7. Symlink extraction is blocked.
+8. Zip bombs are blocked.
+9. Shard offsets reproduce exact original bytes.
+10. Source mixture stays within declared tolerance.
+
+DELIVERABLES
+
+- data_manifests/sources_v1.yaml
+- data_manifests/corpus_v1.json
+- docs/CORPUS_CARD_V1.md
+- scripts/audit_corpus.py
+- corpus build report
+
+DO NOT
+
+Do not crawl random websites.
+Do not change training logic in this lane.
+
+=================================
+LANE C: TRUE STREAMING INFERENCE
+=================================
+
+OWNER FILES
+
+- cfna/streaming.py
+- cfna/blocks.py
+- cfna/model.py
+- cfna/chat.py
+- tests/test_streaming.py
+- benchmarks/benchmark_streaming.py
+
+GOAL
+
+Stop recomputing the full context for every generated byte.
+
+STREAMING STATE
+
+StreamingState must contain:
+
+- convolution_history
+- patch_accumulator
+- boundary_state
+- ssm_state
+- typed_recurrent_state
+- local_attention_key_ring
+- local_attention_value_ring
+- decoder_cache
+- active_retrieval_context
+- byte_position
+- logical_step_state
+
+IMPLEMENT
+
+- model.prefill(input_bytes)
+- model.stream_step(next_byte, state)
+- model.generate_stream(...)
+- state serialization for debugging
+- bounded ring buffers
+- cache reset
+- streaming conversation support
+
+HARD REQUIREMENT
+
+Streaming logits must match full-recompute logits within numerical tolerance.
+
+ACCEPTANCE TEST
+
+For fixed weights and a fixed prompt:
+
+1. Run full recomputation for every prefix.
+2. Run streaming inference byte by byte.
+3. Compare logits at every position.
+4. Fail if maximum absolute difference exceeds the chosen tolerance.
+
+BENCHMARK
+
+Prompt lengths:
+- 64
+- 128
+- 256
+- 512
+- 1024 bytes
+
+Generation lengths:
+- 32
+- 128
+- 512 bytes
+
+Report:
+
+- prefill_time_ms
+- generated_byte_time_ms
+- bytes_per_second
+- peak_ram_mb
+- cache_size_mb
+- full_recompute_time_ms
+- streaming_time_ms
+- speedup_ratio
+
+DELIVERABLES
+
+- docs/STREAMING_SPEC.md
+- benchmarks/streaming_results.json
+- tests/test_streaming.py
+
+DO NOT
+
+Do not change training semantics unless required for exact streaming parity.
+
+=========================================
+LANE D: REAL LOCAL AND SPARSE COMPUTATION
+=========================================
+
+OWNER FILES
+
+- cfna/nn_local.py
+- cfna/nn_sparse.py
+- cfna/nn.py
+- tests/test_attention_complexity.py
+- benchmarks/benchmark_attention.py
+
+GOAL
+
+Replace masked dense attention with operators that do not construct a full T by T score matrix.
+
+IMPLEMENT THREE MODES
+
+1. Sliding-window local attention.
+2. Landmark or global-slot attention.
+3. Retrieval-only cross-attention.
+
+LOCAL ATTENTION RULE
+
+For position t:
+
+start = max(0, t - window)
+keys = K[start:t+1]
+values = V[start:t+1]
+compute scores only over this local range
+
+REQUIREMENTS
+
+- No tensor with shape [batch, heads, sequence_length, sequence_length].
+- Score-pair count scales approximately as sequence_length times window.
+- Temporary tensor sizes are measured.
+- Peak memory is measured.
+- Wall-clock time is measured.
+
+ACCEPTANCE TESTS
+
+1. Local implementation matches masked-dense local attention numerically.
+2. Pair count scales with T times window.
+3. No full T by T score tensor is created.
+4. Benchmark at T equal to 128, 256, 512, and 1024.
+5. Memory growth is approximately linear for fixed window.
+
+DELIVERABLES
+
+- docs/ATTENTION_KERNELS.md
+- benchmarks/attention_results.json
+- migration plan from existing attention
+
+DO NOT
+
+Do not delete the existing implementation until parity tests pass.
+
+====================================
+LANE E: CONDITIONAL COMPUTATION
+====================================
+
+OWNER FILES
+
+- cfna/routing_runtime.py
+- cfna/blocks.py
+- cfna/routers.py
+- tests/test_conditional_execution.py
+- benchmarks/benchmark_routing.py
+
+GOAL
+
+Make routing save actual CPU work.
+
+INVALID CURRENT PATTERN
+
+1. Compute all branches.
+2. Mix branch outputs.
+
+REQUIRED PATTERN
+
+1. Run cheap router.
+2. Select branch or branches.
+3. Execute only selected branches.
+4. Record branch usage and cost.
+
+CANDIDATE PATHS
+
+- recurrent or SSM
+- local attention
+- retrieval
+- workspace
+- tool path
+- verifier path
+
+IMPLEMENT
+
+- hard top-1 routing
+- hard top-2 routing
+- optional soft routing for training
+- load-balancing loss
+- branch execution counters
+- branch skip counters
+- deterministic routing mode
+- minimum fallback path
+- branch cost model
+- routing budget
+
+ACCEPTANCE TESTS
+
+1. Skipped branch forward functions are not called.
+2. Active branch count is measured.
+3. Inference latency decreases when branches are skipped.
+4. Quality loss is measured.
+5. Routing collapse is detected.
+6. Dense-routing baseline remains available.
+
+DELIVERABLES
+
+- docs/CONDITIONAL_COMPUTE.md
+- benchmarks/routing_results.json
+- routing ablation configuration
+
+DO NOT
+
+Do not claim efficiency unless CPU wall-clock time improves.
+
+=============================================
+LANE F: INSTRUCTION TUNING AND TEXT QUALITY
+=============================================
+
+OWNER FILES
+
+- cfna/instruction_data.py
+- cfna/training/instruction.py
+- scripts/train_instruction.py
+- scripts/eval_generation.py
+- tests/test_instruction_format.py
+
+GOAL
+
+Turn the continuation model into a simple instruction-following model.
+
+CANONICAL RECORD FORMAT
+
+<system>
+system text
+</system>
+<user>
+user text
+</user>
+<assistant>
+assistant response
+</assistant>
+
+For byte training, use literal UTF-8 byte delimiters.
+
+IMPLEMENT
+
+- instruction record schema
+- license and source metadata
+- formatting compiler
+- response-only loss masking
+- mixed pretraining and instruction batches
+- held-out instruction task split
+- conversational stop conditions
+- repetition penalty
+- top-k sampling
+- top-p sampling
+- temperature
+- UTF-8 repair
+
+TASK TYPES
+
+- single-turn question answering
+- summarization
+- classification
+- rewriting
+- extraction
+- code explanation
+- simple planning
+- grounded answering
+- uncertainty response
+- multi-turn dialogue
+
+FIRST TARGET
+
+5,000 to 20,000 clean instruction examples.
+
+ACCEPTANCE TESTS
+
+1. Response-only loss excludes user and system text.
+2. Held-out instruction formats are unseen in training.
+3. No evaluation items appear in training.
+4. Instruction checkpoint outperforms base checkpoint on held-out tasks.
+5. Report automated task success, not only subjective samples.
+
+EVALUATION SET
+
+- 100 question-answering examples
+- 100 summarization examples
+- 100 extraction examples
+- 100 classification examples
+- 100 formatting examples
+- 100 grounded-evidence examples
+
+DELIVERABLES
+
+- docs/INSTRUCTION_DATA_CARD.md
+- instruction-tuned checkpoint
+- before-and-after samples
+- automated score report
+
+========================================
+LANE G: TYPED-STATE SPECIALIZATION
+========================================
+
+OWNER FILES
+
+- cfna/typed_tasks.py
+- cfna/probes.py
+- scripts/train_typed_probes.py
+- tests/test_typed_state.py
+- docs/TYPED_STATE_EXPERIMENTS.md
+
+GOAL
+
+Prove whether typed channels learn distinct functions.
+
+TARGET CHANNELS
+
+- goal
+- evidence
+- authority
+- uncertainty
+- temporal
+- procedure
+- contradiction
+
+REQUIRED EXPERIMENTS
+
+1. Full typed model.
+2. Homogeneous state model.
+3. Random channel names.
+4. Channel ablation.
+5. Channel permutation.
+6. Auxiliary losses enabled.
+7. Auxiliary losses disabled.
+
+MEASURE
+
+- task accuracy
+- channel probe accuracy
+- channel ablation loss
+- channel swap degradation
+- intervention sensitivity
+
+SPECIALIZATION CLAIM REQUIREMENT
+
+Do not call a channel specialized unless:
+
+1. A probe recovers its intended variable above baseline.
+2. Ablating that channel hurts the matching task more than unrelated tasks.
+3. Swapping channels causes predictable degradation.
+
+DELIVERABLES
+
+- typed-state benchmark generator
+- probe report
+- ablation report
+- final decision:
+  - retain typed channels
+  - redesign typed channels
+  - remove typed channels
+
+=============================================
+LANE H: RETRIEVAL AND EXTERNAL KNOWLEDGE
+=============================================
+
+OWNER FILES
+
+- cfna/retrieval/*
+- scripts/build_index.py
+- scripts/eval_retrieval.py
+- tests/test_retrieval_real_docs.py
+
+GOAL
+
+Move from synthetic retrieval proof to real-document retrieval.
+
+PHASE 1
+
+- BM25 or equivalent sparse retrieval
+- hashed lexical features
+- metadata filtering
+
+PHASE 2
+
+- small learned dense embedder
+- optional reranker
+
+EVERY RETRIEVED ITEM MUST INCLUDE
+
+- document_id
+- source
+- license
+- timestamp
+- passage_start
+- passage_end
+- content_hash
+- retrieval_score
+
+EVALUATE
+
+- recall_at_1
+- recall_at_5
+- recall_at_10
+- grounded_qa_accuracy
+- distractor_resistance
+- answer_with_retrieval
+- answer_without_retrieval
+- citation_correctness
+- latency_ms
+- index_ram_mb
+- index_disk_mb
+
+ACCEPTANCE TESTS
+
+1. Performance drops when relevant retrieval is removed.
+2. Irrelevant retrieval does not improve performance.
+3. Source IDs are passed to the verifier.
+4. Retrieved content is treated as evidence, not authority.
+
+DELIVERABLES
+
+- docs/RETRIEVAL_V1.md
+- real-document retrieval benchmark
+- source-aware retrieval API
+
+=====================================
+LANE I: VERIFIER AND REVISION
+=====================================
+
+OWNER FILES
+
+- cfna/verification.py
+- cfna/impl.py
+- cfna/revision.py
+- tests/test_verifier_adversarial.py
+- scripts/eval_verifier.py
+
+GOAL
+
+Replace weak lexical verification with layered verification.
+
+VERIFICATION LAYERS
+
+1. Deterministic format checks.
+2. Required-field checks.
+3. Evidence-span matching.
+4. Contradiction checks.
+5. Numerical checks.
+6. Sandboxed code checks where applicable.
+7. Confidence calibration.
+8. Optional learned verifier later.
+
+FAILURE TYPES
+
+- UNSUPPORTED_CLAIM
+- CONTRADICTED_CLAIM
+- MISSING_REQUIREMENT
+- INVALID_FORMAT
+- NUMERIC_ERROR
+- TOOL_ERROR
+- LOW_CONFIDENCE
+- AUTHORITY_VIOLATION
+
+TARGETED REVISION RULES
+
+- Revise only failed content.
+- Preserve verified content.
+- Record before and after.
+- Stop after bounded attempts.
+
+ACCEPTANCE TESTS
+
+1. Unsupported claims fail.
+2. Paraphrased supported claims pass.
+3. Negated contradictions fail.
+4. Generic word overlap does not pass.
+5. Revision changes failed content.
+6. Verified content remains unchanged.
+7. Loop terminates.
+
+DELIVERABLES
+
+- verifier benchmark
+- false-positive report
+- false-negative report
+- revision success rate
+
+================================================
+LANE J: BASELINES, ABLATIONS, AND CPU BENCHMARKS
+================================================
+
+OWNER FILES
+
+- cfna/baselines.py
+- cfna/eval.py
+- scripts/compare_models.py
+- benchmarks/*
+- docs/BENCHMARK_PROTOCOL.md
+
+GOAL
+
+Create the evidence layer for every architectural claim.
+
+BASELINE MODELS
+
+- CFNA
+- byte Transformer
+- GRU
+- LSTM
+- pure SSM
+- convolutional language model
+
+MATCH ALL MODELS ON
+
+- parameter count
+- training data
+- training steps
+- optimizer
+- sequence length
+- batch size
+- CPU thread count
+- wall-clock budget
+- numerical precision
+- random seeds
+
+METRICS
+
+- heldout_bpb
+- instruction_accuracy
+- delayed_recall_accuracy
+- retrieval_qa_accuracy
+- training_bytes_per_second
+- inference_bytes_per_second
+- peak_ram_mb
+- time_to_first_byte_ms
+- time_per_generated_byte_ms
+- parameter_count
+- checkpoint_size_mb
+- active_branch_count
+- energy_use_when_available
+
+REQUIRED ABLATIONS
+
+- no dynamic segmentation
+- no typed state
+- no attention
+- no SSM
+- no retrieval
+- no conditional routing
+- no verifier
+- fixed patching
+- homogeneous state
+
+ACCEPTANCE TESTS
+
+1. One command runs a full matched comparison.
+2. Results are written to JSON and Markdown.
+3. No headline claim uses one seed only.
+4. Mean and standard deviation are reported.
+5. Failed experiments are recorded.
+
+DELIVERABLES
+
+- benchmarks/results_v1.json
+- docs/BENCHMARK_REPORT_V1.md
+- plots generated from raw JSON
+
+==========================
+MERGE AND DEPENDENCY ORDER
+==========================
+
+WAVE 1
+
+- Lane A: checkpoint reliability
+- Lane B: corpus system
+- Lane J: benchmark protocol
+
+WAVE 2
+
+- Lane C: streaming
+- Lane D: real local attention
+- Lane F: instruction format
+- Lane H: retrieval API
+
+WAVE 3
+
+- Lane E: conditional execution
+- Lane G: typed-state experiments
+- Lane I: verifier improvements
+
+WAVE 4
+
+- Integrated Research Model A training
+- Matched baseline training
+- Ablations
+- Final benchmark report
+
+DEPENDENCIES
+
+- Lane F depends on Lane A.
+- Lane H depends on Lane B.
+- Lane C must land before serious inference benchmarking.
+- Lane E should use Lane D kernels.
+- Lane J consumes outputs from every lane.
+- Lane G must not block base training.
+- Lane I must not block base pretraining.
+
+=======================
+RESEARCH MODEL A TARGET
+=======================
+
+MODEL
+
+- 10M to 20M parameters initially.
+- 20M to 40M only after the first run succeeds.
+
+DATA
+
+- Start with 50MB to 100MB.
+- Expand to 100MB to 500MB after stability.
+- Do not start with multi-gigabyte data.
+
+SEQUENCE LENGTH
+
+- 256 to 512 bytes.
+
+RUNTIME
+
+- CPU reference training.
+- CPU reference inference.
+- True streaming required.
+
+TRAINING PHASES
+
+1. Base byte-level pretraining.
+2. Retrieval training.
+3. Instruction tuning.
+4. Typed-state task training.
+5. Verifier-guided correction training.
+
+BASELINES
+
+- Equal-size Transformer.
+- Equal-size recurrent baseline.
+- Equal-size SSM baseline.
+
+SEEDS
+
+- Use one seed during debugging.
+- Use three seeds for headline results.
+
+================
+SUCCESS GATES
+================
+
+GATE 1: SOFTWARE RELIABILITY
+
+Required:
+
+- all tests pass
+- checkpoint resume works
+- deterministic small run works
+- corpus build is reproducible
+- no unsafe loader path
+
+GATE 2: LANGUAGE COMPETENCE
+
+Required:
+
+- coherent held-out continuation
+- valid UTF-8 rate near 100 percent
+- stable held-out bpb
+- no training collapse
+
+GATE 3: INSTRUCTION FOLLOWING
+
+Required:
+
+- measurable success on unseen instruction tasks
+- better than base checkpoint
+- not only prompt continuation
+
+GATE 4: CPU EFFICIENCY
+
+Required:
+
+- streaming faster than full recomputation
+- measured RAM
+- measured per-byte latency
+- measured thread scaling
+
+GATE 5: ARCHITECTURAL EVIDENCE
+
+Required:
+
+- matched baselines
+- multiple seeds
+- ablations
+- no superiority claim without stable results
+
+GATE 6: FOUNDATION-MODEL CANDIDATE
+
+One checkpoint must demonstrate:
+
+- broad language modeling
+- transfer to multiple tasks
+- instruction following
+- retrieval grounding
+- reusable representations
+- independent inference
+- reproducible training
+
+================
+STOP CONDITIONS
+================
+
+Stop scaling when any of these remain unresolved:
+
+- held-out bpb no longer improves
+- output stays incoherent after reasonable data and training increases
+- streaming cannot match full inference
+- typed channels show no specialization
+- conditional routing saves no CPU wall-clock time
+- retrieval does not improve grounded tasks
+- CFNA is consistently worse than simpler matched baselines
+
+When a mechanism fails:
+
+1. Record the result.
+2. Preserve the test.
+3. Simplify or remove the mechanism.
+4. Do not protect it because it was part of the original idea.
+
+=========================
+FIRST EXECUTION SPRINT
+=========================
+
+SPRINT 1 AGENTS
+
+Agent 1:
+- checkpoint resume
+- best and last checkpoint separation
+- deterministic training state
+
+Agent 2:
+- corpus registry
+- source balancing
+- safe binary shards
+
+Agent 3:
+- streaming state specification
+- first exact-match streaming implementation
+
+Agent 4:
+- instruction dataset compiler
+- response-only loss masking
+
+Agent 5:
+- benchmark protocol
+- CPU profiler
+- raw metrics schema
+
+SPRINT 1 REQUIRED OUTPUT
+
+- merged tests
+- one reproducible 11M run
+- one real checkpoint
+- held-out bpb
+- generation samples
+- full-recompute versus streaming comparison
+- RAM measurements
+- latency measurements
+- next-sprint decision
+
+DO NOT START A 40M OR LARGER MODEL UNTIL SPRINT 1 PASSES.
+
+==========================
+FINAL REQUIRED DELIVERABLES
+==========================
+
+1. Reproducible CPU training command.
+2. Resumable checkpoint.
+3. Separate best and last checkpoints.
+4. Corpus card and manifest.
+5. Streaming inference implementation.
+6. CPU benchmark report.
+7. Instruction-tuned checkpoint.
+8. Retrieval-enabled evaluation.
+9. Matched baseline results.
+10. Ablation report.
+11. Typed-state probe report.
+12. Model card.
+13. Clean-clone reproduction instructions.
+14. Honest final status matrix.
+
+FINAL DIRECTIVE
+
+Do not spend the next sprint adding more cognitive modules.
+
+The next sequence is:
+
+make training reliable
+-> train on more balanced data
+-> implement true streaming
+-> teach instruction format
+-> compare against matched baselines
+-> keep only mechanisms that survive testing

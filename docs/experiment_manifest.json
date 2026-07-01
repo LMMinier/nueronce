@@ -1,0 +1,48 @@
+{
+  "git_commit": "d712c36",
+  "branch": "research/cognitive-contract-v1",
+  "tag": "v0.2-cognitive-contract",
+  "environment": {
+    "python_version": "3.13.2",
+    "torch_version": "2.11.0+cpu",
+    "numpy_version": "2.2.3",
+    "os": "Windows-10-10.0.19045-SP0",
+    "cpu_logical_cores": 8,
+    "device": "cpu-only"
+  },
+  "reproduce_commands": [
+    "python -m pytest -p no:cacheprovider",
+    "python scripts/eval_cognitive.py --seed 0 --json benchmarks/cognitive_v1.json --md docs/reports/COGNITIVE_V1_REPORT.md",
+    "python scripts/eval_cognitive_v2.py --seeds 1 2 3 4 5 --n 1050 --holdout 480 --json benchmarks/cognitive_v2.json --md docs/reports/COGNITIVE_V2_REPORT.md"
+  ],
+  "v2_config": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "n_per_seed": 1050,
+    "holdout_n": 480
+  },
+  "v2_headline_metrics": {
+    "source": "benchmarks/cognitive_v2.json (read programmatically)",
+    "FULL_COGNITIVE_LOOP": {
+      "in_distribution_composite_accuracy_mean": 1.0,
+      "in_distribution_value_accuracy_mean": 1.0,
+      "in_distribution_poisoning_rate_mean": 0.0,
+      "adversarial_holdout_accuracy_mean": 1.0,
+      "adversarial_holdout_poisoning_rate_mean": 0.0
+    },
+    "gate_passed": true
+  },
+  "pytest_result": {
+    "command": "python -m pytest -p no:cacheprovider",
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0,
+    "runtime_seconds": 100.21,
+    "summary_line": "111 passed in 100.21s (0:01:40)"
+  }
+}
