@@ -36,10 +36,13 @@ def load_checkpoint(path: str) -> Tuple[CFNAModel, dict]:
 @torch.no_grad()
 def _continue(model: CFNAModel, context: bytes, max_new: int, temperature: float,
               stop_bytes: bytes, min_new: int, max_ctx: int) -> bytes:
+    # Follow the model's device so a checkpoint moved to CUDA (e.g. after
+    # load_checkpoint(...) + .to("cuda")) chats without a device mismatch.
+    device = next(model.parameters()).device
     ids = list(context)[-max_ctx:]
     out = bytearray()
     for _ in range(max_new):
-        ctx = torch.tensor([ids[-max_ctx:]], dtype=torch.long)
+        ctx = torch.tensor([ids[-max_ctx:]], dtype=torch.long, device=device)
         logits, _ = model(ctx)
         nxt = logits[0, -1]
         if temperature <= 0:
