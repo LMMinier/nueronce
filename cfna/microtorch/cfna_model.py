@@ -183,8 +183,16 @@ class MicroCFNAModel(Module):
 
     # ------------------------------------------------------------------ #
     def generate(self, prompt: bytes, max_new: int = 64, temperature: float = 0.8,
-                 greedy: bool = False, max_ctx: int = 256) -> bytes:
+                 greedy: bool = False, max_ctx: int = 256,
+                 stop_bytes: bytes = b"", min_new: int = 0) -> bytes:
+        """Autoregressively continue ``prompt``. If ``stop_bytes`` is given,
+        generation halts as soon as a byte in it is produced (after at least
+        ``min_new`` new bytes) — the same early-termination contract
+        ``cfna.chat``'s ``_continue`` uses, so a stop byte (e.g. ``\\n``
+        after ``Assistant: ...``) actually ends the turn instead of running
+        to ``max_new`` regardless."""
         ids = list(prompt) or [32]
+        new_count = 0
         with no_grad():
             for _ in range(max_new):
                 ctx = np.array([ids[-max_ctx:]])
@@ -196,6 +204,9 @@ class MicroCFNAModel(Module):
                     probs = _softmax_np(nxt / max(1e-5, temperature))
                     idx = int(np.random.choice(256, p=probs))
                 ids.append(idx)
+                new_count += 1
+                if stop_bytes and new_count >= min_new and idx in stop_bytes:
+                    break
         return bytes(ids)
 
     def num_params(self) -> int:
