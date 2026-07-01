@@ -92,6 +92,21 @@ def coherence_warning(text: str) -> Optional[str]:
         most_word = max(words.count(w) for w in set(words))
         if most_word / len(words) > 0.6:
             return "repetitive_output"
+        short_words = [w for w in words if len(w) <= 2]
+        if len(short_words) / len(words) > 0.5:
+            return "low_lexical_quality"
+        lexical_words = [w for w in words if len(w) >= 3]
+        vowel_words = [w for w in lexical_words if re.search(r"[aeiou]", w)]
+        if lexical_words and len(vowel_words) / len(lexical_words) < 0.5:
+            return "low_lexical_quality"
+    compact = re.sub(r"[^a-z]", "", text.lower())
+    if len(compact) >= 16:
+        for n in (2, 3):
+            chunks = [compact[i:i + n] for i in range(0, len(compact) - n + 1, n)]
+            if chunks:
+                most_chunk = max(chunks.count(c) for c in set(chunks))
+                if most_chunk / len(chunks) > 0.45:
+                    return "repetitive_output"
     return None
 
 

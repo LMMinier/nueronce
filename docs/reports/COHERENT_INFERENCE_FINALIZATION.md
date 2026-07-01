@@ -110,9 +110,63 @@ python scripts/coherent_chat.py --backend microtorch \
   --probe --json metrics/coherent_probe_balanced.json
 ```
 
+## Balanced Run Executed
+
+Command:
+
+```bash
+python scripts/train_sft.py \
+  --backend microtorch --model full-cfna \
+  --train-dir data/sft_balanced/train_shards \
+  --validation data/sft_balanced/validation.jsonl \
+  --test data/sft_balanced/test.jsonl \
+  --num-shards 5 --examples-per-shard 1500 \
+  --save-dir checkpoints/micro_cfna_sft_balanced \
+  --metrics-dir metrics/balanced_sft \
+  --batch 32 --lr 1e-3 --seed 43 --resume
+```
+
+Measured result:
+
+- best shard: `5`;
+- examples seen: `7,360`;
+- validation loss: `2.0253`;
+- test loss: `2.0221`;
+- test bits/byte: `2.9173`;
+- test byte accuracy: `0.4671`.
+
+Balanced checkpoint probe:
+
+```bash
+python scripts/coherent_chat.py --backend microtorch \
+  --ckpt checkpoints/micro_cfna_sft_balanced/best.pt \
+  --probe --json metrics/coherent_probe_balanced_assisted.json
+```
+
+- assisted pass rate: `0.800`;
+- tool rate: `0.800`;
+- fallback rate: `0.200`.
+
+Model-only balanced probe:
+
+```bash
+python scripts/coherent_chat.py --backend microtorch \
+  --ckpt checkpoints/micro_cfna_sft_balanced/best.pt \
+  --probe --no-assist-tools --json metrics/coherent_probe_balanced_model_only.json
+```
+
+- pass rate: `0.000`;
+- fallback rate: `1.000`;
+- observed failure: low-lexical-quality byte continuations, now caught by the
+  coherence gate.
+
+Interpretation: the balanced run improved held-out byte loss relative to a fresh
+model, but it still did not produce coherent model-only chat. The current usable
+mode is assisted narrow Q&A with explicit fallback on bad generation.
+
 ## Honest Bottom Line
 
 The inference path is now safer and more usable, but coherent model-only
-conversation is still not demonstrated on the local checkpoint. The next real
-milestone is a balanced SFT run whose model-only probe improves without relying
-on deterministic tools or fallback.
+conversation is still not demonstrated on either local checkpoint. The next real
+milestone is not merely "more loss reduction"; it is a model-only probe that
+passes without relying on deterministic tools or fallback.
