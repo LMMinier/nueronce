@@ -18,13 +18,17 @@ the module map.
 
 from __future__ import annotations
 
-from . import config, ops, types
+import importlib
+
+from . import config, types
 from ._backend import BackendNotConfigured
 
 __version__ = "0.3.0"
 
 
 def __getattr__(name):
+    if name == "ops":
+        return importlib.import_module(".ops", __name__)
     # Lazy access to the torch-backed pieces so importing cfna stays light.
     if name == "CFNAModel":
         from .model import CFNAModel
