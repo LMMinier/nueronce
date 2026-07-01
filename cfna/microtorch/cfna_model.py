@@ -213,4 +213,18 @@ class MicroCFNAModel(Module):
         return sum(p.data.size for p in self.parameters())
 
 
-__all__ = ["MicroModelConfig", "MicroCFNAModel"]
+def large_config() -> MicroModelConfig:
+    """The same ~337M-parameter configuration as ``cfna.model.large_config``,
+    on the from-scratch engine — proving the "350M budget is real and
+    constructable" claim holds for microtorch too, not just PyTorch. Not
+    trained here (just construction + a tiny forward); see
+    ``tests/test_microtorch_scaling.py``."""
+    return MicroModelConfig(
+        byte_embed_dim=128, d_local=512, d_model=1024, p_max=64, physical_blocks=6,
+        logical_depth=12, n_heads=8, unit_window=256, decoder_window=256,
+        decoder_layers=6, d_state=16, channel_dim=64, ret_byte_dim=64,
+        min_patch=4, max_patch=128,
+    )
+
+
+__all__ = ["MicroModelConfig", "MicroCFNAModel", "large_config"]
