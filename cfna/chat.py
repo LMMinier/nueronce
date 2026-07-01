@@ -1,10 +1,16 @@
 """Conversation interface for a trained CFNA byte checkpoint.
 
 Honest framing: this is a small byte-level model trained on public-domain books
-and speeches. It does not "understand" a conversation the way a large instruct-
-tuned model does — it continues text in the register it learned. The chat loop
-conditions generation on the running transcript and returns the model's
-continuation as the reply, stopping at a turn boundary.
+and speeches. On its own it does not "understand" a conversation the way a
+large instruct-tuned model does — it continues text in the register it learned.
+The chat loop conditions generation on the running transcript and returns the
+model's continuation as the reply, stopping at a turn boundary.
+
+``scripts/train_sft.py`` (backed by ``cfna.training.sft`` /
+``cfna.training.vgrft.VGRFTTrainer``) adds an actual supervised fine-tuning
+pass over (prompt, response) turns in this same ``User: `` / ``Assistant: ``
+layout, so a checkpoint that has been through it has real turn-taking signal —
+not just next-byte continuation of prose — behind its replies.
 """
 
 from __future__ import annotations
