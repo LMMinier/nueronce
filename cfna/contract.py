@@ -35,6 +35,7 @@ from typing import Dict, List, Optional, Tuple
 from .types import (
     AUTHORITY_ORDER,
     AuthorityLevel,
+    ProvenanceStatus,
     VerificationReport,
 )
 
@@ -55,6 +56,8 @@ __all__ = [
     "VerificationReport",
     "CognitiveTrace",
 ]
+
+REJECTED_PROVENANCE: Tuple[ProvenanceStatus, ...] = ("failed", "revoked")
 
 
 def content_hash(text: str) -> str:
@@ -164,6 +167,13 @@ class EvidenceItem:
     raw_text: str = ""                              # surface text (for injection screening)
     uncertain: bool = False                         # the source itself expresses uncertainty
     is_working: bool = False                         # came from working memory, not retrieval
+    issuer_id: Optional[str] = None
+    key_id: Optional[str] = None
+    signature: Optional[bytes] = None
+    authenticity_status: ProvenanceStatus = "unverified"
+    verification_timestamp: Optional[str] = None
+    revocation_status: str = "not_checked"
+    provenance_failure_reason: Optional[str] = None
 
     @property
     def rank(self) -> int:
@@ -181,7 +191,8 @@ class EvidenceSet:
     items: Tuple[EvidenceItem, ...] = ()
 
     def trusted_items(self) -> Tuple[EvidenceItem, ...]:
-        return tuple(i for i in self.items if i.trusted)
+        return tuple(i for i in self.items
+                     if i.trusted and i.authenticity_status not in REJECTED_PROVENANCE)
 
 
 # --------------------------------------------------------------------------- #

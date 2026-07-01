@@ -27,6 +27,7 @@ from .contract import EvidenceItem, content_hash
 from .types import AuthorityLevel
 
 UNTRUSTED: Tuple[AuthorityLevel, ...] = ("unverified_external_content", "generated_hypothesis")
+REJECTED_AUTHENTICITY = ("failed", "revoked")
 
 # Blocklist used ONLY by the KEYWORD baseline (deliberately naive).
 KEYWORD_BLOCKLIST = ("system message", "admin override", "ignore previous",
@@ -108,6 +109,10 @@ def policy(trial: Trial, flags: frozenset = frozenset()) -> Verdict:
     q = trial.query
     pool = [i for i in trial.items if i.is_working] if "no_retrieval" in flags else list(trial.items)
     rel = _relevant(pool, q)
+    provenance_rejected = tuple(
+        i.source_id for i in rel if i.authenticity_status in REJECTED_AUTHENTICITY
+    )
+    rel = [i for i in rel if i.authenticity_status not in REJECTED_AUTHENTICITY]
 
     # Revocation (memory integrity; always on). Only trusted revocations take effect.
     revoked_sources = {i.revokes for i in rel if i.revokes and i.authority not in UNTRUSTED}
@@ -129,10 +134,12 @@ def policy(trial: Trial, flags: frozenset = frozenset()) -> Verdict:
     # Authority gate (metadata-only => impersonation/injection cannot self-elevate).
     use_auth = "no_authority" not in flags
     if use_auth:
-        trusted = [i for i in scoped if i.authority not in UNTRUSTED]
-        rejected = tuple(i.source_id for i in scoped if i.authority in UNTRUSTED)
+        trusted = [i for i in scoped if i.authority not in UNTRUSTED and i.trusted]
+        rejected = provenance_rejected + tuple(
+            i.source_id for i in scoped if i.authority in UNTRUSTED or not i.trusted
+        )
     else:
-        trusted, rejected = scoped, ()
+        trusted, rejected = scoped, provenance_rejected
 
     if not trusted:
         return Verdict(answer_value=None, winning_source=None, supported=False,
