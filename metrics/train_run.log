@@ -1,0 +1,25 @@
+fresh model: 112,709 params
+{"event": "pre_training", "shard": 0, "step": 0, "examples_seen": 0, "val_loss": 5.857052969763184, "val_bits_per_byte": 8.449941273701322, "val_byte_accuracy": 0.005657754885127954, "lr": 0.002, "elapsed_seconds": 27.686257362365723, "wall_time": "2026-07-01T15:27:28Z"}
+shard 1/10 step 100/312 | examples_seen 3,200 | train_loss(ema) 1.3214 | lr 2.00e-03 | elapsed 66s
+shard 1/10 step 200/312 | examples_seen 6,400 | train_loss(ema) 0.9122 | lr 2.00e-03 | elapsed 106s
+{"event": "periodic", "shard": 1, "step": 200, "examples_seen": 6400, "train_loss": 0.9122199419550674, "val_loss_subset": 0.8340300045601792, "val_byte_accuracy_subset": 0.7480438184663537, "lr": 0.002, "elapsed_seconds": 106.00922918319702, "wall_time": "2026-07-01T15:28:48Z"}
+shard 1/10 step 300/312 | examples_seen 9,600 | train_loss(ema) 0.7402 | lr 2.00e-03 | elapsed 145s
+{"event": "end_of_shard", "shard": 1, "step": 312, "examples_seen": 9984, "train_loss": 0.729469887314602, "val_loss": 0.7138999596371894, "val_bits_per_byte": 1.0299399314594044, "val_byte_accuracy": 0.7737633881121739, "lr": 0.002, "is_best": true, "elapsed_seconds": 149.47904205322266, "wall_time": "2026-07-01T15:30:00Z"}
+shard 2/10 step 88/312 | examples_seen 12,800 | train_loss(ema) 0.6355 | lr 2.00e-03 | elapsed 213s
+{"event": "periodic", "shard": 2, "step": 400, "examples_seen": 12800, "train_loss": 0.6354761644490637, "val_loss_subset": 0.6440817877848285, "val_byte_accuracy_subset": 0.7890453834115806, "lr": 0.002, "elapsed_seconds": 213.47507739067078, "wall_time": "2026-07-01T15:30:36Z"}
+shard 2/10 step 188/312 | examples_seen 16,000 | train_loss(ema) 0.5433 | lr 2.00e-03 | elapsed 252s
+shard 2/10 step 288/312 | examples_seen 19,200 | train_loss(ema) 0.5069 | lr 2.00e-03 | elapsed 294s
+{"event": "periodic", "shard": 2, "step": 600, "examples_seen": 19200, "train_loss": 0.506947049091653, "val_loss_subset": 0.5396489674650392, "val_byte_accuracy_subset": 0.8190923317683881, "lr": 0.002, "elapsed_seconds": 293.8086955547333, "wall_time": "2026-07-01T15:31:56Z"}
+{"event": "end_of_shard", "shard": 2, "step": 624, "examples_seen": 19968, "train_loss": 0.5306907358321918, "val_loss": 0.5174719505268377, "val_bits_per_byte": 0.7465542168242078, "val_byte_accuracy": 0.827454827896329, "lr": 0.002, "is_best": true, "elapsed_seconds": 305.99288034439087, "wall_time": "2026-07-01T15:32:39Z"}
+shard 3/10 step 76/312 | examples_seen 22,400 | train_loss(ema) 0.5369 | lr 2.00e-03 | elapsed 370s
+shard 3/10 step 176/312 | examples_seen 25,600 | train_loss(ema) 0.4798 | lr 2.00e-03 | elapsed 410s
+{"event": "periodic", "shard": 3, "step": 800, "examples_seen": 25600, "train_loss": 0.47977526242249013, "val_loss_subset": 0.5005586315909877, "val_byte_accuracy_subset": 0.8331768388106416, "lr": 0.002, "elapsed_seconds": 409.92003297805786, "wall_time": "2026-07-01T15:33:52Z"}
+shard 3/10 step 276/312 | examples_seen 28,800 | train_loss(ema) 0.4759 | lr 2.00e-03 | elapsed 451s
+{"event": "end_of_shard", "shard": 3, "step": 936, "examples_seen": 29952, "train_loss": 0.4478945583215594, "val_loss": 0.4638584613534195, "val_bits_per_byte": 0.6692063018689632, "val_byte_accuracy": 0.8423432262284359, "lr": 0.002, "is_best": true, "elapsed_seconds": 465.22953152656555, "wall_time": "2026-07-01T15:35:15Z"}
+shard 4/10 step 64/312 | examples_seen 32,000 | train_loss(ema) 0.4244 | lr 2.00e-03 | elapsed 520s
+{"event": "periodic", "shard": 4, "step": 1000, "examples_seen": 32000, "train_loss": 0.42444259406477297, "val_loss_subset": 0.4422310232153917, "val_byte_accuracy_subset": 0.8503912363067293, "lr": 0.002, "elapsed_seconds": 520.3609018325806, "wall_time": "2026-07-01T15:35:43Z"}
+shard 4/10 step 164/312 | examples_seen 35,200 | train_loss(ema) 0.4608 | lr 2.00e-03 | elapsed 563s
+shard 4/10 step 264/312 | examples_seen 38,400 | train_loss(ema) 0.4156 | lr 2.00e-03 | elapsed 602s
+{"event": "periodic", "shard": 4, "step": 1200, "examples_seen": 38400, "train_loss": 0.41561001021782207, "val_loss_subset": 0.4380697029583973, "val_byte_accuracy_subset": 0.8516431924882629, "lr": 0.002, "elapsed_seconds": 602.2087068557739, "wall_time": "2026-07-01T15:37:05Z"}
+{"event": "end_of_shard", "shard": 4, "step": 1248, "examples_seen": 39936, "train_loss": 0.42374377838974764, "val_loss": 0.4293125702835844, "val_bits_per_byte": 0.6193671161394217, "val_byte_accuracy": 0.8550077671490475, "lr": 0.002, "is_best": true, "elapsed_seconds": 623.5134241580963, "wall_time": "2026-07-01T15:37:54Z"}
+resumed from checkpoints/micro_cfna_sft_100k/latest.pt: shard 4, step_within_shard 0, examples_seen 39,936

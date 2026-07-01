@@ -122,6 +122,52 @@ def make_sft_batch(examples: Sequence[SFTExample], *, system: str = "",
     bytes). Plain NumPy so either autograd backend can consume it directly."""
     encoded = [encode_example(p, r, system=system, user_tag=user_tag, bot_tag=bot_tag)
                for p, r in examples]
+    return _pad_batch(encoded, max_len)
+
+
+Message = Dict[str, str]
+
+
+def encode_messages(messages: Sequence[Message], *, system: str = "",
+                     user_tag: str = USER_TAG, bot_tag: str = BOT_TAG) -> Tuple[bytes, List[bool]]:
+    """Byte-encode an arbitrary-length conversation (``[{"role": "user"/
+    "assistant", "content": ...}, ...]``, ending on an assistant turn) in the
+    same layout as :func:`encode_example`, generalized to N turns. The mask is
+    True on every assistant turn's content bytes + its trailing stop newline,
+    False on user turns, role tags, and (if present) the system preamble —
+    exactly the "ignore the prompt, train on the response(s)" contract, now
+    applied per-turn for multi-turn conversations."""
+    parts: List[str] = []
+    if system:
+        parts.append(system.strip())
+    text = "\n".join(parts) + ("\n" if parts else "")
+    mask: List[bool] = [False] * len(text.encode("utf-8"))
+    for msg in messages:
+        tag = user_tag if msg["role"] == "user" else bot_tag
+        if msg["role"] == "user":
+            chunk = f"{tag}{msg['content']}\n"
+            text += chunk
+            mask += [False] * len(chunk.encode("utf-8"))
+        else:
+            prefix = tag
+            body = f"{msg['content']}\n"
+            text += prefix + body
+            mask += [False] * len(prefix.encode("utf-8")) + [True] * len(body.encode("utf-8"))
+    full_bytes = text.encode("utf-8")
+    assert len(full_bytes) == len(mask)
+    return full_bytes, mask
+
+
+def make_conversation_batch(conversations: Sequence[Sequence[Message]], *, system: str = "",
+                            user_tag: str = USER_TAG, bot_tag: str = BOT_TAG,
+                            max_len: Optional[int] = None) -> Dict[str, np.ndarray]:
+    """``make_sft_batch`` for arbitrary-length (possibly multi-turn) message
+    lists instead of flat (prompt, response) pairs."""
+    encoded = [encode_messages(m, system=system, user_tag=user_tag, bot_tag=bot_tag) for m in conversations]
+    return _pad_batch(encoded, max_len)
+
+
+def _pad_batch(encoded: Sequence[Tuple[bytes, List[bool]]], max_len: Optional[int]) -> Dict[str, np.ndarray]:
     t = max(len(b) for b, _ in encoded)
     if max_len:
         t = min(t, max_len)
