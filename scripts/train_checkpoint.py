@@ -111,6 +111,8 @@ def main():
         model.load_state_dict(ck["state_dict"])
         if ck.get("optimizer") is not None:
             opt.load_state_dict(ck["optimizer"])
+        for group in opt.param_groups:
+            group["lr"] = args.lr  # CLI lr wins on resume (convergence ladder)
         step = int(ck.get("step", 0))
         history = ck.get("history", [])
         print(f"resumed from step {step}")

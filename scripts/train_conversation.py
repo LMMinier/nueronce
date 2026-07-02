@@ -123,6 +123,8 @@ def main():
             raise SystemExit("resume config mismatch — wrong --preset for this out-dir")
         model.load_state_dict(ck["state_dict"])
         opt.load_state_dict(ck["optimizer"])
+        for group in opt.param_groups:
+            group["lr"] = args.lr  # CLI lr wins on resume (convergence ladder)
         step, epoch = int(ck.get("step", 0)), int(ck.get("epoch", 0))
         history = ck.get("history", [])
         best_val = min((h["val_loss"] for h in history if "val_loss" in h), default=float("inf"))
