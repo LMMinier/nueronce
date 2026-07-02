@@ -22,6 +22,13 @@ from typing import List, Optional, Tuple
 import torch
 
 from .model import CFNAModel, ModelConfig
+from .prompting import (
+    ASSISTANT,
+    STOP_SEQUENCES,
+    USER,
+    assemble_conversation_prompt,
+    extract_assistant_continuation,
+)
 
 
 def load_checkpoint(path: str) -> Tuple[CFNAModel, dict]:
@@ -36,33 +43,24 @@ def load_checkpoint(path: str) -> Tuple[CFNAModel, dict]:
 @torch.no_grad()
 def _continue(model: CFNAModel, context: bytes, max_new: int, temperature: float,
               stop_bytes: bytes, min_new: int, max_ctx: int) -> bytes:
-    # Follow the model's device so a checkpoint moved to CUDA (e.g. after
-    # load_checkpoint(...) + .to("cuda")) chats without a device mismatch.
-    device = next(model.parameters()).device
-    ids = list(context)[-max_ctx:]
-    out = bytearray()
-    for _ in range(max_new):
-        ctx = torch.tensor([ids[-max_ctx:]], dtype=torch.long, device=device)
-        logits, _ = model(ctx)
-        nxt = logits[0, -1]
-        if temperature <= 0:
-            idx = int(nxt.argmax())
-        else:
-            probs = torch.softmax(nxt / temperature, dim=-1)
-            idx = int(torch.multinomial(probs, 1))
-        ids.append(idx)
-        out.append(idx)
-        if len(out) >= min_new and idx in stop_bytes:
-            break
-    return bytes(out)
+    del stop_bytes, min_new
+    return model.generate(
+        context,
+        max_new=max_new,
+        temperature=temperature,
+        greedy=(temperature <= 0),
+        max_ctx=max_ctx,
+        stop_sequences=STOP_SEQUENCES,
+        continuation_only=True,
+    )
 
 
 @dataclass
 class Conversation:
     model: CFNAModel
     system: str = ""
-    user_tag: str = "User: "
-    bot_tag: str = "Assistant: "
+    user_tag: str = USER
+    bot_tag: str = ASSISTANT
     temperature: float = 0.7
     max_new: int = 80
     min_new: int = 8
@@ -70,15 +68,12 @@ class Conversation:
     transcript: List[Tuple[str, str]] = field(default_factory=list)
 
     def _context(self, user_msg: str) -> bytes:
-        parts = []
-        if self.system:
-            parts.append(self.system.strip())
-        for role, text in self.transcript:
-            tag = self.user_tag if role == "user" else self.bot_tag
-            parts.append(f"{tag}{text}")
-        parts.append(f"{self.user_tag}{user_msg}")
-        parts.append(self.bot_tag.rstrip())
-        return ("\n".join(parts) + " ").encode("utf-8")
+        return assemble_conversation_prompt(
+            system_message=self.system,
+            current_user=user_msg,
+            recent_turns=self.transcript,
+            max_chars=self.max_ctx,
+        ).encode("utf-8")
 
     def say(self, user_msg: str) -> str:
         context = self._context(user_msg)
@@ -86,7 +81,7 @@ class Conversation:
             self.model, context, max_new=self.max_new, temperature=self.temperature,
             stop_bytes=b"\n", min_new=self.min_new, max_ctx=self.max_ctx,
         )
-        reply = raw.decode("utf-8", errors="replace").strip()
+        reply = extract_assistant_continuation(raw)
         reply = _tidy(reply)
         self.transcript.append(("user", user_msg))
         self.transcript.append(("assistant", reply))

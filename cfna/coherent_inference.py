@@ -15,6 +15,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
+from .prompting import extract_assistant_continuation
 from .training.synthetic_dialogue import _CAPITALS
 
 _PRINTABLE = re.compile(r"[\x09\x0A\x0D\x20-\x7E]")
@@ -67,7 +68,7 @@ def deterministic_answer(prompt: str) -> Optional[str]:
 
 
 def clean_reply(text: str) -> str:
-    text = text.replace("\r", "\n").split("User:", 1)[0].split("Assistant:", 1)[0]
+    text = extract_assistant_continuation(text.replace("\r", "\n"))
     text = re.sub(r"\s+", " ", text).strip()
     if not text:
         return ""
@@ -151,6 +152,9 @@ def run_probes(model_fn: Callable[[str], str], *, assist_tools: bool = True,
         r = respond(p.prompt, model_fn, assist_tools=assist_tools)
         ok = (p.expected_substring is None or
               p.expected_substring.lower() in r.text.lower())
+        surface_ok = r.source == "model" and r.warning is None
+        exact_ok = bool(p.expected_substring is not None and
+                        p.expected_substring.lower() in r.text.lower())
         rows.append({
             "prompt": p.prompt,
             "response": r.text,
@@ -158,12 +162,39 @@ def run_probes(model_fn: Callable[[str], str], *, assist_tools: bool = True,
             "warning": r.warning,
             "expected_substring": p.expected_substring,
             "passed": ok,
+            "surface_quality_ok": surface_ok,
+            "exact_correctness": exact_ok if r.source == "model" else False,
+            "tool_correctness": exact_ok if r.source == "tool" else False,
+            "fallback": r.source == "fallback",
         })
+    model_rows = [row for row in rows if row["source"] != "tool"]
+    covered_model_rows = [row for row in model_rows if not row["fallback"]]
     return {
         "n": len(rows),
         "pass_rate": sum(row["passed"] for row in rows) / max(1, len(rows)),
         "tool_rate": sum(row["source"] == "tool" for row in rows) / max(1, len(rows)),
         "fallback_rate": sum(row["source"] == "fallback" for row in rows) / max(1, len(rows)),
+        "valid_generation_rate": sum(row["source"] == "model" for row in rows) / max(1, len(rows)),
+        "surface_coherence_rate": sum(row["surface_quality_ok"] for row in rows) / max(1, len(rows)),
+        "exact_correctness": sum(row["exact_correctness"] for row in rows) / max(1, len(rows)),
+        "semantic_correctness": None,
+        "evidence_support_rate": None,
+        "unsupported_claim_rate": None,
+        "tool_routing_accuracy": sum(row["tool_correctness"] for row in rows) / max(1, sum(row["source"] == "tool" for row in rows)),
+        "termination_rate": None,
+        "average_log_probability": None,
+        "repetition_rate": sum(row["warning"] == "repetitive_output" for row in rows) / max(1, len(rows)),
+        "model_only": {
+            "n": len(model_rows),
+            "coverage": len(covered_model_rows) / max(1, len(model_rows)),
+            "fallback_rate": sum(row["fallback"] for row in model_rows) / max(1, len(model_rows)),
+            "exact_correctness": sum(row["exact_correctness"] for row in model_rows) / max(1, len(model_rows)),
+        },
+        "tool_assisted": {
+            "n": len(rows),
+            "tool_rate": sum(row["source"] == "tool" for row in rows) / max(1, len(rows)),
+            "fallback_rate": sum(row["fallback"] for row in rows) / max(1, len(rows)),
+        },
         "rows": rows,
     }
 

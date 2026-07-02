@@ -19,11 +19,13 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
+from ..prompting import ASSISTANT, END, USER, format_training_example
+
 # Must match cfna.chat.Conversation.user_tag / .bot_tag exactly (checked in
 # tests/test_sft.py) so a checkpoint tuned on this data drops straight into
 # Conversation at inference time.
-USER_TAG: str = "User: "
-BOT_TAG: str = "Assistant: "
+USER_TAG: str = USER
+BOT_TAG: str = ASSISTANT
 
 SFTExample = Tuple[str, str]
 
@@ -102,16 +104,18 @@ def encode_example(prompt: str, response: str, *, system: str = "",
     """Byte-encode one turn in ``Conversation``'s exact layout and return
     ``(bytes, mask)`` where ``mask[i]`` is True iff byte ``i`` belongs to the
     response (the SFT loss target), including the trailing stop newline."""
+    if user_tag == USER_TAG and bot_tag == BOT_TAG:
+        return format_training_example(
+            system_message=system, user_request=prompt, assistant_response=response
+        )
     prefix_parts = []
     if system:
         prefix_parts.append(system.strip())
-    prefix_parts.append(f"{user_tag}{prompt}")
-    prefix = "\n".join(prefix_parts) + "\n" + bot_tag
-    full = prefix + response + "\n"
-    prefix_bytes = prefix.encode("utf-8")
-    full_bytes = full.encode("utf-8")
-    mask = [False] * len(prefix_bytes) + [True] * (len(full_bytes) - len(prefix_bytes))
-    return full_bytes, mask
+    prefix_parts.append(f"{user_tag}\n{prompt}")
+    prefix = "\n".join(prefix_parts) + "\n" + bot_tag + "\n"
+    full = prefix + response + "\n" + END + "\n"
+    pb, fb = prefix.encode("utf-8"), full.encode("utf-8")
+    return fb, [False] * len(pb) + [True] * (len(fb) - len(pb))
 
 
 def make_sft_batch(examples: Sequence[SFTExample], *, system: str = "",
@@ -137,20 +141,17 @@ def encode_messages(messages: Sequence[Message], *, system: str = "",
     False on user turns, role tags, and (if present) the system preamble —
     exactly the "ignore the prompt, train on the response(s)" contract, now
     applied per-turn for multi-turn conversations."""
-    parts: List[str] = []
-    if system:
-        parts.append(system.strip())
-    text = "\n".join(parts) + ("\n" if parts else "")
+    text = f"<|system|>\n{system.strip() if system else ''}\n"
     mask: List[bool] = [False] * len(text.encode("utf-8"))
     for msg in messages:
         tag = user_tag if msg["role"] == "user" else bot_tag
         if msg["role"] == "user":
-            chunk = f"{tag}{msg['content']}\n"
+            chunk = f"{tag}\n{msg['content']}\n"
             text += chunk
             mask += [False] * len(chunk.encode("utf-8"))
         else:
-            prefix = tag
-            body = f"{msg['content']}\n"
+            prefix = f"{tag}\n"
+            body = f"{msg['content']}\n{END}\n"
             text += prefix + body
             mask += [False] * len(prefix.encode("utf-8")) + [True] * len(body.encode("utf-8"))
     full_bytes = text.encode("utf-8")
@@ -195,5 +196,6 @@ def held_out_split(examples: Sequence[SFTExample], val_frac: float = 0.2,
 
 __all__ = [
     "SFTExample", "SFT_DATASET", "USER_TAG", "BOT_TAG",
-    "encode_example", "make_sft_batch", "held_out_split",
+    "encode_example", "make_sft_batch", "held_out_split", "encode_messages",
+    "make_conversation_batch",
 ]

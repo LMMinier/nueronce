@@ -15,6 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
+from ..prompting import assemble_conversation_prompt
 from ..training.dialogue_data import BOT_TAG, USER_TAG
 from ..training.sharded_sft import load_checkpoint as _load_checkpoint_payload
 from .cfna_model import MicroCFNAModel, MicroModelConfig
@@ -43,15 +44,12 @@ class MicroConversation:
     transcript: List[Tuple[str, str]] = field(default_factory=list)
 
     def _context(self, user_msg: str) -> bytes:
-        parts = []
-        if self.system:
-            parts.append(self.system.strip())
-        for role, text in self.transcript:
-            tag = self.user_tag if role == "user" else self.bot_tag
-            parts.append(f"{tag}{text}")
-        parts.append(f"{self.user_tag}{user_msg}")
-        parts.append(self.bot_tag.rstrip())
-        return ("\n".join(parts) + " ").encode("utf-8")
+        return assemble_conversation_prompt(
+            system_message=self.system,
+            current_user=user_msg,
+            recent_turns=self.transcript,
+            max_chars=self.max_ctx,
+        ).encode("utf-8")
 
     def say(self, user_msg: str) -> str:
         context = self._context(user_msg)

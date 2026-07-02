@@ -9,6 +9,7 @@ import pytest
 
 from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
 from cfna.microtorch.optim import AdamW
+from cfna.prompting import END
 from cfna.training.dialogue_data import encode_messages
 from cfna.training.sharded_sft import (
     ShardedSFTConfig, apply_checkpoint, evaluate, load_checkpoint,
@@ -98,7 +99,7 @@ def test_prompt_bytes_contribute_zero_gradient_response_bytes_do():
     # loss (it isn't a target and, more importantly, isn't even part of any
     # target's *causal future* here since prompt precedes response), while
     # perturbing a byte inside the response changes it.
-    prefix_len = len(f"User: Hello\nAssistant: ".encode("utf-8"))
+    prefix_len = full.index(b"Hi!")
     ids_perturbed_prompt = ids.copy()
     ids_perturbed_prompt[0, 2] = (ids_perturbed_prompt[0, 2] + 5) % 256  # inside "Hello"
     loss2 = model.masked_loss(ids_perturbed_prompt, tmask)
@@ -132,9 +133,9 @@ def test_masked_token_loss_matches_manual_single_position_reference():
 
 def test_encode_messages_masks_the_trailing_stop_byte():
     full, mask = encode_messages(_conv("Hi", "Ok"))
-    assert full.endswith(b"\n")
+    assert full.endswith(f"{END}\n".encode("utf-8"))
     assert mask[-1] is True  # the stop newline is part of the trainable target
-    assert full.decode()[-3:] == "Ok\n"
+    assert full.decode().endswith(f"Ok\n{END}\n")
 
 
 def test_generation_terminates_at_stop_byte():
