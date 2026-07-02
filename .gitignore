@@ -1,41 +1,13 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-build/
-dist/
-.venv/
+# Ignore dataset and large generated files
+/data/
+/data/*
+
+# DVC state
+.dvc/
+
+# processed shards
+data/processed/
+
+# local virtualenv
+.env/
 venv/
-env/
-
-# Tooling caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Model / data artifacts (keep large blobs out of git)
-*.pt
-*.bin
-*.safetensors
-*.gguf
-data/
-checkpoints/
-indexes/
-*.faiss
-
-# Editor / OS
-.idea/
-.vscode/
-.DS_Store
-
-# demo outputs
-scripts/train_metrics.json
-scripts/retrieval_metrics.json
-scripts/baseline_metrics.json
-
-# corpus data + trained weights (reproducible via scripts, not committed)
-# anchored to repo root so the cfna/corpus/ *source* package stays tracked
-/corpus/
