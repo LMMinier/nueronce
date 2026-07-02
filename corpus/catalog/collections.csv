@@ -1,0 +1,154 @@
+source_id,name,domain,homepage,license_bucket,ingest_status,recommended_adapter
+project_gutenberg,Project Gutenberg,books,https://www.gutenberg.org/,A_PD_CC0,ingest_after_item_header_check,gutenberg_catalog
+standard_ebooks,Standard Ebooks,books,https://standardebooks.org/,A_PD_CC0,ingest,standard_ebooks_git
+hathitrust_pd,HathiTrust Public Domain,books,https://www.hathitrust.org/,E_PER_ITEM,metadata_first_manual_or_api_access,hathitrust_rights
+internet_archive_pd,Internet Archive Public-Domain Items,books,https://archive.org/,E_PER_ITEM,license_gate_required,internet_archive_metadata
+loc_free_to_use,Library of Congress Free to Use and Reuse,culture,https://www.loc.gov/free-to-use/,E_PER_ITEM,license_gate_required,loc_api
+wikisource_pd_subset,Wikisource Public-Domain Subset,books,https://wikisource.org/,E_PER_ITEM,page_license_resolution_required,wikimedia_dump
+wikipedia,Wikipedia,encyclopedia,https://www.wikipedia.org/,C_SHARE_ALIKE,separate_share_alike_corpus,wikimedia_dump
+wikibooks,Wikibooks,education,https://www.wikibooks.org/,C_SHARE_ALIKE,separate_share_alike_corpus,wikimedia_dump
+wikiversity,Wikiversity,education,https://www.wikiversity.org/,C_SHARE_ALIKE,separate_share_alike_corpus,wikimedia_dump
+wiktionary,Wiktionary,language,https://www.wiktionary.org/,C_SHARE_ALIKE,separate_share_alike_corpus,wikimedia_dump
+wikiquote,Wikiquote,language,https://www.wikiquote.org/,E_PER_ITEM,high_risk_quote_filter,wikimedia_dump
+britannica_1911,"Encyclopaedia Britannica, 11th Edition (1910–1911)",encyclopedia,https://en.wikisource.org/wiki/1911_Encyclop%C3%A6dia_Britannica,A_PD_CC0,ingest_with_historical_warning,britannica_1911
+new_international_encyclopedia,The New International Encyclopaedia,encyclopedia,https://archive.org/,E_PER_ITEM,edition_review_required,internet_archive_metadata
+encyclopedia_americana_old,"Encyclopedia Americana, Public-Domain Editions",encyclopedia,https://archive.org/,E_PER_ITEM,edition_review_required,internet_archive_metadata
+perseus,Perseus Digital Library,humanities,https://www.perseus.tufts.edu/,E_PER_ITEM,license_gate_required,perseus_xml
+openstax,OpenStax,education,https://openstax.org/subjects,B_ATTRIBUTION,per_book_license_check,openstax_book
+open_textbook_library,Open Textbook Library,education,https://open.umn.edu/opentextbooks,E_PER_ITEM,catalog_only_then_license_gate,otl_catalog
+bсcampus_opened,BCcampus Open Education,education,https://open.bccampus.ca/,E_PER_ITEM,license_gate_required,bccampus_catalog
+libretexts,LibreTexts,education,https://libretexts.org/,E_PER_ITEM,license_gate_required,libretexts
+oer_commons,OER Commons,education,https://www.oercommons.org/,E_PER_ITEM,metadata_only_then_license_gate,oer_catalog
+saylor_academy,Saylor Academy Open Textbooks,education,https://www.saylor.org/books/,E_PER_ITEM,per_title_review,generic_html_pdf
+mit_ocw,MIT OpenCourseWare,education,https://ocw.mit.edu/,D_NONCOMMERCIAL,research_only_separate,mit_ocw
+noba_psychology,Noba Project,psychology,https://nobaproject.com/,D_NONCOMMERCIAL,research_only_separate,generic_html_pdf
+galileo_olms,GALILEO Open Learning Materials,education,https://oer.galileo.usg.edu/,E_PER_ITEM,license_gate_required,institutional_repository
+pmc_oa,PubMed Central Open Access Subset,health,https://pmc.ncbi.nlm.nih.gov/tools/openftlist/,E_PER_ITEM,license_gate_required,pmc_jats
+europe_pmc_oa,Europe PMC Open Access,health,https://europepmc.org/,E_PER_ITEM,license_gate_required,europe_pmc_api
+pubmed_metadata,PubMed Metadata,health,https://pubmed.ncbi.nlm.nih.gov/,E_PER_ITEM,metadata_preferred_abstract_review,pubmed_xml
+plos,PLOS Journals,science,https://plos.org/,B_ATTRIBUTION,ingest_with_attribution,jats_oa
+elife,eLife,science,https://elifesciences.org/,B_ATTRIBUTION,ingest_with_attribution,jats_oa
+bmc_springeropen,BMC and SpringerOpen,science,https://www.springeropen.com/,E_PER_ITEM,license_gate_required,jats_oa
+frontiers,Frontiers Journals,science,https://www.frontiersin.org/,B_ATTRIBUTION,ingest_with_attribution,oa_article
+mdpi,MDPI Open Access Journals,science,https://www.mdpi.com/,B_ATTRIBUTION,ingest_with_attribution,oa_article
+peerj,PeerJ,science,https://peerj.com/,B_ATTRIBUTION,ingest_with_attribution,oa_article
+joss,Journal of Open Source Software,coding,https://joss.theoj.org/,E_PER_ITEM,paper_ingest_code_license_gate,joss
+d oaj,Directory of Open Access Journals,scholarly,https://doaj.org/,E_PER_ITEM,discovery_only_then_license_gate,doaj_api
+crossref,Crossref Metadata,scholarly,https://www.crossref.org/,E_PER_ITEM,metadata_ingest_abstract_gate,crossref_api
+openalex,OpenAlex,scholarly,https://openalex.org/,A_PD_CC0,ingest_metadata,openalex_snapshot
+unpaywall,Unpaywall,scholarly,https://unpaywall.org/,A_PD_CC0,ingest_metadata,unpaywall_snapshot
+core,CORE,scholarly,https://core.ac.uk/,E_PER_ITEM,license_gate_required,core_api
+arxiv,arXiv,science,https://arxiv.org/,E_PER_ITEM,license_gate_required,arxiv_metadata_source
+biorxiv,bioRxiv,science,https://www.biorxiv.org/,E_PER_ITEM,license_gate_required,preprint_api
+medrxiv,medRxiv,health,https://www.medrxiv.org/,E_PER_ITEM,license_gate_required,preprint_api
+zenodo,Zenodo,scholarly,https://zenodo.org/,E_PER_ITEM,license_gate_required,zenodo_api
+hal,HAL Open Science,scholarly,https://hal.science/,E_PER_ITEM,license_gate_required,hal_api
+osf_preprints,OSF Preprints,scholarly,https://osf.io/preprints/,E_PER_ITEM,license_gate_required,osf_api
+semantic_scholar,Semantic Scholar Open Research Corpus,scholarly,https://www.semanticscholar.org/product/api,E_PER_ITEM,dataset_terms_review,s2orc
+govinfo,GovInfo,government,https://www.govinfo.gov/,A_PD_CC0,ingest_with_third_party_notice_filter,govinfo_api
+federal_register,Federal Register,government,https://www.federalregister.gov/,A_PD_CC0,ingest,federal_register_api
+congress_gov,Congress.gov,government,https://www.congress.gov/,E_PER_ITEM,ingest_with_field_review,congress_api
+white_house_archives,White House and Archived White House Speeches,speeches,https://www.whitehouse.gov/briefing-room/speeches-remarks/,E_PER_ITEM,speaker_and_rights_filter,whitehouse_speeches
+american_presidency_gov_sources,Presidential Libraries and National Archives,speeches,https://www.archives.gov/presidential-libraries,E_PER_ITEM,rights_gate_required,nara_catalog
+supreme_court,Supreme Court of the United States Opinions,law,https://www.supremecourt.gov/opinions/opinions.aspx,A_PD_CC0,ingest,scotus_opinions
+courtlistener,CourtListener,law,https://www.courtlistener.com/,E_PER_ITEM,dataset_license_review,courtlistener_api
+cia_foia,CIA FOIA Reading Room,government,https://www.cia.gov/readingroom/,E_PER_ITEM,third_party_filter,government_documents
+fbi_vault,FBI Vault,government,https://vault.fbi.gov/,E_PER_ITEM,third_party_filter,government_documents
+nasa_ntrs,NASA Technical Reports Server,science,https://ntrs.nasa.gov/,E_PER_ITEM,rights_gate_required,nasa_ntrs_api
+nasa_ads,NASA Astrophysics Data System,science,https://ui.adsabs.harvard.edu/,E_PER_ITEM,metadata_preferred,ads_api
+nist_publications,NIST Publications,science,https://www.nist.gov/publications,E_PER_ITEM,rights_gate_required,nist_publications
+nist_dlmf,NIST Digital Library of Mathematical Functions,math,https://dlmf.nist.gov/,E_PER_ITEM,terms_review_then_ingest,dlmf
+usgs,U.S. Geological Survey Publications,science,https://pubs.usgs.gov/,A_PD_CC0,ingest_with_notice_filter,usgs_catalog
+noaa,NOAA Publications and Data Documentation,science,https://www.noaa.gov/,E_PER_ITEM,collection_specific_adapter,noaa_sources
+doe_osti,DOE OSTI,science,https://www.osti.gov/,E_PER_ITEM,rights_gate_required,osti_api
+epa,U.S. EPA Publications,health,https://www.epa.gov/,E_PER_ITEM,notice_filter,government_documents
+cdc,CDC Publications and Health Information,health,https://www.cdc.gov/,E_PER_ITEM,notice_filter_and_date_versioning,cdc
+nih,NIH Publications,health,https://www.nih.gov/,E_PER_ITEM,notice_filter_and_date_versioning,nih
+medlineplus,MedlinePlus,health,https://medlineplus.gov/,E_PER_ITEM,strict_field_license_gate,medlineplus
+fda,FDA Publications and Safety Communications,health,https://www.fda.gov/,E_PER_ITEM,date_versioned_ingest,fda_openapi
+clinicaltrials,ClinicalTrials.gov,health,https://clinicaltrials.gov/,E_PER_ITEM,terms_review_then_ingest,clinicaltrials_api
+census,U.S. Census Bureau Publications,sociology,https://www.census.gov/,A_PD_CC0,ingest,census_api
+bls,U.S. Bureau of Labor Statistics,economics,https://www.bls.gov/,A_PD_CC0,ingest,bls_api
+bea,U.S. Bureau of Economic Analysis,economics,https://www.bea.gov/,A_PD_CC0,ingest,bea_api
+data_gov,Data.gov Catalog,government,https://data.gov/,E_PER_ITEM,metadata_only_then_license_gate,ckan_api
+sec_edgar,SEC EDGAR,finance,https://www.sec.gov/edgar,E_PER_ITEM,legal_review_before_training,sec_edgar
+wordnet,Princeton WordNet,language,https://wordnet.princeton.edu/,B_ATTRIBUTION,ingest_with_license_notice,wordnet
+cmudict,CMU Pronouncing Dictionary,language,https://github.com/cmusphinx/cmudict,B_ATTRIBUTION,ingest_with_notice,lexicon
+tatoeba,Tatoeba,language,https://tatoeba.org/,E_PER_ITEM,text_ingest_audio_license_gate,tatoeba
+opus,OPUS Parallel Corpora,language,https://opus.nlpl.eu/,E_PER_ITEM,corpus_license_gate,opus
+universal_dependencies,Universal Dependencies,language,https://universaldependencies.org/,E_PER_ITEM,treebank_license_gate,conllu
+leipzig_corpora,Leipzig Corpora Collection,language,https://wortschatz.uni-leipzig.de/en/download,E_PER_ITEM,terms_review,text_corpus
+flores_200,FLORES-200,language,https://github.com/facebookresearch/flores,E_PER_ITEM,license_review,parallel_corpus
+common_crawl,Common Crawl,web,https://commoncrawl.org/,F_REFERENCE_ONLY,do_not_bulk_train_without_legal_policy,warc
+oscar,OSCAR,language,https://oscar-project.org/,F_REFERENCE_ONLY,do_not_mix_with_safe_corpus,dataset
+free_programming_books,Free Programming Books Index,coding,https://github.com/EbookFoundation/free-programming-books,E_PER_ITEM,discovery_only_then_license_gate,github_catalog
+python_docs,Python Documentation,coding,https://docs.python.org/3/,B_ATTRIBUTION,ingest_with_notice,sphinx_docs
+python_peps,Python Enhancement Proposals,coding,https://peps.python.org/,E_PER_ITEM,terms_review_then_ingest,peps
+rust_book,The Rust Programming Language and Rust Documentation,coding,https://doc.rust-lang.org/book/,B_ATTRIBUTION,ingest_with_notice,mdbook
+go_docs,Go Documentation and Specification,coding,https://go.dev/doc/,B_ATTRIBUTION,ingest_with_notice,godoc
+dotnet_docs,Microsoft .NET and C# Documentation,coding,https://learn.microsoft.com/dotnet/,E_PER_ITEM,repo_and_page_license_gate,microsoft_docs
+typescript_docs,TypeScript Handbook and Docs,coding,https://www.typescriptlang.org/docs/,E_PER_ITEM,repo_license_gate,markdown_docs
+mdn,MDN Web Docs,coding,https://developer.mozilla.org/,C_SHARE_ALIKE,split_prose_and_code_licenses,mdn_content
+php_manual,PHP Manual,coding,https://www.php.net/manual/en/,E_PER_ITEM,repo_license_gate,docbook
+ruby_docs,Ruby Documentation,coding,https://www.ruby-lang.org/en/documentation/,E_PER_ITEM,component_license_gate,rdoc
+swift_book,The Swift Programming Language,coding,https://docs.swift.org/swift-book/,E_PER_ITEM,repo_license_gate,docc_markdown
+kotlin_docs,Kotlin Documentation,coding,https://kotlinlang.org/docs/home.html,E_PER_ITEM,repo_license_gate,markdown_docs
+dart_flutter_docs,Dart and Flutter Documentation,coding,https://dart.dev/guides,E_PER_ITEM,split_docs_and_code,markdown_docs
+scala_docs,Scala Documentation,coding,https://docs.scala-lang.org/,E_PER_ITEM,repo_license_gate,markdown_docs
+haskell_ghc_docs,GHC and Haskell Documentation,coding,https://www.haskell.org/documentation/,E_PER_ITEM,component_license_gate,haddock
+ocaml_docs,OCaml Documentation,coding,https://ocaml.org/docs,E_PER_ITEM,component_license_gate,odoc
+erlang_docs,Erlang/OTP Documentation,coding,https://www.erlang.org/docs,B_ATTRIBUTION,ingest_with_notice,ex_doc_or_html
+elixir_docs,Elixir Documentation,coding,https://elixir-lang.org/getting-started/introduction.html,B_ATTRIBUTION,ingest_with_notice,ex_doc
+clojure_docs,Clojure Documentation,coding,https://clojure.org/guides/getting_started,E_PER_ITEM,repo_license_gate,markdown_docs
+julia_docs,Julia Documentation,coding,https://docs.julialang.org/,B_ATTRIBUTION,ingest_with_notice,documenter_jl
+r_manuals,R Project Manuals,coding,https://cran.r-project.org/manuals.html,C_SHARE_ALIKE,separate_copyleft_corpus,texinfo_or_html
+perl_docs,Perl Documentation,coding,https://perldoc.perl.org/,E_PER_ITEM,component_license_gate,pod
+lua_manual,Lua Reference Manual,coding,https://www.lua.org/manual/,F_REFERENCE_ONLY,reference_only,none
+powershell_docs,PowerShell Documentation,coding,https://learn.microsoft.com/powershell/,E_PER_ITEM,repo_and_page_license_gate,microsoft_docs
+bash_manual,GNU Bash Manual,coding,https://www.gnu.org/software/bash/manual/,C_SHARE_ALIKE,separate_gfdl_corpus,texinfo
+git_docs,Git Documentation,coding,https://git-scm.com/doc,C_SHARE_ALIKE,separate_copyleft_corpus,asciidoc
+linux_kernel_docs,Linux Kernel Documentation,coding,https://docs.kernel.org/,C_SHARE_ALIKE,separate_copyleft_corpus,sphinx_docs
+postgresql_docs,PostgreSQL Documentation,coding,https://www.postgresql.org/docs/,B_ATTRIBUTION,ingest_with_notice,sgml_docs
+sqlite_docs,SQLite Documentation,coding,https://www.sqlite.org/docs.html,E_PER_ITEM,site_terms_review,html_docs
+mysql_docs,MySQL Documentation,coding,https://dev.mysql.com/doc/,F_REFERENCE_ONLY,reference_only,none
+mariadb_docs,MariaDB Documentation,coding,https://mariadb.com/docs/,E_PER_ITEM,repo_license_gate,markdown_docs
+cppreference,cppreference,coding,https://en.cppreference.com/,C_SHARE_ALIKE,separate_share_alike_corpus,mediawiki
+gnu_c_manuals,GNU C and Compiler Manuals,coding,https://gcc.gnu.org/onlinedocs/,C_SHARE_ALIKE,separate_gfdl_corpus,texinfo
+iso_standards,ISO/IEC Programming Language Standards,coding,https://www.iso.org/standards.html,F_REFERENCE_ONLY,do_not_ingest,none
+oracle_java_docs,Oracle Java Documentation and Specifications,coding,https://docs.oracle.com/en/java/,F_REFERENCE_ONLY,reference_only,none
+openjdk,OpenJDK Source and Documentation,coding,https://openjdk.org/,C_SHARE_ALIKE,separate_copyleft_corpus,javadoc_and_source
+webassembly_specs,WebAssembly Specifications,coding,https://webassembly.github.io/spec/,B_ATTRIBUTION,ingest_with_notice,spec_markdown
+riscv_specs,RISC-V Specifications,coding,https://riscv.org/technical/specifications/,E_PER_ITEM,edition_license_gate,spec_pdf
+intel_manuals,Intel Architecture Manuals,coding,https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html,F_REFERENCE_ONLY,reference_only,none
+arm_docs,Arm Architecture Documentation,coding,https://developer.arm.com/documentation,F_REFERENCE_ONLY,reference_only,none
+w3c_specs,W3C Technical Reports,coding,https://www.w3.org/TR/,B_ATTRIBUTION,ingest_with_notice,w3c_spec
+kubernetes_docs,Kubernetes Documentation,coding,https://kubernetes.io/docs/,B_ATTRIBUTION,split_docs_and_code,hugo_markdown
+github_docs,GitHub Documentation,coding,https://docs.github.com/,B_ATTRIBUTION,ingest_with_notice,github_docs
+docker_docs,Docker Documentation,coding,https://docs.docker.com/,E_PER_ITEM,repo_license_gate,hugo_markdown
+rosseta_code,Rosetta Code,coding,https://rosettacode.org/,C_SHARE_ALIKE,separate_share_alike_corpus,mediawiki
+exercism,Exercism Language Tracks,coding,https://exercism.org/,E_PER_ITEM,repo_license_gate,git_repos
+software_heritage,Software Heritage,coding,https://www.softwareheritage.org/,E_PER_ITEM,spdx_license_gate,swh_api
+bigcode_stack,BigCode / The Stack,coding,https://www.bigcode-project.org/,E_PER_ITEM,strict_license_and_optout_gate,hf_dataset
+qiskit_docs,Qiskit Documentation and Textbook Materials,quantum,https://docs.quantum.ibm.com/,E_PER_ITEM,repo_license_gate,notebook_docs
+cirq_docs,Cirq Documentation,quantum,https://quantumai.google/cirq,E_PER_ITEM,split_docs_and_site,notebook_docs
+qutip_docs,QuTiP Documentation,quantum,https://qutip.readthedocs.io/,B_ATTRIBUTION,ingest_with_notice,sphinx_docs
+pennylane_docs,PennyLane Documentation,quantum,https://docs.pennylane.ai/,E_PER_ITEM,repo_license_gate,sphinx_notebooks
+quantum_journal,Quantum Journal,quantum,https://quantum-journal.org/,B_ATTRIBUTION,ingest_with_attribution,oa_article
+numpy_docs,NumPy Documentation,coding,https://numpy.org/doc/,B_ATTRIBUTION,ingest_with_notice,sphinx_docs
+scipy_docs,SciPy Documentation,coding,https://docs.scipy.org/,B_ATTRIBUTION,ingest_with_notice,sphinx_docs
+scikit_learn_docs,scikit-learn Documentation,coding,https://scikit-learn.org/stable/,B_ATTRIBUTION,ingest_with_notice,sphinx_gallery
+pytorch_docs,PyTorch Documentation,coding,https://pytorch.org/docs/stable/,E_PER_ITEM,repo_license_gate,sphinx_docs
+tensorflow_docs,TensorFlow Documentation,coding,https://www.tensorflow.org/,E_PER_ITEM,split_docs_code_assets,notebook_docs
+jupyter_docs,Jupyter Documentation,coding,https://docs.jupyter.org/,B_ATTRIBUTION,component_ingest_with_notice,sphinx_docs
+plainlanguage_gov,PlainLanguage.gov,writing,https://www.plainlanguage.gov/,A_PD_CC0,ingest,government_html
+gov_style_manuals,U.S. Government Publishing Office Style Manual,writing,https://www.govinfo.gov/app/details/GPO-STYLEMANUAL-2016,A_PD_CC0,ingest,govinfo_document
+purdue_owl,Purdue Online Writing Lab,writing,https://owl.purdue.edu/,F_REFERENCE_ONLY,reference_only,none
+writing_commons,Writing Commons,writing,https://writingcommons.org/,E_PER_ITEM,page_license_gate,generic_html
+american_rhetoric,American Rhetoric,speeches,https://www.americanrhetoric.com/,F_REFERENCE_ONLY,reference_only,none
+britannica_current,Encyclopaedia Britannica (current website),encyclopedia,https://www.britannica.com/,F_REFERENCE_ONLY,do_not_ingest,none
+merriam_webster,Merriam-Webster,language,https://www.merriam-webster.com/,F_REFERENCE_ONLY,do_not_ingest,none
+stanford_encyclopedia,Stanford Encyclopedia of Philosophy,philosophy,https://plato.stanford.edu/,F_REFERENCE_ONLY,reference_only,none
+iep,Internet Encyclopedia of Philosophy,philosophy,https://iep.utm.edu/,F_REFERENCE_ONLY,reference_only,none
+wolfram_mathworld,Wolfram MathWorld,math,https://mathworld.wolfram.com/,F_REFERENCE_ONLY,do_not_ingest,none
+oeis,OEIS,math,https://oeis.org/,E_PER_ITEM,terms_review,oeis
+stack_overflow,Stack Overflow / Stack Exchange Data,coding,https://archive.org/details/stackexchange,C_SHARE_ALIKE,separate_share_alike_corpus,stackexchange_dump

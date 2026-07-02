@@ -1,0 +1,21 @@
+work_id,title,author,publication_year,subject,work_type,collection_code,rights_code,priority
+work_0225,United States Presidential Inaugural Addresses,U.S. Presidents,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0226,United States State of the Union Addresses,U.S. Presidents,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0227,The Gettysburg Address,Abraham Lincoln,1863,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0228,Lincoln's First Inaugural Address,Abraham Lincoln,1861,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0229,Lincoln's Second Inaugural Address,Abraham Lincoln,1865,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0230,Cooper Union Address,Abraham Lincoln,1860,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0231,Frederick Douglass July Fourth address,Frederick Douglass,1852,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0232,Frederick Douglass July Fourth address alternate title,Frederick Douglass,1852,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0233,Atlanta Exposition Address,Booker T. Washington,1895,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0234,The Talented Tenth,W. E. B. Du Bois,1903,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0235,Sojourner Truth women's rights speech historical versions,Sojourner Truth,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0236,Women's Rights Convention speeches,Susan B. Anthony and others,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0237,The Federalist Papers,"Alexander Hamilton, James Madison, and John Jay",1788,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0238,Common Sense,Thomas Paine,1776,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0239,The Rights of Man,Thomas Paine,1791,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0240,The Declaration of Independence,Continental Congress,1776,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0241,The Constitution of the United States,Constitutional Convention,1787,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0242,Washington's Farewell Address,George Washington,1796,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0243,Theodore Roosevelt public presidential addresses,Theodore Roosevelt,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
+work_0244,Woodrow Wilson public presidential addresses,Woodrow Wilson,,speeches_and_civic_texts,speech_or_civic_text,US_GOV,US_GOV_OR_PD_CHECK,high
