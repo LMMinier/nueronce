@@ -39,7 +39,7 @@ mystery.
 | Canonical-prompt SFT builder | DONE | `scripts/build_prompt_aligned_sft.py`; `dialogue_data.encode_example`/`encode_messages` emit canonical layout + response-only masks |
 | Synthetic dialogue generator (~127K unique) | DONE | `cfna/training/synthetic_dialogue.py` |
 | MCQ/QA conversion (ARC, OpenBookQA, CommonsenseQA, MathQA, GSM8K) | DONE | `cfna/training/mcq_sft.py` (`load_and_convert`, `convert_records`) |
-| Assembled ≥50K-record mixed SFT set, ≤25% per register | TODO (local GPU) | mix rule + poisoning lesson in `docs/CODEX_HANDOFF.md` §3; 800-record set is known-insufficient |
+| Assembled ≥50K-record mixed SFT set, ≤25% per register | DONE | `scripts/build_conversation_sft.py` → 54,685 records, max register 25.0%, leakage-checked; manifest in `metrics/conversation_sft_manifest.json`; rebuilds bit-identically on any machine |
 
 ## Phase 3 — VGRFT (the SFT stage, implemented — not vaporware)
 
@@ -71,8 +71,11 @@ base model worth revising.
 | Parameter presets: chat_11m / base_35m (34.4M) / base_90m (92.1M) / large_337m | DONE | `cfna.model.CONFIG_PRESETS`; construct+forward verified |
 | fp16/AMP-safe numerics (masked softmax, fp32 RMSNorm stats) | DONE | `cfna/nn.py`; `tests/test_gpu_amp.py` |
 | Multi-subject corpus recipe (~400 MB, 22 sources) | DONE | `cfna/corpus/stack.py`; `docs/LOCAL_TRAINING_PLAYBOOK.md` §1 |
-| base_35m pretrain to held-out bpb ≤ 1.5 | TODO (local GPU) | run order + gates in `docs/CODEX_HANDOFF.md` |
-| SFT on ≥50K records, best-by-val checkpoint | TODO (local GPU) | gated on base bpb < 1.8 — SFT shapes competence, it cannot create it |
+| Resumable conversation trainer (canonical, best-by-val, AMP, format-stamped) | DONE | `scripts/train_conversation.py`; data layer torch-free + tested (`tests/test_mixed_sft.py`) |
+| Preset/AMP/device support in the base pretrainer | DONE | `scripts/train_checkpoint.py --preset base_35m --amp` |
+| Colab training journal (corpus → parameters → chat) | DONE | `notebooks/cfna_colab_training.ipynb` (13 cells, resumable, Drive checkpoints, corpus→GitHub cell) |
+| base_35m pretrain to held-out bpb ≤ 1.5 | TODO (desktop/Colab) | `docs/DESKTOP_RUNBOOK.md` §2 / notebook cell 6 — cloud box has no GPU and its proxy blocks huggingface.co |
+| SFT on the 54K set, best-by-val checkpoint | TODO (desktop/Colab) | runbook §4 / notebook cell 8; gated on base bpb < 1.8 — SFT shapes competence, it cannot create it |
 | base_90m rung | BLOCKED | unlocks only when 35M acceptance holds |
 | 337M training | BLOCKED | two rungs away; anything sooner is theater |
 
