@@ -1,0 +1,3 @@
+{"event": "pre_training", "step": 0, "val_loss": 3.61769662797451, "val_bits_per_byte": 5.219232984619551, "val_byte_accuracy": 0.19632810186556116, "val_n_examples": 80, "is_best": true, "time": "2026-07-02T00:43:57Z"}
+{"event": "periodic_val", "step": 5, "val_loss": 3.5500224590301515, "val_bits_per_byte": 5.121599796687243, "val_byte_accuracy": 0.19884512881255553, "val_n_examples": 80, "is_best": true, "time": "2026-07-02T00:44:22Z"}
+{"event": "final_val", "step": 5, "val_loss": 3.5500224590301515, "val_bits_per_byte": 5.121599796687243, "val_byte_accuracy": 0.19884512881255553, "val_n_examples": 80, "is_best": false, "time": "2026-07-02T00:44:45Z"}
