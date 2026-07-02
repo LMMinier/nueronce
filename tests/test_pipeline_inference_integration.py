@@ -3,6 +3,8 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from cfna.pipeline import ModelRenderer, evidence_to_retrieval_tensors, verification_feedback
+from cfna.verification import IndependentVerifier
+from cfna.impl import default_verifier_hooks
 from cfna.types import MemoryRecord, VerificationFailure, VerificationReport
 
 
@@ -96,3 +98,43 @@ def test_verification_feedback_is_structured():
     assert feedback["unsupported_claims"] == ["bad claim"]
     assert feedback["contradictions"] == ["conflict"]
     assert "hedge" in feedback["format_failures"]
+
+
+def test_surface_quality_failures_block_verification():
+    verifier = IndependentVerifier(default_verifier_hooks())
+    report = verifier.verify(
+        "the the the the the the",
+        {"user_goal": "What does CFNA separate?", "completion_checklist": []},
+        [_memory("doc1", "CFNA separates retrieval reasoning and generation.")],
+        [],
+    )
+    assert not report.passes
+    assert any(f.category == "surface_quality" for f in report.failures)
+
+
+def test_repetitive_first_draft_can_trigger_one_revision_then_fail_if_still_bad():
+    class LoopModel(CaptureModel):
+        def generate(self, prompt, **kwargs):
+            self.calls.append((prompt.decode("utf-8"), kwargs))
+            return b"the the the the the the"
+
+    model = LoopModel()
+    evidence = [_memory("doc1", "CFNA separates retrieval reasoning and generation.")]
+    neighbor_ids, neighbor_mask = evidence_to_retrieval_tensors(evidence)
+    renderer = ModelRenderer(model)
+    draft = {
+        "query": "What does CFNA separate?",
+        "evidence": evidence,
+        "reasoning": {},
+        "plan": {"user_goal": "What does CFNA separate?", "completion_checklist": []},
+        "neighbor_ids": neighbor_ids,
+        "neighbor_mask": neighbor_mask,
+    }
+    verifier = IndependentVerifier(default_verifier_hooks())
+    first = renderer.render(draft, {})
+    first_report = verifier.verify(first, draft["plan"], evidence, [])
+    second = renderer.render_revision(draft, first, verification_feedback(first_report))
+    second_report = verifier.verify(second, draft["plan"], evidence, [])
+    assert not first_report.passes
+    assert not second_report.passes
+    assert len(model.calls) == 2

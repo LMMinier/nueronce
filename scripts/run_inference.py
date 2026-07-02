@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List
 
 from cfna.chat import load_checkpoint
-from cfna.coherent_inference import deterministic_answer
+from cfna.coherent_inference import deterministic_answer, surface_failure_reason
 from cfna.prompting import STOP_SEQUENCES, extract_assistant_continuation, format_inference_prompt
 
 
@@ -47,9 +47,13 @@ def _model_only(model, prompt: str, args) -> dict:
         return_scores=True,
     )
     answer = extract_assistant_continuation(out["bytes"])
+    failure_reason = surface_failure_reason(answer, prompt=prompt)
     return {
         "answer": answer,
         "final_source": "model",
+        "valid_generation": failure_reason is None,
+        "failure_reason": failure_reason,
+        "terminated": bool(out.get("stopped")) if answer else False,
         "average_log_probability": out["avg_logprob"],
         "average_entropy": out["avg_entropy"],
         "trace": {
@@ -79,9 +83,12 @@ def _pipeline(model, prompt: str, evidence: List[str], args) -> dict:
         top_p=args.top_p,
         repetition_penalty=args.repetition_penalty,
     )
+    failure_reason = surface_failure_reason(answer, prompt=prompt)
     return {
         "answer": answer,
         "final_source": "model",
+        "valid_generation": failure_reason is None,
+        "failure_reason": failure_reason,
         "verification_passed": report.passes,
         "trace": {
             "selected_evidence": trace.get("selected_evidence", []),
@@ -113,6 +120,8 @@ def _run_one(model, prompt: str, args, evidence: List[str]) -> dict:
             return {
                 "answer": tool,
                 "final_source": "tool",
+                "valid_generation": True,
+                "failure_reason": None,
                 "trace": {
                     "selected_evidence": [],
                     "authority_decisions": [],

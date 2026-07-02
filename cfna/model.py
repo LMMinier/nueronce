@@ -283,6 +283,7 @@ class CFNAModel(nn.Module):
         logprobs: List[float] = []
         entropies: List[float] = []
         stopped_len = 0
+        stopped_sequence: Optional[bytes] = None
 
         for _ in range(max_new):
             ctx = torch.tensor([ids[-max_ctx:]], dtype=torch.long, device=device)
@@ -339,6 +340,7 @@ class CFNAModel(nn.Module):
             hit = next((s for s in stops if current.endswith(s)), None)
             if hit is not None:
                 stopped_len = len(hit)
+                stopped_sequence = hit
                 break
 
         if stopped_len:
@@ -352,6 +354,8 @@ class CFNAModel(nn.Module):
             "avg_logprob": (sum(logprobs[: len(generated)]) / len(generated)) if generated else 0.0,
             "entropy": entropies[: len(generated)],
             "avg_entropy": (sum(entropies[: len(generated)]) / len(generated)) if generated else 0.0,
+            "stopped": stopped_sequence is not None,
+            "stop_sequence": stopped_sequence.decode("utf-8", errors="replace") if stopped_sequence else None,
         }
 
     def num_params(self) -> int:

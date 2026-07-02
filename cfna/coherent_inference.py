@@ -15,7 +15,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
-from .prompting import extract_assistant_continuation
+from .prompting import ASSISTANT, END, USER, extract_assistant_continuation
 from .training.synthetic_dialogue import _CAPITALS
 
 _PRINTABLE = re.compile(r"[\x09\x0A\x0D\x20-\x7E]")
@@ -111,6 +111,37 @@ def coherence_warning(text: str) -> Optional[str]:
     return None
 
 
+def surface_failure_reason(text: str, *, prompt: str = "") -> Optional[str]:
+    """Deterministic generation-quality failure reason.
+
+    This is deliberately heuristic and surface-level; it is not semantic
+    correctness and not a learned verifier.
+    """
+    raw = text or ""
+    if not raw.strip():
+        return "empty_output"
+    if any(marker in raw for marker in (ASSISTANT, END, USER, "Assistant:", "User:")):
+        return "role_marker_leakage"
+    if prompt and raw.strip().lower().startswith(prompt.strip().lower()[:80]):
+        return "prompt_echo"
+    warning = coherence_warning(raw)
+    if warning == "empty_or_too_short":
+        return "empty_output"
+    if warning == "mostly_nonprintable":
+        return "mostly_nonprintable"
+    if warning == "repetitive_output":
+        return "repetitive_output"
+    words = re.findall(r"[A-Za-z0-9']+", raw.lower())
+    if len(words) >= 4:
+        for n in (1, 2, 3):
+            phrases = [" ".join(words[i:i + n]) for i in range(0, len(words) - n + 1, n)]
+            if len(phrases) >= 3:
+                top = max(phrases.count(p) for p in set(phrases))
+                if top / len(phrases) >= 0.6:
+                    return "repetitive_output"
+    return None
+
+
 def respond(
     prompt: str,
     model_fn: Callable[[str], str],
@@ -124,7 +155,7 @@ def respond(
             return Response(ans, "tool")
     raw = model_fn(prompt)
     cleaned = clean_reply(raw)
-    warning = coherence_warning(cleaned)
+    warning = surface_failure_reason(cleaned, prompt=prompt)
     if warning:
         return Response(fallback, "fallback", raw_model_text=raw, warning=warning)
     return Response(cleaned, "model", raw_model_text=raw)
@@ -201,5 +232,5 @@ def run_probes(model_fn: Callable[[str], str], *, assist_tools: bool = True,
 
 __all__ = [
     "Response", "Probe", "DEFAULT_PROBES", "deterministic_answer",
-    "clean_reply", "coherence_warning", "respond", "run_probes",
+    "clean_reply", "coherence_warning", "surface_failure_reason", "respond", "run_probes",
 ]
