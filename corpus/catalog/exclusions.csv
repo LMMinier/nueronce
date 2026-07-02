@@ -1,1 +1,3 @@
 pattern,reason,allowed_alternative,action
+Current Britannica.com articles,Proprietary copyrighted encyclopedia content,1911 Encyclopaedia Britannica or another verified public-domain edition,block
+Modern commercial textbooks,Purchase or free access does not grant bulk-training rights,OpenStax or another item-level open-licensed textbook,block_without_contract
