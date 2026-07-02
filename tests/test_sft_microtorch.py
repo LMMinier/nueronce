@@ -14,6 +14,7 @@ from cfna.training.dialogue_data import (
     BOT_TAG, SFT_DATASET, USER_TAG, encode_example, held_out_split, make_sft_batch,
 )
 from cfna.training.vgrft import VGRFTTrainer
+from cfna.prompting import END, format_inference_prompt
 
 TOY = [
     ("Hello", "Hi there!"),
@@ -26,8 +27,11 @@ TOY = [
 def test_encode_example_masks_only_the_response_and_its_stop_byte():
     full, mask = encode_example("Hello", "Hi!")
     assert len(full) == len(mask)
-    assert full.decode("utf-8") == f"{USER_TAG}Hello\n{BOT_TAG}Hi!\n"
-    prefix_len = len(f"{USER_TAG}Hello\n{BOT_TAG}".encode("utf-8"))
+    prompt = format_inference_prompt(
+        system_message="", user_request="Hello", trusted_evidence="", response_plan=""
+    )
+    assert full.decode("utf-8") == prompt + f"Hi!\n{END}\n"
+    prefix_len = len(prompt.encode("utf-8"))
     assert not any(mask[:prefix_len])
     assert all(mask[prefix_len:])
 

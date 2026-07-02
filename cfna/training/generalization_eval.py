@@ -22,6 +22,7 @@ from typing import Callable, Dict, List, Optional, Sequence
 import numpy as np
 
 from .dataset_prep import normalize_text
+from ..prompting import STOP_SEQUENCES, format_inference_prompt
 from .dialogue_data import BOT_TAG, USER_TAG
 from .sharded_sft import load_jsonl
 
@@ -270,11 +271,23 @@ def run_generalization_eval(model, prompts: Sequence[EvalPrompt], seen_user_text
                             *, max_new: int = 80, temperature: float = 0.0, min_new: int = 1) -> dict:
     results = []
     for ep in prompts:
-        ctx = f"{USER_TAG}{ep.prompt}\n{BOT_TAG}".encode("utf-8")
-        raw = model.generate(ctx, max_new=max_new, temperature=temperature,
-                             greedy=(temperature <= 0), stop_bytes=_STOP, min_new=min_new)
-        new_bytes = raw[len(ctx):]
-        stopped_early = len(new_bytes) < max_new and new_bytes.endswith(_STOP)
+        ctx = format_inference_prompt(
+            system_message="",
+            user_request=ep.prompt,
+            trusted_evidence="",
+            response_plan="",
+        ).encode("utf-8")
+        try:
+            new_bytes = model.generate(
+                ctx, max_new=max_new, temperature=temperature,
+                greedy=(temperature <= 0), stop_sequences=STOP_SEQUENCES,
+                continuation_only=True,
+            )
+        except TypeError:
+            raw = model.generate(ctx, max_new=max_new, temperature=temperature,
+                                 greedy=(temperature <= 0), stop_bytes=_STOP, min_new=min_new)
+            new_bytes = raw[len(ctx):]
+        stopped_early = len(new_bytes) < max_new
         try:
             text = new_bytes.decode("utf-8")
             valid_utf8 = True

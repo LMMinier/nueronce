@@ -10,6 +10,7 @@ from cfna.training.sft import (
     SFT_DATASET, encode_example, make_sft_batch, held_out_split,
     sft_step, sft_eval, train_sft, TorchSFTBackend, USER_TAG, BOT_TAG,
 )
+from cfna.prompting import END, format_inference_prompt
 from cfna.training.vgrft import VGRFTTrainer
 
 
@@ -37,13 +38,15 @@ def test_encode_example_masks_only_the_response_and_its_stop_byte():
     full, mask = encode_example("Hello", "Hi!")
     assert len(full) == len(mask)
     text = full.decode("utf-8")
-    assert text == f"{USER_TAG}Hello\n{BOT_TAG}Hi!\n"
-    # everything up to "Assistant: " is unmasked, the response + trailing
-    # newline is masked (that's exactly what the loss should target)
-    prefix_len = len(f"{USER_TAG}Hello\n{BOT_TAG}".encode("utf-8"))
+    assert text == format_inference_prompt(
+        system_message="", user_request="Hello", trusted_evidence="", response_plan=""
+    ) + f"Hi!\n{END}\n"
+    prefix_len = len(format_inference_prompt(
+        system_message="", user_request="Hello", trusted_evidence="", response_plan=""
+    ).encode("utf-8"))
     assert not any(mask[:prefix_len])
     assert all(mask[prefix_len:])
-    assert full.decode("utf-8")[prefix_len:] == "Hi!\n"
+    assert full.decode("utf-8")[prefix_len:] == f"Hi!\n{END}\n"
 
 
 def test_make_sft_batch_shapes_and_padding_mask():
