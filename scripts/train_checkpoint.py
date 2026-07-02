@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Convert the public-domain corpus into CFNA weights (a real checkpoint).
+"""Convert a built corpus into CFNA weights (a real checkpoint).
 
-Trains on the train documents, evaluates bits/byte on the held-out documents, and
-saves a checkpoint (weights + config + metrics). Time-budgeted so it fits a
-bounded window; resumable-friendly (saves periodically).
+Trains on train documents, evaluates bits/byte on held-out documents, and saves
+weights + optimizer + config + history. Runs for a bounded time, saves every 50
+steps, resumes cleanly across CPU/CUDA, and uses atomic checkpoint replacement so
+an interrupted Google Drive write does not destroy the last valid checkpoint.
 
 Usage:
     python scripts/train_checkpoint.py --minutes 20 --out checkpoints/cfna_chat.pt
@@ -27,7 +28,7 @@ LN2 = math.log(2.0)
 
 
 def chat_config() -> ModelConfig:
-    """A modest (~few-M param) config sized to actually train on CPU in-window."""
+    """A modest config sized to train in a bounded local window."""
     return ModelConfig(
         byte_embed_dim=64, d_local=128, d_model=256, p_max=48, physical_blocks=3,
         logical_depth=4, n_heads=8, unit_window=48, decoder_window=64,
@@ -44,6 +45,27 @@ def heldout_bpb(model, batches) -> float:
     return float(np.mean([model.lm_loss(b).item() for b in batches]) / LN2)
 
 
+def optimizer_to(opt: torch.optim.Optimizer, device: torch.device | str) -> None:
+    """Move resumed optimizer tensors to the active model device."""
+    for state in opt.state.values():
+        for key, value in list(state.items()):
+            if torch.is_tensor(value):
+                state[key] = value.to(device)
+
+
+def atomic_torch_save(payload: dict, out: Path) -> None:
+    """Write beside the destination and replace only after torch.save succeeds."""
+    tmp = out.with_suffix(out.suffix + ".tmp")
+    torch.save(payload, tmp)
+    tmp.replace(out)
+
+
+def atomic_json_save(payload: dict, out: Path) -> None:
+    tmp = out.with_suffix(out.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    tmp.replace(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--corpus", type=str, default="corpus")
@@ -55,7 +77,7 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--resume", action="store_true", help="continue from an existing checkpoint")
     ap.add_argument("--preset", default="", choices=[""] + sorted(CONFIG_PRESETS),
-                    help="cfna.model.CONFIG_PRESETS rung (default: the local chat_config)")
+                    help="cfna.model.CONFIG_PRESETS rung (default: local chat_config)")
     ap.add_argument("--device", default="auto", help="auto|cuda|cpu")
     ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
     args = ap.parse_args()
@@ -69,7 +91,8 @@ def main():
     val = ByteCorpus(args.corpus, "val")
     valb = val_batches(val, args.seq, args.batch, max_batches=8)
     print(f"train {train.total_bytes/1e6:.2f} MB / {len(train.docs)} docs | "
-          f"held-out {val.total_bytes/1e6:.2f} MB / {len(val.docs)} docs ({', '.join(val.titles)})")
+          f"held-out {val.total_bytes/1e6:.2f} MB / {len(val.docs)} docs "
+          f"({', '.join(val.titles[:8])}{' ...' if len(val.titles) > 8 else ''})")
 
     cfg = CONFIG_PRESETS[args.preset]() if args.preset else chat_config()
     model = CFNAModel(cfg)
@@ -80,30 +103,38 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     history = []
     step = 0
-    # Resume from an existing checkpoint so progress survives container restarts.
+
     if args.resume and out.exists():
         ck = torch.load(out, map_location="cpu", weights_only=False)
-        if ck.get("config") == vars(cfg):
-            model.load_state_dict(ck["state_dict"])
-            if "optimizer" in ck:
-                opt.load_state_dict(ck["optimizer"])
-            step = int(ck.get("step", 0))
-            history = ck.get("history", [])
-            print(f"resumed from step {step}")
+        if ck.get("config") != vars(cfg):
+            raise SystemExit("resume config mismatch — checkpoint was created with another preset")
+        model.load_state_dict(ck["state_dict"])
+        if ck.get("optimizer") is not None:
+            opt.load_state_dict(ck["optimizer"])
+        step = int(ck.get("step", 0))
+        history = ck.get("history", [])
+        print(f"resumed from step {step}")
+
     model.to(device)
+    optimizer_to(opt, device)
     valb = [b.to(device) for b in valb]
     print(f"model: {model.num_params():,} params | device {device}{' +amp' if amp else ''} | "
           f"seq {args.seq} batch {args.batch} | budget {args.minutes} min")
 
-    rng = np.random.default_rng(args.seed + step)  # vary sampling across resumes
+    rng = np.random.default_rng(args.seed + step)
     t0 = time.time()
     best_val = min((h["heldout_bpb"] for h in history), default=float("inf"))
 
     def save():
-        # Save EVERY interval (durable), including optimizer state for clean resume.
-        torch.save({"state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
-                    "optimizer": opt.state_dict(),
-                    "config": vars(cfg), "step": step, "history": history}, out)
+        payload = {
+            "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
+            "optimizer": opt.state_dict(),
+            "config": vars(cfg),
+            "step": step,
+            "history": history,
+            "corpus": str(Path(args.corpus).resolve()),
+        }
+        atomic_torch_save(payload, out)
 
     while (time.time() - t0) < args.minutes * 60:
         batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
@@ -121,13 +152,19 @@ def main():
         if step % 50 == 0:
             vb = heldout_bpb(model, valb)
             mins = (time.time() - t0) / 60
-            history.append({"step": step, "train_bpb": parts["bpb"], "heldout_bpb": vb, "minutes": mins})
-            print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | held-out bpb {vb:.3f}", flush=True)
+            history.append({
+                "step": step,
+                "train_bpb": parts["bpb"],
+                "heldout_bpb": vb,
+                "minutes": mins,
+            })
+            print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | "
+                  f"held-out bpb {vb:.3f}", flush=True)
             best_val = min(best_val, vb)
-            save()  # durable: overwrite each interval so a restart loses <=50 steps
+            save()
 
     save()
-    Path(str(out) + ".json").write_text(json.dumps({"config": vars(cfg), "history": history}, indent=2))
+    atomic_json_save({"config": vars(cfg), "history": history}, Path(str(out) + ".json"))
     print(f"\nsaved checkpoint -> {out}  ({step} steps, best held-out bpb {best_val:.3f})")
 
 
