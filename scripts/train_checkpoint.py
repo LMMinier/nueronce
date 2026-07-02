@@ -21,7 +21,7 @@ import numpy as np
 import torch
 
 from cfna.corpus.dataset import ByteCorpus, val_batches
-from cfna.model import CFNAModel, ModelConfig
+from cfna.model import CFNAModel, CONFIG_PRESETS, ModelConfig
 
 LN2 = math.log(2.0)
 
@@ -54,8 +54,14 @@ def main():
     ap.add_argument("--out", type=str, default="checkpoints/cfna_chat.pt")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--resume", action="store_true", help="continue from an existing checkpoint")
+    ap.add_argument("--preset", default="", choices=[""] + sorted(CONFIG_PRESETS),
+                    help="cfna.model.CONFIG_PRESETS rung (default: the local chat_config)")
+    ap.add_argument("--device", default="auto", help="auto|cuda|cpu")
+    ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
     args = ap.parse_args()
 
+    device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
+    amp = bool(args.amp and device == "cuda")
     torch.manual_seed(args.seed)
     torch.set_num_threads(max(1, torch.get_num_threads()))
 
@@ -65,9 +71,10 @@ def main():
     print(f"train {train.total_bytes/1e6:.2f} MB / {len(train.docs)} docs | "
           f"held-out {val.total_bytes/1e6:.2f} MB / {len(val.docs)} docs ({', '.join(val.titles)})")
 
-    cfg = chat_config()
+    cfg = CONFIG_PRESETS[args.preset]() if args.preset else chat_config()
     model = CFNAModel(cfg)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+    scaler = torch.amp.GradScaler("cuda", enabled=amp)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -83,7 +90,10 @@ def main():
             step = int(ck.get("step", 0))
             history = ck.get("history", [])
             print(f"resumed from step {step}")
-    print(f"model: {model.num_params():,} params | seq {args.seq} batch {args.batch} | budget {args.minutes} min")
+    model.to(device)
+    valb = [b.to(device) for b in valb]
+    print(f"model: {model.num_params():,} params | device {device}{' +amp' if amp else ''} | "
+          f"seq {args.seq} batch {args.batch} | budget {args.minutes} min")
 
     rng = np.random.default_rng(args.seed + step)  # vary sampling across resumes
     t0 = time.time()
@@ -91,17 +101,21 @@ def main():
 
     def save():
         # Save EVERY interval (durable), including optimizer state for clean resume.
-        torch.save({"state_dict": model.state_dict(), "optimizer": opt.state_dict(),
+        torch.save({"state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
+                    "optimizer": opt.state_dict(),
                     "config": vars(cfg), "step": step, "history": history}, out)
 
     while (time.time() - t0) < args.minutes * 60:
-        batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng))
+        batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
         model.train()
-        loss, parts = model.loss(batch)
-        opt.zero_grad()
-        loss.backward()
+        with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
+            loss, parts = model.loss(batch)
+        opt.zero_grad(set_to_none=True)
+        scaler.scale(loss).backward()
+        scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        opt.step()
+        scaler.step(opt)
+        scaler.update()
         step += 1
 
         if step % 50 == 0:
