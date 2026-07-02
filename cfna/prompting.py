@@ -121,8 +121,15 @@ def assemble_conversation_prompt(
     trusted_evidence: str = "",
     response_plan: str = "",
     max_chars: Optional[int] = None,
+    max_bytes: Optional[int] = None,
 ) -> str:
-    """Structured truncation: keep system/current/evidence/plan, drop old turns first."""
+    """Structured truncation: keep system/current/evidence/plan, drop old turns first.
+
+    The model context is byte-based, so limits are measured on UTF-8 bytes.
+    ``max_chars`` is retained as a backward-compatible alias for callers that
+    used the old name; it is interpreted as a byte budget.
+    """
+    byte_budget = max_bytes if max_bytes is not None else max_chars
     turns = list(recent_turns)
     while True:
         history = "".join(_block(USER if r == "user" else ASSISTANT, t) for r, t in turns)
@@ -134,7 +141,7 @@ def assemble_conversation_prompt(
             + _block(PLAN, response_plan)
             + f"{ASSISTANT}\n"
         )
-        if max_chars is None or len(prompt) <= max_chars or not turns:
+        if byte_budget is None or len(prompt.encode("utf-8")) <= byte_budget or not turns:
             return prompt
         turns = turns[2:] if len(turns) >= 2 else []
 

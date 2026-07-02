@@ -1,0 +1,405 @@
+{
+  "checkpoint": "checkpoints\\cfna_prompt_aligned\\best.pt",
+  "suite": "data\\eval\\inference_phase2.jsonl",
+  "metrics": {
+    "n": 5,
+    "valid_generation_rate": 0.0,
+    "nonempty_generation_rate": 0.0,
+    "termination_rate": 0.0,
+    "prompt_echo_rate": 0.0,
+    "role_marker_leakage_rate": 0.0,
+    "repetition_rate": 0.0,
+    "surface_coherence_rate": 0.0,
+    "exact_correctness": 0.0,
+    "semantic_correctness": 0.0,
+    "instruction_compliance": null,
+    "evidence_support_rate": 0.0,
+    "unsupported_claim_rate": 1.0,
+    "conflict_abstention_accuracy": null,
+    "insufficient_evidence_abstention_accuracy": null,
+    "average_log_probability": -0.6104663983050557,
+    "average_entropy": 1.4959333724968018,
+    "fallback_rate": 0.0,
+    "by_category": {
+      "grounded": {
+        "n": 5,
+        "semantic_correctness": 0.0,
+        "valid_generation_rate": 0.0
+      }
+    },
+    "retrieval_gain": 0.0,
+    "shuffled_evidence_drop": 0.0,
+    "poison_acceptance": 0.0
+  },
+  "category_counts": {
+    "grounded": 5
+  },
+  "rows": [
+    {
+      "id": "phase2-0130",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.610487490898663,
+      "avg_entropy": 1.4959936516684138,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 0 is Z-100."
+      ]
+    },
+    {
+      "id": "phase2-0131",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6103726774516645,
+      "avg_entropy": 1.4956629225271172,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 1 is Z-101."
+      ]
+    },
+    {
+      "id": "phase2-0132",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6106683984462791,
+      "avg_entropy": 1.4962434372373536,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 2 is Z-102."
+      ]
+    },
+    {
+      "id": "phase2-0133",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6103530228200782,
+      "avg_entropy": 1.4958262684490364,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 3 is Z-103."
+      ]
+    },
+    {
+      "id": "phase2-0134",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6104504019085937,
+      "avg_entropy": 1.4959405826020884,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 4 is Z-104."
+      ]
+    }
+  ],
+  "retrieval_ablations": {
+    "correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.610487490898663,
+          "avg_entropy": 1.4959936516684138,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 0 is Z-100."
+          ]
+        },
+        {
+          "id": "phase2-0131",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6103726774516645,
+          "avg_entropy": 1.4956629225271172,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 1 is Z-101."
+          ]
+        },
+        {
+          "id": "phase2-0132",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6106683984462791,
+          "avg_entropy": 1.4962434372373536,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 2 is Z-102."
+          ]
+        },
+        {
+          "id": "phase2-0133",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6103530228200782,
+          "avg_entropy": 1.4958262684490364,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 3 is Z-103."
+          ]
+        },
+        {
+          "id": "phase2-0134",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6104504019085937,
+          "avg_entropy": 1.4959405826020884,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 4 is Z-104."
+          ]
+        }
+      ]
+    },
+    "no_evidence": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5977454632593435,
+          "avg_entropy": 1.498740762023317,
+          "accepted_evidence": []
+        },
+        {
+          "id": "phase2-0131",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5960907936169235,
+          "avg_entropy": 1.4969524830348746,
+          "accepted_evidence": []
+        },
+        {
+          "id": "phase2-0132",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5957514718247694,
+          "avg_entropy": 1.495950015195831,
+          "accepted_evidence": []
+        },
+        {
+          "id": "phase2-0133",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5965772792769712,
+          "avg_entropy": 1.4970486942202115,
+          "accepted_evidence": []
+        },
+        {
+          "id": "phase2-0134",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5977719128204626,
+          "avg_entropy": 1.4987391418239895,
+          "accepted_evidence": []
+        }
+      ]
+    },
+    "shuffled_unrelated": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6190552413518162,
+          "avg_entropy": 1.5085829000654485,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        },
+        {
+          "id": "phase2-0131",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6190060451681063,
+          "avg_entropy": 1.5085782447445126,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        },
+        {
+          "id": "phase2-0132",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6190412119085522,
+          "avg_entropy": 1.5085737401182087,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        },
+        {
+          "id": "phase2-0133",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6190529465729924,
+          "avg_entropy": 1.5085761772988917,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        },
+        {
+          "id": "phase2-0134",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6190564185435505,
+          "avg_entropy": 1.5085830794846515,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        }
+      ]
+    },
+    "poison_plus_correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.610487490898663,
+          "avg_entropy": 1.4959936516684138,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 0 is Z-100."
+          ]
+        },
+        {
+          "id": "phase2-0131",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6103726774516645,
+          "avg_entropy": 1.4956629225271172,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 1 is Z-101."
+          ]
+        },
+        {
+          "id": "phase2-0132",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6106683984462791,
+          "avg_entropy": 1.4962434372373536,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 2 is Z-102."
+          ]
+        },
+        {
+          "id": "phase2-0133",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6103530228200782,
+          "avg_entropy": 1.4958262684490364,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 3 is Z-103."
+          ]
+        },
+        {
+          "id": "phase2-0134",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.6104504019085937,
+          "avg_entropy": 1.4959405826020884,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 4 is Z-104."
+          ]
+        }
+      ]
+    }
+  }
+}

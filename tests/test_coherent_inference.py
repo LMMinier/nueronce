@@ -6,6 +6,7 @@ from cfna.coherent_inference import (
     deterministic_answer,
     respond,
     run_probes,
+    surface_failure_reason,
 )
 
 
@@ -26,6 +27,13 @@ def test_coherence_warning_catches_repetition():
     assert coherence_warning("aaaaaaaaaaaaaaaa") == "repetitive_output"
     assert coherence_warning("the the the the the the the the") == "repetitive_output"
     assert coherence_warning("A short useful answer.") is None
+
+
+def test_surface_failure_reason_catches_empty_repetition_echo_and_markers():
+    assert surface_failure_reason("") == "empty_output"
+    assert surface_failure_reason("the the the the the the") == "repetitive_output"
+    assert surface_failure_reason("What is liberty? It is freedom.", prompt="What is liberty?") == "prompt_echo"
+    assert surface_failure_reason("answer <|user|> leaked") == "role_marker_leakage"
 
 
 def test_respond_uses_tools_before_model_when_enabled():

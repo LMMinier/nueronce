@@ -1,0 +1,181 @@
+{
+  "checkpoint": "checkpoints\\cfna_chat.pt",
+  "suite": "data\\eval\\inference_phase2.jsonl",
+  "metrics": {
+    "n": 10,
+    "valid_generation_rate": 0.0,
+    "nonempty_generation_rate": 0.0,
+    "termination_rate": 0.0,
+    "prompt_echo_rate": 0.0,
+    "role_marker_leakage_rate": 0.0,
+    "repetition_rate": 0.0,
+    "surface_coherence_rate": 0.0,
+    "exact_correctness": 0.0,
+    "semantic_correctness": 0.0,
+    "instruction_compliance": null,
+    "evidence_support_rate": null,
+    "unsupported_claim_rate": null,
+    "conflict_abstention_accuracy": null,
+    "insufficient_evidence_abstention_accuracy": null,
+    "average_log_probability": -0.6480437278811981,
+    "average_entropy": 1.4984149749370166,
+    "fallback_rate": 0.0,
+    "by_category": {
+      "direct_conversation": {
+        "n": 10,
+        "semantic_correctness": 0.0,
+        "valid_generation_rate": 0.0
+      }
+    },
+    "retrieval_gain": 0.0,
+    "shuffled_evidence_drop": 0.0,
+    "poison_acceptance": 0.0
+  },
+  "category_counts": {
+    "direct_conversation": 10
+  },
+  "rows": [
+    {
+      "id": "phase2-0000",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6484650125170598,
+      "avg_entropy": 1.4986285882938926,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0001",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6462752223079254,
+      "avg_entropy": 1.4966633597941836,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0002",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6483062853480229,
+      "avg_entropy": 1.4985657853618857,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0003",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6483767181699326,
+      "avg_entropy": 1.4982568112057681,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0004",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.648464918143039,
+      "avg_entropy": 1.4986290354160399,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0005",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6484427849516123,
+      "avg_entropy": 1.4986085386605434,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0006",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6484347532257289,
+      "avg_entropy": 1.4986004111454652,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0007",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6484616150523076,
+      "avg_entropy": 1.4986267705304879,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0008",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6475625038211396,
+      "avg_entropy": 1.498825648892004,
+      "accepted_evidence": []
+    },
+    {
+      "id": "phase2-0009",
+      "category": "direct_conversation",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.6476474652752131,
+      "avg_entropy": 1.4987448000698957,
+      "accepted_evidence": []
+    }
+  ],
+  "retrieval_ablations": {
+    "correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": []
+    },
+    "no_evidence": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": []
+    },
+    "shuffled_unrelated": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": []
+    },
+    "poison_plus_correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": []
+    }
+  }
+}

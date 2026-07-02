@@ -60,3 +60,24 @@ def test_structured_context_truncation_preserves_current_parts():
     assert "current question" in prompt
     assert "trusted evidence" in prompt
     assert "plan" in prompt
+
+
+def test_structured_context_limit_is_utf8_byte_safe_and_drops_old_turns_first():
+    prompt = assemble_conversation_prompt(
+        system_message="system",
+        current_user="current question with café",
+        recent_turns=[
+            ("user", "old " + "é" * 50),
+            ("assistant", "old answer " + "é" * 50),
+        ],
+        trusted_evidence="decisive evidence é",
+        response_plan="answer with evidence",
+        max_bytes=150,
+    )
+    encoded = prompt.encode("utf-8")
+    assert encoded.decode("utf-8") == prompt
+    assert "current question with café" in prompt
+    assert "decisive evidence é" in prompt
+    assert "answer with evidence" in prompt
+    assert "old answer" not in prompt
+    assert "<|user|>" in prompt and "<|assistant|>" in prompt
