@@ -27,6 +27,13 @@ from ..prompting import ASSISTANT, END, USER, format_training_example
 USER_TAG: str = USER
 BOT_TAG: str = ASSISTANT
 
+# Identifies the prompt layout these tags produce, stamped into checkpoint meta
+# by cfna.training.sharded_sft so inference can pick the matching format.
+# "canonical" = the <|user|>/<|assistant|> markers from cfna.prompting;
+# checkpoints trained before this constant existed carry no prompt_format and
+# are resolved to "legacy" (plain "User: "/"Assistant: ") by the chat loaders.
+PROMPT_FORMAT: str = "canonical" if USER_TAG.startswith("<|") else "legacy"
+
 SFTExample = Tuple[str, str]
 
 # A small, hand-written prompt -> response dialogue set. Not a scraped corpus:

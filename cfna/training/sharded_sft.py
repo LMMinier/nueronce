@@ -104,6 +104,12 @@ def evaluate(model: MicroCFNAModel, records: List[dict], *, batch_size: int = 64
 # --------------------------------------------------------------------------- #
 
 def save_checkpoint(path: str, model: MicroCFNAModel, opt: AdamW, meta: dict) -> None:
+    # Stamp the prompt format the model was trained under so inference never
+    # silently drifts (a legacy-format checkpoint fed canonical <|user|>
+    # markers scores ~0.52 byte-acc instead of ~0.91 — a format mismatch, not
+    # a weak model). dialogue_data exposes PROMPT_FORMAT for the current tags.
+    from .dialogue_data import PROMPT_FORMAT
+    meta = {**meta, "prompt_format": meta.get("prompt_format", PROMPT_FORMAT)}
     payload = {
         "config": vars(model.cfg),
         "params": [p.data.copy() for p in model.parameters()],
