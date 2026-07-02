@@ -1,0 +1,129 @@
+{
+  "note": "Diagnostic only: 5-step CPU run, not the required 500-1000 step pilot gate.",
+  "original": {
+    "checkpoint": "checkpoints/cfna_chat.pt",
+    "n": 5,
+    "nonempty_generation_rate": 0.0,
+    "valid_generation_rate": 0.0,
+    "prompt_echo_rate": 0.0,
+    "role_marker_leakage_rate": 0.0,
+    "termination_rate": 0.0,
+    "repetition_loop_rate": 0.0,
+    "valid_utf8_rate": 1.0,
+    "rows": [
+      {
+        "prompt": "Hello there.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6045863479460394,
+        "avg_entropy": 1.4919742857516667
+      },
+      {
+        "prompt": "Define liberty in one sentence.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6095393635420834,
+        "avg_entropy": 1.502664273341452
+      },
+      {
+        "prompt": "What is the answer code for grounded case 0?",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6013425998482091,
+        "avg_entropy": 1.4943165665476954
+      },
+      {
+        "prompt": "What is the hidden access code?",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6025207415306113,
+        "avg_entropy": 1.4913236768102252
+      },
+      {
+        "prompt": "List exactly two safe colors.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6050564721311673,
+        "avg_entropy": 1.492938365660848
+      }
+    ]
+  },
+  "diagnostic_5_step": {
+    "checkpoint": "checkpoints/cfna_prompt_aligned/best.pt",
+    "n": 5,
+    "nonempty_generation_rate": 0.0,
+    "valid_generation_rate": 0.0,
+    "prompt_echo_rate": 0.0,
+    "role_marker_leakage_rate": 0.0,
+    "termination_rate": 0.0,
+    "repetition_loop_rate": 0.0,
+    "valid_utf8_rate": 1.0,
+    "rows": [
+      {
+        "prompt": "Hello there.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6376493740907705,
+        "avg_entropy": 1.5162288467981853
+      },
+      {
+        "prompt": "Define liberty in one sentence.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6492977216925908,
+        "avg_entropy": 1.5212732696022613
+      },
+      {
+        "prompt": "What is the answer code for grounded case 0?",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6591113656844243,
+        "avg_entropy": 1.519690636979476
+      },
+      {
+        "prompt": "What is the hidden access code?",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6298096105535933,
+        "avg_entropy": 1.518990928360381
+      },
+      {
+        "prompt": "List exactly two safe colors.",
+        "answer": "",
+        "valid_generation": false,
+        "failure_reason": "empty_output",
+        "nonempty": false,
+        "terminated": false,
+        "avg_logprob": -0.6320764701896593,
+        "avg_entropy": 1.5157280532885125
+      }
+    ]
+  }
+}

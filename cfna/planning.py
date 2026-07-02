@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 from ._backend import needs_backend
+from .prompting import STOP_SEQUENCES, extract_assistant_continuation
 from .types import TaskState
 
 
@@ -91,8 +92,14 @@ class CausalLanguageRenderer:
                 "Pass a trained model (CFNAModel) to render; see cfna.pipeline.",
             )
         prompt = semantic_draft.get("prompt", "")
-        out = self.model.generate(prompt.encode("utf-8"), max_new=self.max_new, greedy=True)
-        return out.decode("utf-8", errors="replace")
+        out = self.model.generate(
+            prompt.encode("utf-8"),
+            max_new=self.max_new,
+            greedy=True,
+            stop_sequences=STOP_SEQUENCES,
+            continuation_only=True,
+        )
+        return extract_assistant_continuation(out)
 
 
 __all__ = ["PlannerHooks", "Planner", "SemanticRenderer", "CausalLanguageRenderer"]

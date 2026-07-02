@@ -5,3 +5,5 @@ torch>=2.2
 pytest>=7.4
 datasets>=2.18.0
 wikiextractor>=3.0.6
+cryptography>=41.0
+cffi>=1.15

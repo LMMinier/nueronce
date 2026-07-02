@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LMMinier/nueronce/schemas/provenance_blind_v33.schema.json",
+  "title": "CFNA Provenance Blind Multi-Document Case V3.3",
+  "type": "object",
+  "required": ["case_id", "domain", "question", "documents", "hidden_gold"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "type": "string" },
+    "domain": { "type": "string" },
+    "question": { "type": "string" },
+    "documents": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": [
+          "document_id",
+          "raw_text",
+          "issuer_claim",
+          "publication_date",
+          "effective_from",
+          "effective_until",
+          "scope",
+          "supersedes",
+          "revokes",
+          "key_id",
+          "signature",
+          "source_channel"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "document_id": { "type": "string" },
+          "raw_text": { "type": "string" },
+          "issuer_claim": { "type": "string" },
+          "publication_date": { "type": "string" },
+          "effective_from": { "type": ["string", "null"] },
+          "effective_until": { "type": ["string", "null"] },
+          "scope": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "supersedes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "revokes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "key_id": { "type": ["string", "null"] },
+          "signature": {
+            "description": "base64 signature bytes, null when unsigned",
+            "type": ["string", "null"]
+          },
+          "source_channel": { "type": "string" }
+        }
+      }
+    },
+    "hidden_gold": {
+      "type": "object",
+      "required": [
+        "expected_answer",
+        "expected_outcome",
+        "supporting_document_ids",
+        "rejected_document_ids",
+        "conflict_document_ids",
+        "required_citations",
+        "escalation_required",
+        "gold_rationale"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "expected_answer": { "type": ["string", "null"] },
+        "expected_outcome": {
+          "type": "string",
+          "enum": ["answer", "abstain", "conflict", "escalate"]
+        },
+        "supporting_document_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rejected_document_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "conflict_document_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "required_citations": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "escalation_required": { "type": "boolean" },
+        "gold_rationale": { "type": "string" }
+      }
+    }
+  }
+}

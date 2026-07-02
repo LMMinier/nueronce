@@ -1,0 +1,37 @@
+name: Vendor public-domain corpus
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/vendor-public-domain-corpus
+    paths:
+      - scripts/vendor_public_domain_corpus.py
+      - .github/workflows/vendor-public-domain-corpus.yml
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Vendor actual public-domain text
+        run: python scripts/vendor_public_domain_corpus.py
+      - name: Commit corpus files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add corpus/raw/public_domain
+          if git diff --cached --quiet; then
+            echo "No corpus changes"
+          else
+            git commit -m "Vendor public-domain book content"
+            git push
+          fi

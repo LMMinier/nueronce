@@ -1,0 +1,138 @@
+[
+  {
+    "path": "checkpoints\\baseline.pt",
+    "sha256": "feba56a573bb640502e7afd161ed5d77ab67f2cc67e8953382941f7363a438b9",
+    "loads": true,
+    "error": null,
+    "parameter_count": 11131477,
+    "config": {
+      "byte_embed_dim": 64,
+      "d_local": 128,
+      "d_model": 256,
+      "p_max": 48,
+      "physical_blocks": 3,
+      "logical_depth": 4,
+      "n_heads": 8,
+      "unit_window": 48,
+      "decoder_window": 64,
+      "decoder_layers": 3,
+      "d_state": 16,
+      "channel_dim": 24,
+      "ret_byte_dim": 32,
+      "tau": 0.5,
+      "min_patch": 3,
+      "max_patch": 24,
+      "boundary_loss_weight": 0.2,
+      "trainable_segmentation": true
+    },
+    "step": 26,
+    "history": {
+      "len": 0,
+      "last": null
+    },
+    "predates_canonical_prompt": true,
+    "checkpoint_keys": [
+      "config",
+      "history",
+      "optimizer",
+      "state_dict",
+      "step"
+    ],
+    "prompt_format_version": null,
+    "pretraining_corpus_identity": "not recorded in checkpoint"
+  },
+  {
+    "path": "checkpoints\\cfna_chat.pt",
+    "sha256": "38b01207c72389254166e5e6fa7be6a867412b1b14ecdb6d2e87f7fd25a74164",
+    "loads": true,
+    "error": null,
+    "parameter_count": 11131477,
+    "config": {
+      "byte_embed_dim": 64,
+      "d_local": 128,
+      "d_model": 256,
+      "p_max": 48,
+      "physical_blocks": 3,
+      "logical_depth": 4,
+      "n_heads": 8,
+      "unit_window": 48,
+      "decoder_window": 64,
+      "decoder_layers": 3,
+      "d_state": 16,
+      "channel_dim": 24,
+      "ret_byte_dim": 32,
+      "tau": 0.5,
+      "min_patch": 3,
+      "max_patch": 24,
+      "boundary_loss_weight": 0.2,
+      "trainable_segmentation": true
+    },
+    "step": 923,
+    "history": {
+      "len": 18,
+      "last": {
+        "step": 900,
+        "train_bpb": 3.4384291887126333,
+        "heldout_bpb": 3.6042914929791867,
+        "minutes": 39.00164943933487
+      }
+    },
+    "predates_canonical_prompt": true,
+    "checkpoint_keys": [
+      "config",
+      "history",
+      "optimizer",
+      "state_dict",
+      "step"
+    ],
+    "prompt_format_version": null,
+    "pretraining_corpus_identity": "not recorded in checkpoint"
+  },
+  {
+    "path": "checkpoints\\cfna_chat_sft_smoke.pt",
+    "sha256": "a8236502ed919408a6fa29302d0c7dd247bdec75f27bc1d7379b11d1c58195aa",
+    "loads": true,
+    "error": null,
+    "parameter_count": 11131477,
+    "config": {
+      "byte_embed_dim": 64,
+      "d_local": 128,
+      "d_model": 256,
+      "p_max": 48,
+      "physical_blocks": 3,
+      "logical_depth": 4,
+      "n_heads": 8,
+      "unit_window": 48,
+      "decoder_window": 64,
+      "decoder_layers": 3,
+      "d_state": 16,
+      "channel_dim": 24,
+      "ret_byte_dim": 32,
+      "tau": 0.5,
+      "min_patch": 3,
+      "max_patch": 24,
+      "boundary_loss_weight": 0.2,
+      "trainable_segmentation": true
+    },
+    "step": 923,
+    "history": {
+      "len": 18,
+      "last": {
+        "step": 900,
+        "train_bpb": 3.4384291887126333,
+        "heldout_bpb": 3.6042914929791867,
+        "minutes": 39.00164943933487
+      }
+    },
+    "predates_canonical_prompt": true,
+    "checkpoint_keys": [
+      "config",
+      "history",
+      "sft_history",
+      "state_dict",
+      "step"
+    ],
+    "prompt_format_version": null,
+    "pretraining_corpus_identity": "not recorded in checkpoint"
+  }
+]

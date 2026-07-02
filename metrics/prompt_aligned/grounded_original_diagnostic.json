@@ -1,0 +1,133 @@
+{
+  "checkpoint": "checkpoints\\cfna_chat.pt",
+  "suite": "data\\eval\\inference_phase2.jsonl",
+  "metrics": {
+    "n": 1,
+    "valid_generation_rate": 0.0,
+    "nonempty_generation_rate": 0.0,
+    "termination_rate": 0.0,
+    "prompt_echo_rate": 0.0,
+    "role_marker_leakage_rate": 0.0,
+    "repetition_rate": 0.0,
+    "surface_coherence_rate": 0.0,
+    "exact_correctness": 0.0,
+    "semantic_correctness": 0.0,
+    "instruction_compliance": null,
+    "evidence_support_rate": 0.0,
+    "unsupported_claim_rate": 1.0,
+    "conflict_abstention_accuracy": null,
+    "insufficient_evidence_abstention_accuracy": null,
+    "average_log_probability": -0.5650972575014634,
+    "average_entropy": 1.4574581998749636,
+    "fallback_rate": 0.0,
+    "by_category": {
+      "grounded": {
+        "n": 1,
+        "semantic_correctness": 0.0,
+        "valid_generation_rate": 0.0
+      }
+    },
+    "retrieval_gain": 0.0,
+    "shuffled_evidence_drop": 0.0,
+    "poison_acceptance": 0.0
+  },
+  "category_counts": {
+    "grounded": 1
+  },
+  "rows": [
+    {
+      "id": "phase2-0130",
+      "category": "grounded",
+      "answer": "",
+      "correct": false,
+      "valid_generation": false,
+      "failure_reason": "empty_output",
+      "terminated": false,
+      "avg_logprob": -0.5650972575014634,
+      "avg_entropy": 1.4574581998749636,
+      "accepted_evidence": [
+        "[trusted] The answer code for grounded case 0 is Z-100."
+      ]
+    }
+  ],
+  "retrieval_ablations": {
+    "correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5650972575014634,
+          "avg_entropy": 1.4574581998749636,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 0 is Z-100."
+          ]
+        }
+      ]
+    },
+    "no_evidence": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5811832100226866,
+          "avg_entropy": 1.4947861673499574,
+          "accepted_evidence": []
+        }
+      ]
+    },
+    "shuffled_unrelated": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5710567981057011,
+          "avg_entropy": 1.467661195322762,
+          "accepted_evidence": [
+            "[trusted unrelated] Unrelated case says token U-0."
+          ]
+        }
+      ]
+    },
+    "poison_plus_correct": {
+      "accuracy": 0.0,
+      "poison_acceptance": 0.0,
+      "rows": [
+        {
+          "id": "phase2-0130",
+          "answer": "",
+          "correct": false,
+          "poison_accepted": false,
+          "valid_generation": false,
+          "failure_reason": "empty_output",
+          "terminated": false,
+          "avg_logprob": -0.5650972575014634,
+          "avg_entropy": 1.4574581998749636,
+          "accepted_evidence": [
+            "[trusted] The answer code for grounded case 0 is Z-100."
+          ]
+        }
+      ]
+    }
+  }
+}

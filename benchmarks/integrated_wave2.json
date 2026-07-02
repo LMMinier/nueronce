@@ -1,0 +1,53 @@
+{
+  "seed": 20260701,
+  "n": 100,
+  "authority_backend": "cfna.microtorch.authority_clf",
+  "systems": {
+    "provenance_contract": {
+      "answer_accuracy": 0.92,
+      "poison_acceptance": 0.0,
+      "citation_precision": 0.92,
+      "citation_recall": 1.0,
+      "n": 100
+    },
+    "integrated_learned_none": {
+      "answer_accuracy": 0.92,
+      "poison_acceptance": 0.0,
+      "citation_precision": 0.92,
+      "citation_recall": 1.0,
+      "n": 100
+    },
+    "integrated_learned_oracle": {
+      "answer_accuracy": 0.83,
+      "poison_acceptance": 0.17,
+      "citation_precision": 0.83,
+      "citation_recall": 0.83,
+      "n": 100
+    },
+    "integrated_learned_predicted": {
+      "answer_accuracy": 0.83,
+      "poison_acceptance": 0.17,
+      "citation_precision": 0.83,
+      "citation_recall": 0.83,
+      "n": 100
+    }
+  },
+  "citation_quality_on_answerable": {
+    "answer_accuracy": 1.0,
+    "poison_acceptance": 0.0,
+    "citation_precision": 1.0,
+    "citation_recall": 1.0,
+    "n": 68
+  },
+  "n_answerable": 68,
+  "gate": {
+    "full_beats_contract_only": false,
+    "citations_identify_decisive_evidence": true,
+    "oracle_vs_predicted_gap": 0.0,
+    "integrated_does_not_reintroduce_poison_vs_contract": false
+  },
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-6.18.5-x86_64-with-glibc2.39"
+  }
+}

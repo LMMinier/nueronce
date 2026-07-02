@@ -1,0 +1,25 @@
+work_id,title,author,publication_year,subject,work_type,collection_code,rights_code,priority
+work_0201,Paradise Lost,John Milton,1667,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0202,The Iliad,Homer,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0203,The Odyssey,Homer,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0204,The Aeneid,Virgil,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0205,Beowulf,Anonymous,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0206,The Epic of Gilgamesh,Anonymous,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0207,The Tale of Genji public-domain translation candidate,Murasaki Shikibu,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0208,The Arabian Nights public-domain translation candidate,Anonymous,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0209,The Jungle,Upton Sinclair,1906,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0210,The Call of the Wild,Jack London,1903,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0211,White Fang,Jack London,1906,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0212,The Sea-Wolf,Jack London,1904,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0213,The Awakening,Kate Chopin,1899,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0214,Little Women,Louisa May Alcott,1868,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0215,The Secret Garden,Frances Hodgson Burnett,1911,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0216,Anne of Green Gables,L. M. Montgomery,1908,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0217,Peter Pan,J. M. Barrie,1911,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0218,The Wind in the Willows,Kenneth Grahame,1908,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0219,The Metamorphosis public-domain translation candidate,Franz Kafka,1915,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0220,Dubliners,James Joyce,1914,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0221,A Portrait of the Artist as a Young Man,James Joyce,1916,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0222,Ulysses public-domain U.S. status/edition candidate,James Joyce,1922,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0223,The Age of Innocence,Edith Wharton,1920,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0224,Ethan Frome,Edith Wharton,1911,literature,book,PD_SCAN,PD_EDITION_CHECK,high

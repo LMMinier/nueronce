@@ -1,0 +1,48 @@
+{
+  "n": 5,
+  "pass_rate": 0.0,
+  "tool_rate": 0.0,
+  "fallback_rate": 1.0,
+  "rows": [
+    {
+      "prompt": "Hello, who are you?",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "low_lexical_quality",
+      "expected_substring": "assistant",
+      "passed": false
+    },
+    {
+      "prompt": "What is 17 plus 25?",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "low_lexical_quality",
+      "expected_substring": "42",
+      "passed": false
+    },
+    {
+      "prompt": "Calculate 9 * 8.",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "low_lexical_quality",
+      "expected_substring": "72",
+      "passed": false
+    },
+    {
+      "prompt": "What is the capital of France?",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "low_lexical_quality",
+      "expected_substring": "Paris",
+      "passed": false
+    },
+    {
+      "prompt": "What can you do?",
+      "response": "I am not confident enough to answer that coherently yet.",
+      "source": "fallback",
+      "warning": "low_lexical_quality",
+      "expected_substring": "simple questions",
+      "passed": false
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+work_id,title,author,publication_year,subject,work_type,collection_code,rights_code,priority
+work_0101,An Investigation of the Laws of Thought,George Boole,1854,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0102,A Budget of Paradoxes,Augustus De Morgan,1872,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0103,The Foundations of Geometry,David Hilbert,,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0104,The Theory of Groups of Finite Order,William Burnside,1897,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0105,A Treatise on Probability,John Maynard Keynes,1921,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0106,Mathematical Recreations and Essays,W. W. Rouse Ball,1892,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0107,A Short Account of the History of Mathematics,W. W. Rouse Ball,1888,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0108,Plane Trigonometry,S. L. Loney,1893,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0109,Coordinate Geometry,S. L. Loney,1895,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0110,Higher Algebra,Hall and Knight,1887,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0111,Algebra: An Elementary Text-Book,G. Chrystal,1886,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0112,A Treatise on Differential Equations,George Boole,1859,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0113,The Theory of Determinants,Thomas Muir,1882,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0114,Projective Geometry,Oswald Veblen and John Wesley Young,1910,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0115,The Thirteen Books of Euclid's Elements,Thomas L. Heath,1908,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0116,Solid Geometry,Percival Frost,1875,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0117,Elementary Illustrations of the Differential and Integral Calculus,Augustus De Morgan,1832,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0118,The Philosophy of Arithmetic,John Leslie,1817,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0119,The Number Concept,Levi L. Conant,1896,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0120,"The Elements of Style, First Edition",William Strunk Jr.,1918,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0121,How to Speak and Write Correctly,Joseph Devlin,1910,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0122,The Art of Writing and Speaking the English Language,Sherwin Cody,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0123,English Grammar in Familiar Lectures,Samuel Kirkham,1829,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0124,The Grammar of English Grammars,Goold Brown,1851,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0125,Practical Grammar and Composition,Thomas Wood,1910,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0126,The Philosophy of Style,Herbert Spencer,1852,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0127,On the Art of Writing,Arthur Quiller-Couch,1916,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0128,The Art of Public Speaking,Dale Carnegie and J. Berg Esenwein,1915,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0129,Public Speaking: Principles and Practice,Irving J. Lee,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0130,Rhetoric,Aristotle,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0131,The Orator,Cicero,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0132,On Oratory,Cicero,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0133,The Education of the Orator,Quintilian,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0134,A Handbook of Rhetorical Devices public-domain predecessors,Various,,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0135,Composition-Rhetoric,Stratton D. Brooks and Marietta Hubbard,1905,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0136,English Composition and Literature,W. F. Webster,1900,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0137,The Writing of English,John Matthews Manly and Edith Rickert,1920,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0138,The English Language,Robert Gordon Latham,1841,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0139,Words and Their Uses,Richard Grant White,1870,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0140,Every-Day Errors of Speech,L. P. Meredith,1872,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0141,The Verbalist,Alfred Ayres,1881,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0142,Slips of Speech,John H. Bechtel,1901,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0143,The King's English,H. W. Fowler and F. G. Fowler,1906,writing_grammar_and_rhetoric,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0144,Pride and Prejudice,Jane Austen,1813,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0145,Sense and Sensibility,Jane Austen,1811,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0146,Emma,Jane Austen,1815,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0147,Persuasion,Jane Austen,1817,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0148,Jane Eyre,Charlotte Brontë,1847,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0149,Wuthering Heights,Emily Brontë,1847,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0150,Great Expectations,Charles Dickens,1861,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0151,A Tale of Two Cities,Charles Dickens,1859,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0152,Oliver Twist,Charles Dickens,1838,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0153,Bleak House,Charles Dickens,1853,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0154,David Copperfield,Charles Dickens,1850,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0155,Hard Times,Charles Dickens,1854,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0156,Moby-Dick,Herman Melville,1851,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0157,The Scarlet Letter,Nathaniel Hawthorne,1850,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0158,The House of the Seven Gables,Nathaniel Hawthorne,1851,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0159,Adventures of Huckleberry Finn,Mark Twain,1884,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0160,The Adventures of Tom Sawyer,Mark Twain,1876,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0161,The Prince and the Pauper,Mark Twain,1881,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0162,A Connecticut Yankee in King Arthur's Court,Mark Twain,1889,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0163,Frankenstein,Mary Shelley,1818,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0164,The Last Man,Mary Shelley,1826,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0165,Dracula,Bram Stoker,1897,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0166,The Picture of Dorian Gray,Oscar Wilde,1890,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0167,The Importance of Being Earnest,Oscar Wilde,1895,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0168,The Time Machine,H. G. Wells,1895,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0169,The War of the Worlds,H. G. Wells,1898,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0170,The Invisible Man,H. G. Wells,1897,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0171,The Island of Doctor Moreau,H. G. Wells,1896,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0172,The Wonderful Wizard of Oz,L. Frank Baum,1900,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0173,Alice's Adventures in Wonderland,Lewis Carroll,1865,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0174,Through the Looking-Glass,Lewis Carroll,1871,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0175,Treasure Island,Robert Louis Stevenson,1883,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0176,Kidnapped,Robert Louis Stevenson,1886,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0177,The Strange Case of Dr Jekyll and Mr Hyde,Robert Louis Stevenson,1886,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0178,The Adventures of Sherlock Holmes,Arthur Conan Doyle,1892,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0179,The Hound of the Baskervilles,Arthur Conan Doyle,1902,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0180,The Count of Monte Cristo,Alexandre Dumas,1844,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0181,The Three Musketeers,Alexandre Dumas,1844,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0182,Les Misérables,Victor Hugo,1862,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0183,The Hunchback of Notre-Dame,Victor Hugo,1831,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0184,Crime and Punishment,Fyodor Dostoevsky,1866,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0185,The Brothers Karamazov,Fyodor Dostoevsky,1880,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0186,The Idiot,Fyodor Dostoevsky,1869,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0187,Notes from Underground,Fyodor Dostoevsky,1864,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0188,War and Peace,Leo Tolstoy,1869,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0189,Anna Karenina,Leo Tolstoy,1878,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0190,The Death of Ivan Ilyich,Leo Tolstoy,1886,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0191,Fathers and Sons,Ivan Turgenev,1862,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0192,Dead Souls,Nikolai Gogol,1842,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0193,Madame Bovary,Gustave Flaubert,1857,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0194,The Red and the Black,Stendhal,1830,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0195,Germinal,Émile Zola,1885,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0196,Candide,Voltaire,1759,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0197,Don Quixote,Miguel de Cervantes,1605,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0198,The Divine Comedy,Dante Alighieri,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0199,The Decameron,Giovanni Boccaccio,,literature,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0200,The Canterbury Tales,Geoffrey Chaucer,,literature,book,PD_SCAN,PD_EDITION_CHECK,high

@@ -1,0 +1,101 @@
+work_id,title,author,publication_year,subject,work_type,collection_code,rights_code,priority
+work_0001,The Republic,Plato,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0002,Apology,Plato,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0003,Symposium,Plato,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0004,Phaedo,Plato,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0005,Nicomachean Ethics,Aristotle,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0006,Politics,Aristotle,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0007,Poetics,Aristotle,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0008,Meditations,Marcus Aurelius,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0009,The Enchiridion,Epictetus,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0010,Discourses,Epictetus,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0011,Moral Letters to Lucilius,Seneca,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0012,On the Shortness of Life,Seneca,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0013,The Prince,Niccolò Machiavelli,1532,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0014,Leviathan,Thomas Hobbes,1651,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0015,Two Treatises of Government,John Locke,1689,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0016,An Essay Concerning Human Understanding,John Locke,1689,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0017,A Treatise of Human Nature,David Hume,1739,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0018,An Enquiry Concerning Human Understanding,David Hume,1748,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0019,Discourse on Method,René Descartes,1637,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0020,Meditations on First Philosophy,René Descartes,1641,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0021,Ethics,Baruch Spinoza,1677,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0022,The Social Contract,Jean-Jacques Rousseau,1762,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0023,Groundwork of the Metaphysics of Morals,Immanuel Kant,1785,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0024,Critique of Pure Reason,Immanuel Kant,1781,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0025,On Liberty,John Stuart Mill,1859,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0026,Utilitarianism,John Stuart Mill,1863,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0027,The Subjection of Women,John Stuart Mill,1869,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0028,Thus Spake Zarathustra,Friedrich Nietzsche,1883,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0029,Beyond Good and Evil,Friedrich Nietzsche,1886,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0030,The Genealogy of Morals,Friedrich Nietzsche,1887,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0031,The Problems of Philosophy,Bertrand Russell,1912,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0032,Pragmatism,William James,1907,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0033,The Varieties of Religious Experience,William James,1902,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0034,Walden,Henry David Thoreau,1854,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0035,Civil Disobedience,Henry David Thoreau,1849,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0036,Self-Reliance and Other Essays,Ralph Waldo Emerson,,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0037,The Souls of Black Folk,W. E. B. Du Bois,1903,philosophy,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0038,The Principles of Psychology,William James,1890,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0039,Talks to Teachers on Psychology,William James,1899,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0040,Psychology,John Dewey,1887,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0041,The Crowd: A Study of the Popular Mind,Gustave Le Bon,1895,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0042,Conditioned Reflexes,Ivan Pavlov,1927,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0043,The Expression of the Emotions in Man and Animals,Charles Darwin,1872,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0044,The Descent of Man,Charles Darwin,1871,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0045,Hereditary Genius,Francis Galton,1869,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0046,Inquiries into Human Faculty and Its Development,Francis Galton,1883,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0047,Democracy and Education,John Dewey,1916,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0048,Human Nature and Conduct,John Dewey,1922,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0049,The School and Society,John Dewey,1899,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0050,Introduction to Sociology,Frank W. Blackmar and John Lewis Gillin,1915,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0051,Sociology and Modern Social Problems,Charles A. Ellwood,1910,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0052,The Theory of the Leisure Class,Thorstein Veblen,1899,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0053,The Protestant Ethic and the Spirit of Capitalism,Max Weber,,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0054,The Division of Labor in Society,Émile Durkheim,,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0055,Suicide,Émile Durkheim,,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0056,The Communist Manifesto,Karl Marx and Friedrich Engels,1848,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0057,"Capital, Volume I",Karl Marx,1867,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0058,The Condition of the Working Class in England,Friedrich Engels,1845,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0059,Progress and Poverty,Henry George,1879,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0060,Looking Backward,Edward Bellamy,1888,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0061,Up from Slavery,Booker T. Washington,1901,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0062,Narrative of the Life of Frederick Douglass,Frederick Douglass,1845,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0063,A Vindication of the Rights of Woman,Mary Wollstonecraft,1792,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0064,Woman in the Nineteenth Century,Margaret Fuller,1845,psychology_and_social_science,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0065,On the Origin of Species,Charles Darwin,1859,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0066,The Voyage of the Beagle,Charles Darwin,1839,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0067,The Variation of Animals and Plants under Domestication,Charles Darwin,1868,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0068,The Power of Movement in Plants,Charles Darwin and Francis Darwin,1880,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0069,The Chemical History of a Candle,Michael Faraday,1861,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0070,Experimental Researches in Electricity,Michael Faraday,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0071,A Treatise on Electricity and Magnetism,James Clerk Maxwell,1873,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0072,Matter and Motion,James Clerk Maxwell,1876,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0073,Opticks,Isaac Newton,1704,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0074,The Mathematical Principles of Natural Philosophy,Isaac Newton,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0075,Dialogue Concerning the Two Chief World Systems,Galileo Galilei,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0076,The Sidereal Messenger,Galileo Galilei,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0077,Relativity: The Special and General Theory,Albert Einstein,1916,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0078,The Theory of Heat Radiation,Max Planck,1906,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0079,Atomic Theory and the Description of Nature,Niels Bohr,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0080,The Evolution of Physics,Albert Einstein and Leopold Infeld,1938,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0081,The New Astronomy,Samuel Pierpont Langley,1888,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0082,Popular Astronomy,Camille Flammarion,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0083,The Story of the Heavens,Robert Stawell Ball,1885,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0084,The Moon,Thomas Gwyn Elger,1895,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0085,Principles of Geology,Charles Lyell,1830,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0086,The Story of the Rocks,Joel Dorman Steele,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0087,The Ocean World,Louis Figuier,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0088,The Sea Around Us public-domain predecessor texts,Various,,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0089,The Natural History of Selborne,Gilbert White,1789,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0090,Micrographia,Robert Hooke,1665,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0091,The Senses and the Intellect,Alexander Bain,1855,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0092,The Conservation of Energy,Balfour Stewart,1873,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0093,Science and Education,Thomas Henry Huxley,1893,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0094,Man's Place in Nature,Thomas Henry Huxley,1863,science_and_natural_history,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0095,The Elements,Euclid,,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0096,A Course of Pure Mathematics,G. H. Hardy,1908,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0097,An Introduction to Mathematics,Alfred North Whitehead,1911,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0098,Introduction to Mathematical Philosophy,Bertrand Russell,1919,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0099,Calculus Made Easy,Silvanus P. Thompson,1910,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high
+work_0100,Elements of Algebra,Leonhard Euler,1765,mathematics,book,PD_SCAN,PD_EDITION_CHECK,high

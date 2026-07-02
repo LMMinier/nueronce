@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Callable, List, Optional
 
 from .config import VerifierConfig
+from .coherent_inference import surface_failure_reason
 from .types import (
     MemoryRecord,
     VerificationFailure,
@@ -49,6 +50,32 @@ class IndependentVerifier:
         h, cfg = self.h, self.cfg
         failures: List[VerificationFailure] = []
         claims = h.extract_claims(candidate_text)
+        surface_reason = surface_failure_reason(candidate_text, prompt=plan.get("user_goal", ""))
+        if surface_reason is not None:
+            failures.append(
+                VerificationFailure(
+                    category="surface_quality",
+                    target_claim=surface_reason,
+                    severity=1.0,
+                    instruction=f"regenerate because surface generation failed: {surface_reason}",
+                )
+            )
+        provenance_statuses = {
+            ev.memory_id: ev.authenticity_status for ev in evidence_items + tool_obs
+        }
+        rejected_evidence = [
+            ev.memory_id for ev in evidence_items + tool_obs
+            if ev.authenticity_status in ("failed", "revoked")
+        ]
+        for ev_id in rejected_evidence:
+            failures.append(
+                VerificationFailure(
+                    "rejected_provenance",
+                    ev_id,
+                    1.0,
+                    f"remove reliance on rejected provenance: {ev_id}",
+                )
+            )
 
         # 1. claim-evidence alignment
         for claim in claims:
@@ -102,6 +129,8 @@ class IndependentVerifier:
             supported_claim_fraction=h.measure_support_fraction(claims, evidence_items),
             contradiction_fraction=len(contradictions) / max(1, len(claims)),
             calibration_error=cal_err,
+            provenance_statuses=provenance_statuses,
+            rejected_evidence=rejected_evidence,
         )
 
 
