@@ -224,4 +224,52 @@ def large_config() -> ModelConfig:
     )
 
 
-__all__ = ["ModelConfig", "CFNAModel", "large_config"]
+def chat_config() -> ModelConfig:
+    """The ~11.1M-parameter config the first real checkpoint used
+    (scripts/train_checkpoint.py); kept here as the canonical starting rung."""
+    return ModelConfig(
+        byte_embed_dim=64, d_local=128, d_model=256, p_max=48, physical_blocks=3,
+        logical_depth=4, n_heads=8, unit_window=48, decoder_window=64,
+        decoder_layers=3, d_state=16, channel_dim=24, ret_byte_dim=32,
+        min_patch=3, max_patch=24, boundary_loss_weight=0.2,
+    )
+
+
+def base_35m_config() -> ModelConfig:
+    """~34.4M parameters (counted by construction). The recommended next rung
+    after chat_config for a single consumer GPU: fp32 weights+Adam states
+    ~0.5 GB, activations dominate — seq 192 x batch 16 fits comfortably in
+    8 GB with AMP. Scale data with parameters (GPT-3 lesson): target at least
+    a few hundred MB of corpus before expecting gains over the 11M rung, and
+    drop LR roughly with 1/width (5e-4 -> ~3e-4)."""
+    return ModelConfig(
+        byte_embed_dim=96, d_local=208, d_model=416, p_max=56, physical_blocks=4,
+        logical_depth=6, n_heads=8, unit_window=64, decoder_window=96,
+        decoder_layers=3, d_state=16, channel_dim=32, ret_byte_dim=48,
+        min_patch=3, max_patch=32, boundary_loss_weight=0.2,
+    )
+
+
+def base_90m_config() -> ModelConfig:
+    """~92.1M parameters (counted by construction). For a 12-24 GB GPU with
+    AMP; use gradient accumulation if batch 16 does not fit at seq 192+.
+    LR ~2e-4; needs multi-GB corpus to be data-matched — undertrained large
+    models lose to well-trained small ones at equal wall-clock."""
+    return ModelConfig(
+        byte_embed_dim=112, d_local=288, d_model=608, p_max=64, physical_blocks=5,
+        logical_depth=8, n_heads=8, unit_window=80, decoder_window=112,
+        decoder_layers=4, d_state=16, channel_dim=40, ret_byte_dim=56,
+        min_patch=3, max_patch=40, boundary_loss_weight=0.2,
+    )
+
+
+CONFIG_PRESETS = {
+    "chat_11m": chat_config,
+    "base_35m": base_35m_config,
+    "base_90m": base_90m_config,
+    "large_337m": large_config,
+}
+
+
+__all__ = ["ModelConfig", "CFNAModel", "large_config", "chat_config",
+           "base_35m_config", "base_90m_config", "CONFIG_PRESETS"]

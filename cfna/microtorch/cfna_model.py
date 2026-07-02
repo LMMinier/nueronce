@@ -227,4 +227,26 @@ def large_config() -> MicroModelConfig:
     )
 
 
-__all__ = ["MicroModelConfig", "MicroCFNAModel", "large_config"]
+def preset_configs() -> dict:
+    """Mirror of ``cfna.model.CONFIG_PRESETS`` as MicroModelConfig instances,
+    so preset parameter counts are verifiable without torch (the counts in
+    the torch docstrings were produced exactly this way). Field parity with
+    the torch presets is asserted in tests/test_config_presets.py."""
+    presets = {
+        "chat_11m": dict(byte_embed_dim=64, d_local=128, d_model=256, p_max=48,
+                          physical_blocks=3, logical_depth=4, n_heads=8, unit_window=48,
+                          decoder_window=64, decoder_layers=3, d_state=16, channel_dim=24,
+                          ret_byte_dim=32, min_patch=3, max_patch=24, boundary_loss_weight=0.2),
+        "base_35m": dict(byte_embed_dim=96, d_local=208, d_model=416, p_max=56,
+                          physical_blocks=4, logical_depth=6, n_heads=8, unit_window=64,
+                          decoder_window=96, decoder_layers=3, d_state=16, channel_dim=32,
+                          ret_byte_dim=48, min_patch=3, max_patch=32, boundary_loss_weight=0.2),
+        "base_90m": dict(byte_embed_dim=112, d_local=288, d_model=608, p_max=64,
+                          physical_blocks=5, logical_depth=8, n_heads=8, unit_window=80,
+                          decoder_window=112, decoder_layers=4, d_state=16, channel_dim=40,
+                          ret_byte_dim=56, min_patch=3, max_patch=40, boundary_loss_weight=0.2),
+    }
+    return {name: MicroModelConfig(**kw) for name, kw in presets.items()}
+
+
+__all__ = ["MicroModelConfig", "MicroCFNAModel", "large_config", "preset_configs"]
