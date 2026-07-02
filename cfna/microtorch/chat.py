@@ -33,6 +33,15 @@ def load_checkpoint(path: str) -> Tuple[MicroCFNAModel, dict]:
 
 @dataclass
 class MicroConversation:
+    """``prompt_format`` must match what the checkpoint was trained on:
+    ``"canonical"`` = the ``<|user|>``-marker format from ``cfna.prompting``;
+    ``"legacy"`` = the ``User: ``/``Assistant: `` layout every
+    ``sharded_sft`` checkpoint to date was trained on. Checkpoints that do
+    not record a ``prompt_format`` in their meta predate the canonical
+    format, so ``from_checkpoint_payload`` resolves them to legacy — feeding
+    a model marker bytes it has never seen guarantees garbage output.
+    """
+
     model: MicroCFNAModel
     system: str = ""
     user_tag: str = USER_TAG
@@ -41,9 +50,28 @@ class MicroConversation:
     max_new: int = 80
     min_new: int = 8
     max_ctx: int = 288
+    prompt_format: str = "canonical"
     transcript: List[Tuple[str, str]] = field(default_factory=list)
 
+    @staticmethod
+    def resolve_format(payload: dict) -> str:
+        meta = payload.get("meta") or {}
+        return meta.get("prompt_format", payload.get("prompt_format", "legacy"))
+
     def _context(self, user_msg: str) -> bytes:
+        if self.prompt_format == "legacy":
+            # Literal legacy tags — NOT the module-level USER_TAG/BOT_TAG, which
+            # were later repointed to the canonical <|user|>/<|assistant|>
+            # markers. Legacy checkpoints were trained on exactly
+            # "User: <msg>\nAssistant: <reply>\n" with no system line when empty.
+            u, b = "User: ", "Assistant: "
+            parts = []
+            if self.system:
+                parts.append(self.system.strip())
+            for role, text in self.transcript:
+                parts.append(f"{u if role == 'user' else b}{text}")
+            parts.append(f"{u}{user_msg}")
+            return ("\n".join(parts) + f"\n{b}").encode("utf-8")
         return assemble_conversation_prompt(
             system_message=self.system,
             current_user=user_msg,
