@@ -18,9 +18,9 @@ import importlib
 
 
 def __getattr__(name):
-    if name in {"sources", "build", "dataset", "stack"}:
+    if name in {"sources", "build", "dataset", "stack", "catalog"}:
         return importlib.import_module(f".{name}", __name__)
     raise AttributeError(f"module 'cfna.corpus' has no attribute {name!r}")
 
 
-__all__ = ["sources", "build", "dataset", "stack"]
+__all__ = ["sources", "build", "dataset", "stack", "catalog"]
