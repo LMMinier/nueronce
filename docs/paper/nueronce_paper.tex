@@ -22,10 +22,6 @@
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
-% Figure placeholders compile standalone; replace each \figbox with an
-% \includegraphics of the rendered diagram before submission.
-\newcommand{\figbox}[1]{\fbox{\parbox[c][1.6in][c]{0.94\linewidth}{\centering\footnotesize #1}}}
-
 \begin{document}
 
 \title{CFNA: A From-Scratch, Byte-Level, Provenance-Gated\\
@@ -71,7 +67,7 @@ Around the model sits a trust system: every piece of retrieved evidence carries 
 
 \begin{figure}[!t]
   \centering
-  \figbox{FIGURE 1 (to render): End-to-end CFNA forward pass. Byte stream $\to$ causal perception CNN (embed, conv-3, residual conv-7, residual dilated conv-3, RMSNorm) with boundary head $\to$ dynamic patcher (learned boundary probability thresholded, min/max patch lengths) $\to$ unit embedder $\to$ typed recurrent memory $\to$ hybrid routed core (reused over logical depth) $\to$ byte decoder cross-attending to completed units $\to$ 256-way next-byte logits. Annotate the two gradient routes into the boundary head.}
+  \includegraphics[width=\linewidth]{figures/fig1_pipeline.pdf}
   \caption{The end-to-end CFNA forward pass. The discrete segmentation is detached from the gradient; the boundary head is trained by the auxiliary word-onset loss and by the language-model loss through a per-unit mean-boundary feature.}
   \label{fig:pipeline}
 \end{figure}
@@ -139,7 +135,7 @@ Every core block computes four outputs in parallel from the same normalized inpu
 
 \begin{figure}[!t]
   \centering
-  \figbox{FIGURE 2 (to render): A single hybrid core block. One normalized input fans out to four parallel paths; a router MLP consumes the concatenated outputs and emits a per-position four-way softmax blend; gated feed-forward with residual follows. Lock icon: the router sees only causal path outputs.}
+  \includegraphics[width=\linewidth]{figures/fig2_coreblock.pdf}
   \caption{A single hybrid core block with per-position four-way routing.}
   \label{fig:coreblock}
 \end{figure}
@@ -189,7 +185,7 @@ Checkpoints are written atomically (write-then-rename); the best checkpoint is s
 
 \begin{figure}[!t]
   \centering
-  \figbox{FIGURE 3 (to render): Dual-backend equivalence harness. Two columns (framework backend; NumPy float64 autograd engine) realize identical architecture, optimizer, eval harness, authority classifier; a comparator checks serialized benchmark output for bit-identical equality across OS, Python version, and backend chips.}
+  \includegraphics[width=\linewidth]{figures/fig3_dualbackend.pdf}
   \caption{The dual-backend equivalence harness.}
   \label{fig:dualbackend}
 \end{figure}
@@ -270,7 +266,7 @@ The differentiation story leaned on typed memory channels specializing into dist
 
 \begin{figure}[!t]
   \centering
-  \figbox{FIGURE 4 (to render): Base pretraining learning curve. Held-out bits/byte vs.\ minutes, 4.515 down through annotated milestones (2.67, 2.11, 2.03), crossing the dashed pre-registered 1.8 gate at minute 51, ending 1.785 at cutoff; a later-session extension to 1.313 marked with a broken-link icon (checkpoint lost). Train-bpb overlay near 1.2 at cutoff.}
+  \includegraphics[width=\linewidth]{figures/fig4_curve.pdf}
   \caption{The base pretraining curve with pre-registered gate and milestones.}
   \label{fig:curve}
 \end{figure}
