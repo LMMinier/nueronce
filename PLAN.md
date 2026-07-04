@@ -72,6 +72,7 @@ base model worth revising.
 | fp16/AMP-safe numerics (masked softmax, fp32 RMSNorm stats) | DONE | `cfna/nn.py`; `tests/test_gpu_amp.py` |
 | Multi-subject corpus recipe (~400 MB, 22 sources) | DONE | `cfna/corpus/stack.py`; `docs/LOCAL_TRAINING_PLAYBOOK.md` §1 |
 | State-cached incremental generation (edge-inference path) | DONE | `cfna/incremental.py` + microtorch twin; byte-exact vs dense (8 tests), **17.0x** measured at 256-byte prompt (`scripts/bench_incremental.py`); wired into both chat paths with self-verifying fallback |
+| C++ inference engine (cfna.cpp, zero-dependency) | DONE | `cpp/cfna_engine.cpp` + `scripts/export_cfna_bin.py`; logits parity ≤1e-8 vs float64 oracle incl. real checkpoint, greedy byte-identical (4 tests); **657 B/s, 14.3x** vs Python dense incl. startup (`cpp/README.md`) |
 | Resumable conversation trainer (canonical, best-by-val, AMP, format-stamped) | DONE | `scripts/train_conversation.py`; data layer torch-free + tested (`tests/test_mixed_sft.py`) |
 | Preset/AMP/device support in the base pretrainer | DONE | `scripts/train_checkpoint.py --preset base_35m --amp` |
 | Colab training journal (corpus → parameters → chat) | DONE | `notebooks/cfna_colab_training.ipynb` (13 cells, resumable, Drive checkpoints, corpus→GitHub cell) |
