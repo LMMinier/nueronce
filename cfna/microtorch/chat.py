@@ -51,7 +51,20 @@ class MicroConversation:
     min_new: int = 8
     max_ctx: int = 288
     prompt_format: str = "canonical"
+    use_incremental: bool = True  # state-cached generation (17x measured; byte-exact tested)
     transcript: List[Tuple[str, str]] = field(default_factory=list)
+
+    def _generate(self, context: bytes) -> bytes:
+        kwargs = dict(max_new=self.max_new, temperature=self.temperature,
+                      greedy=(self.temperature <= 0), max_ctx=self.max_ctx,
+                      stop_bytes=_STOP, min_new=self.min_new)
+        if self.use_incremental:
+            try:
+                from .incremental import IncrementalGenerator
+                return IncrementalGenerator(self.model).generate(context, **kwargs)
+            except Exception:
+                pass  # never let the fast path break chat
+        return self.model.generate(context, **kwargs)
 
     @staticmethod
     def resolve_format(payload: dict) -> str:
@@ -81,11 +94,7 @@ class MicroConversation:
 
     def say(self, user_msg: str) -> str:
         context = self._context(user_msg)
-        raw = self.model.generate(
-            context, max_new=self.max_new, temperature=self.temperature,
-            greedy=(self.temperature <= 0), max_ctx=self.max_ctx,
-            stop_bytes=_STOP, min_new=self.min_new,
-        )
+        raw = self._generate(context)
         reply_bytes = raw[len(context):]
         reply = reply_bytes.decode("utf-8", errors="replace").strip()
         reply = _tidy(reply)

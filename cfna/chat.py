@@ -42,8 +42,33 @@ def load_checkpoint(path: str) -> Tuple[CFNAModel, dict]:
 
 @torch.no_grad()
 def _continue(model: CFNAModel, context: bytes, max_new: int, temperature: float,
-              stop_bytes: bytes, min_new: int, max_ctx: int) -> bytes:
+              stop_bytes: bytes, min_new: int, max_ctx: int,
+              use_incremental: bool = True) -> bytes:
     del stop_bytes, min_new
+    if use_incremental:
+        # State-cached generation (cfna.incremental): the engine must prove
+        # itself before it is trusted — on first use per model we prime it on
+        # this context and require its last-position logits to match a dense
+        # forward; any mismatch disables it for that model and falls back to
+        # the dense path. Retrieval-free chat only.
+        try:
+            from .incremental import IncrementalGenerator
+            if getattr(model, "_incremental_ok", None) is None:
+                inc = IncrementalGenerator(model)
+                inc.prime(list(context)[-max_ctx:] or [32])
+                fast = inc._last_logits()
+                ctx_t = torch.tensor([inc.ids], dtype=torch.long,
+                                     device=next(model.parameters()).device)
+                dense = model(ctx_t)[0][0, -1]
+                model._incremental_ok = bool(torch.allclose(fast, dense, atol=1e-4))
+            if model._incremental_ok:
+                return IncrementalGenerator(model).generate(
+                    context, max_new=max_new, temperature=temperature,
+                    greedy=(temperature <= 0), max_ctx=max_ctx,
+                    stop_sequences=STOP_SEQUENCES, continuation_only=True,
+                )
+        except Exception:
+            model._incremental_ok = False  # never let the fast path break chat
     return model.generate(
         context,
         max_new=max_new,
