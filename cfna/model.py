@@ -416,13 +416,33 @@ def base_90m_config() -> ModelConfig:
     )
 
 
+def xl_1b_config() -> ModelConfig:
+    """~1B-parameter target (verify exact count with ``num_params()`` on first
+    construct — this is sized by construction, not measured here). A100-40GB
+    territory only: fp16 weights ~2 GB + Adam states ~8 GB + activations, so
+    train with AMP, small batch + gradient accumulation, and (recommended)
+    gradient checkpointing (``scripts/train_checkpoint.py --grad-checkpoint``).
+
+    Honest budget note: Chinchilla-optimal for ~1B is ~20B tokens; 100
+    A100-hours reaches ~12B, i.e. an *under-trained* 1B. A fully-trained
+    ``large_337m`` will usually beat an under-trained 1B at equal wall-clock
+    — prefer 337M unless you specifically need the parameter count."""
+    return ModelConfig(
+        byte_embed_dim=160, d_local=768, d_model=1536, p_max=64, physical_blocks=8,
+        logical_depth=16, n_heads=12, unit_window=256, decoder_window=256,
+        decoder_layers=8, d_state=16, channel_dim=96, ret_byte_dim=96,
+        min_patch=4, max_patch=128, boundary_loss_weight=0.2,
+    )
+
+
 CONFIG_PRESETS = {
     "chat_11m": chat_config,
     "base_35m": base_35m_config,
     "base_90m": base_90m_config,
     "large_337m": large_config,
+    "xl_1b": xl_1b_config,
 }
 
 
 __all__ = ["ModelConfig", "CFNAModel", "large_config", "chat_config",
-           "base_35m_config", "base_90m_config", "CONFIG_PRESETS"]
+           "base_35m_config", "base_90m_config", "xl_1b_config", "CONFIG_PRESETS"]

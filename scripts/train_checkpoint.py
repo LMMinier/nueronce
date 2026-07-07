@@ -80,6 +80,13 @@ def main():
                     help="cfna.model.CONFIG_PRESETS rung (default: local chat_config)")
     ap.add_argument("--device", default="auto", help="auto|cuda|cpu")
     ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
+    ap.add_argument("--grad-accum", type=int, default=1,
+                    help="accumulate N micro-batches per optimizer step "
+                         "(effective batch = batch*N; fewer, larger steps)")
+    ap.add_argument("--compile", action="store_true",
+                    help="torch.compile the model (one-time warmup, then faster)")
+    ap.add_argument("--save-every-min", type=float, default=0.0,
+                    help="also save at least every N minutes (0 = only on log interval)")
     args = ap.parse_args()
 
     device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
@@ -120,8 +127,17 @@ def main():
     model.to(device)
     optimizer_to(opt, device)
     valb = [b.to(device) for b in valb]
+    train_model = model
+    if args.compile:
+        try:
+            train_model = torch.compile(model)
+            print("torch.compile enabled (first steps slower while it warms up)")
+        except Exception as e:
+            print("torch.compile unavailable, continuing eager:", e)
+    eff_batch = args.batch * max(1, args.grad_accum)
     print(f"model: {model.num_params():,} params | device {device}{' +amp' if amp else ''} | "
-          f"seq {args.seq} batch {args.batch} | budget {args.minutes} min")
+          f"seq {args.seq} batch {args.batch}x{args.grad_accum}accum (eff {eff_batch}) | "
+          f"budget {args.minutes} min")
 
     rng = np.random.default_rng(args.seed + step)
     t0 = time.time()
@@ -138,18 +154,30 @@ def main():
         }
         atomic_torch_save(payload, out)
 
+    last_timed_save = time.time()
     while (time.time() - t0) < args.minutes * 60:
-        batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
         model.train()
-        with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
-            loss, parts = model.loss(batch)
         opt.zero_grad(set_to_none=True)
-        scaler.scale(loss).backward()
+        parts = None
+        # Gradient accumulation: sum grads over grad_accum micro-batches, scaling
+        # each loss by 1/accum so the effective batch behaves like one big batch.
+        for micro in range(max(1, args.grad_accum)):
+            batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
+            with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
+                loss, parts = train_model.loss(batch)
+                loss = loss / max(1, args.grad_accum)
+            scaler.scale(loss).backward()
         scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         scaler.step(opt)
         scaler.update()
         step += 1
+
+        # Timed safety save (Colab-runtime-death insurance, independent of the
+        # log interval) so an idle timeout loses at most save-every-min minutes.
+        if args.save_every_min and (time.time() - last_timed_save) >= args.save_every_min * 60:
+            save()
+            last_timed_save = time.time()
 
         if step % 50 == 0:
             vb = heldout_bpb(model, valb)
