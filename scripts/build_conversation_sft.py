@@ -37,7 +37,8 @@ from cfna.training.dialogue_data import SFT_DATASET
 from cfna.training.mixed_sft import dataset_summary, enforce_category_caps, load_jsonl, stride_sample
 from cfna.training.synthetic_dialogue import GENERATORS
 
-CAPPED = {"arithmetic": 15_000, "classification": 15_000}  # generous pre-cap quotas
+CAPPED = {"arithmetic": 15_000, "classification": 15_000}
+_CODE_DIRS = []  # populated from --code-dirs in main()  # generous pre-cap quotas
 
 
 def _load_prompt_aligned_module():
@@ -92,10 +93,22 @@ def generate_records(n_direct: int, n_grounded: int, n_edge: int):
             ],
         }
 
+    # Code instruction pairs from permissively-licensed source trees (the
+    # coding-assistant track). Only runs if --code-dirs is given; the caller
+    # is responsible for pointing it at permissive code (see code_sft.py).
+    for d in _CODE_DIRS:
+        import glob as _glob
+        from cfna.training.code_sft import records_from_files
+        files = _glob.glob(f"{d}/**/*.py", recursive=True)
+        yield from records_from_files(files, source=f"code:{d}")
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default="data/conversation_sft")
+    ap.add_argument("--code-dirs", default="",
+                    help="comma-separated permissively-licensed code trees to mine "
+                         "for instruction->code pairs (the coding-assistant track)")
     ap.add_argument("--direct", type=int, default=8000)
     ap.add_argument("--grounded", type=int, default=8000)
     ap.add_argument("--edge", type=int, default=4000)
@@ -107,6 +120,8 @@ def main():
     ap.add_argument("--manifest-copy", default="metrics/conversation_sft_manifest.json",
                     help="Tracked copy of the manifest ('' to skip)")
     args = ap.parse_args()
+    global _CODE_DIRS
+    _CODE_DIRS = [d for d in args.code_dirs.split(",") if d.strip()]
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
