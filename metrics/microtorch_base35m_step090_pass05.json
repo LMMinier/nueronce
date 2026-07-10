@@ -1,0 +1,22 @@
+{
+  "model": "MicroTorch CFNA base_35m",
+  "parameters": 34368049,
+  "pass_index": 5,
+  "start_step": 80,
+  "end_step": 90,
+  "completed_steps": 10,
+  "pretraining_steps": 8,
+  "sft_steps": 2,
+  "pretraining_target_bytes": 4088,
+  "sft_target_bytes": 96,
+  "all_gradient_tensors_finite": true,
+  "checkpoint_bytes": 138240267,
+  "checkpoint_sha256": "b55807c476e5c9db07df6856eb3cd59871eeec522dc71144893ccc261b4d652f",
+  "canonical_state_sha256": "5ab42075ea483c3cb526a2bff14008333d509cfd29ea8f8d773f56bb73d2d953",
+  "optimizer_step": 90,
+  "learning_rate": 1e-05,
+  "baseline_average_bpb": 4.943606644547286,
+  "final_average_bpb": 4.901383986519662,
+  "average_bpb_change": -0.04222265802762415,
+  "final_accuracy": 0.1632420091324201
+}
