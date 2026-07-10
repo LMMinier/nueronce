@@ -15,7 +15,7 @@ def base_355m_config() -> MicroModelConfig:
         physical_blocks=6, logical_depth=12, n_heads=8,
         unit_window=256, decoder_window=256, decoder_layers=6,
         d_state=16, channel_dim=64, ret_byte_dim=64,
-        min_patch=4, max_patch=128,
+        min_patch=4, max_patch=128, activation_checkpointing=True,
     )
 
 
