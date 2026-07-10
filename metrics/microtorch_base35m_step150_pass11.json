@@ -1,0 +1,52 @@
+{
+  "model": "MicroTorch CFNA base_35m",
+  "parameters": 34368049,
+  "pass_index": 11,
+  "start_step": 140,
+  "end_step": 150,
+  "completed_steps": 10,
+  "training_mix": {
+    "pretraining_steps": 8,
+    "sft_steps": 2,
+    "pretraining_target_bytes": 4088,
+    "sft_target_bytes": 121,
+    "final_sft_phase": "grounded_evidence"
+  },
+  "stability": {
+    "all_gradient_tensors_finite": true,
+    "expected_gradient_tensors_per_step": 177,
+    "nonfinite_steps": 0
+  },
+  "heldout_suite": {
+    "name": "heldout-3docs-4windows-v1",
+    "targets": 6132,
+    "step140_average_bpb": 4.643708457452246,
+    "step150_average_bpb": 4.640710255235979,
+    "bpb_change": -0.0029982022162666766,
+    "step140_accuracy": 0.1888454011741683,
+    "step150_accuracy": 0.20221787345075015,
+    "accuracy_point_change": 1.3372472276581866,
+    "final_documents": {
+      "tale_of_two_cities": {"average_bpb": 4.684833378883187, "accuracy": 0.20156555772994128},
+      "plato_apology": {"average_bpb": 4.67161427638992, "accuracy": 0.20156555772994128},
+      "discourse_on_method": {"average_bpb": 4.56568311043483, "accuracy": 0.2035225048923679}
+    }
+  },
+  "checkpoint": {
+    "bytes": 138265681,
+    "sha256": "fff9afedf1112fdc07de79e319ebb2cf641e11b73c17fedd3f0a7a72d8a76622",
+    "canonical_state_sha256": "9e3d4e2f3a9a6bcacd479676663cf7c68f73910e33e45d2c17ffbf2631d47d52",
+    "optimizer_step": 150,
+    "learning_rate": 1e-5
+  },
+  "generation_probe": {
+    "scope": "one greedy continuation byte per fixed prompt due runtime limits",
+    "The ": "o",
+    "Liberty is ": "l",
+    "Evidence: ": "o",
+    "readable": false
+  },
+  "convergence_reached": false,
+  "convergence_reason": "The required five-evaluation plateau is not established and fixed-prompt greedy generation remains unreadable.",
+  "execution_note": "Atomic checkpointing preserved all ten unique optimizer steps across transient runner interruptions. The authoritative full manifest and checkpoint are preserved in the persistent Library."
+}
