@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import Iterable, List
 
-import numpy as np
+from .backend import xp as np
 
 from .tensor import Tensor
 

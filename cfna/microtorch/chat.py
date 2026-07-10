@@ -15,7 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
-from ..prompting import assemble_conversation_prompt
+from ..prompting import ASSISTANT, END, SYSTEM, USER
 from ..training.dialogue_data import BOT_TAG, USER_TAG
 from ..training.sharded_sft import load_checkpoint as _load_checkpoint_payload
 from .cfna_model import MicroCFNAModel, MicroModelConfig
@@ -85,12 +85,14 @@ class MicroConversation:
                 parts.append(f"{u if role == 'user' else b}{text}")
             parts.append(f"{u}{user_msg}")
             return ("\n".join(parts) + f"\n{b}").encode("utf-8")
-        return assemble_conversation_prompt(
-            system_message=self.system,
-            current_user=user_msg,
-            recent_turns=self.transcript,
-            max_chars=self.max_ctx,
-        ).encode("utf-8")
+        text = f"{SYSTEM}\n{self.system.strip() if self.system else ''}\n"
+        for role, content in self.transcript:
+            if role == "user":
+                text += f"{USER}\n{content}\n"
+            else:
+                text += f"{ASSISTANT}\n{content}\n{END}\n"
+        text += f"{USER}\n{user_msg}\n{ASSISTANT}\n"
+        return text.encode("utf-8")[-self.max_ctx:]
 
     def say(self, user_msg: str) -> str:
         context = self._context(user_msg)

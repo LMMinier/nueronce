@@ -150,7 +150,8 @@ def run_microtorch_full_cfna(args):
         grad_clip=args.grad_clip, grad_accum_steps=args.grad_accum_steps,
         periodic_val_every=args.periodic_val_every, periodic_val_examples=args.periodic_val_examples,
         full_val_examples=args.full_val_examples, checkpoint_every_steps=args.checkpoint_every_steps,
-        log_every=args.log_every, seed=args.seed, resume=args.resume,
+        log_every=args.log_every, epochs=args.epochs, max_steps=args.max_steps,
+        additional_steps=args.additional_steps, seed=args.seed, resume=args.resume,
     )
     summary = run_sharded_sft(model_cfg, cfg)
     print(f"\ndone: best shard {summary['best_shard']} (val loss {summary['best_val_loss']:.4f}) | "
@@ -180,6 +181,10 @@ def _load_jsonl(path: Path):
 
 def _record_to_training_bytes(rec: dict):
     from cfna.prompting import format_training_example
+    from cfna.training.dialogue_data import encode_messages
+
+    if "messages" in rec:
+        return encode_messages(rec["messages"], system=rec.get("system_message", ""))
 
     return format_training_example(
         system_message=rec.get("system_message", ""),
@@ -201,8 +206,23 @@ def _torch_batch_from_records(records, *, max_len: int, device, max_neighbors: i
     neighbor_mask = torch.zeros((len(records), max_neighbors, neighbor_len), dtype=torch.bool, device=device)
     has_neighbor = False
     for i, ((b, m), rec) in enumerate(zip(encoded, records)):
-        b = b[:width]
-        m = m[:width]
+        if len(b) > width:
+            target_positions = [j for j, flag in enumerate(m) if flag]
+            if target_positions:
+                first_t, last_t = target_positions[0], target_positions[-1]
+                response_len = last_t - first_t + 1
+                prefix_keep = max(1, min(width // 3, width - min(width, response_len)))
+                start = max(0, first_t - prefix_keep)
+                if last_t >= start + width:
+                    start = max(0, last_t - width + 1)
+                start = min(start, max(0, len(b) - width))
+            else:
+                start = max(0, len(b) - width)
+            b = b[start:start + width]
+            m = m[start:start + width]
+        else:
+            b = b[:width]
+            m = m[:width]
         byte_ids[i, :len(b)] = torch.tensor(list(b), dtype=torch.long, device=device)
         target_mask[i, :len(m)] = torch.tensor(m, dtype=torch.bool, device=device)
         for j, ev in enumerate(rec.get("trusted_evidence", [])[:max_neighbors]):
@@ -224,10 +244,12 @@ def _torch_batch_from_records(records, *, max_len: int, device, max_neighbors: i
     }
 
 
-def _torch_eval(model, records, *, batch_size: int, max_len: int, device) -> dict:
+def _torch_eval(model, records, *, batch_size: int, max_len: int, device, max_examples: int | None = None) -> dict:
     import torch
 
     model.eval()
+    if max_examples is not None:
+        records = records[:max_examples]
     total_loss = 0.0
     total_examples = 0
     correct = 0
@@ -353,6 +375,14 @@ def run_torch_full_cfna(args):
     }
     if args.resume and latest_path.exists():
         meta = _load_torch_training_checkpoint(latest_path, model, opt, scheduler)
+        if args.reset_scheduler_on_resume:
+            for group in opt.param_groups:
+                group["lr"] = args.lr
+            remaining = (args.max_steps - int(meta.get("global_step", 0))) if args.max_steps else total_planned
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                opt, T_max=max(1, remaining), eta_min=args.min_lr
+            )
+            print(f"reset scheduler on resume: lr {args.lr:g}, remaining T_max {max(1, remaining)}")
         model.to(device)
         print(f"resumed {latest_path} at global_step {meta.get('global_step')}")
 
@@ -363,16 +393,23 @@ def run_torch_full_cfna(args):
         print(json.dumps(rec))
 
     def validate(event):
-        m = _torch_eval(model, val_records, batch_size=max(1, args.batch), max_len=args.max_len, device=device)
+        m = _torch_eval(model, val_records, batch_size=max(1, args.batch), max_len=args.max_len,
+                        device=device, max_examples=args.full_val_examples)
         rec = {"event": event, "step": meta["global_step"], **{f"val_{k}": v for k, v in m.items()}}
-        is_best = m["loss"] < meta["best_val_loss"]
+        previous_best = meta["best_val_loss"]
+        is_best = m["loss"] < previous_best
+        is_significant = m["loss"] < (previous_best - args.min_delta)
         rec["is_best"] = is_best
+        rec["is_significant_improvement"] = is_significant
+        rec["patience_bad_checks"] = meta["patience_bad_checks"]
         if is_best:
             meta["best_val_loss"] = m["loss"]
-            meta["patience_bad_checks"] = 0
             _save_torch_checkpoint(best_path, model, opt, scheduler, dict(meta))
+        if is_significant:
+            meta["patience_bad_checks"] = 0
         else:
             meta["patience_bad_checks"] += 1
+        rec["patience_bad_checks_after"] = meta["patience_bad_checks"]
         log(rec)
         return m
 
@@ -420,9 +457,15 @@ def run_torch_full_cfna(args):
             meta["next_shard_index"] = shard_idx
             meta["step_within_shard"] = local_step + 1
             if meta["global_step"] % args.log_every == 0:
+                progress = None
+                if args.max_steps:
+                    progress = min(1.0, meta["global_step"] / max(1, args.max_steps))
                 log({"event": "train", "step": meta["global_step"], "shard": shard_idx + 1,
                      "train_loss": accum, "grad_norm": grad_norm, "lr": opt.param_groups[0]["lr"],
-                     "examples_seen": meta["examples_seen"], "elapsed_seconds": time.time() - t0})
+                     "examples_seen": meta["examples_seen"], "progress": progress,
+                     "progress_bar": ("[" + "#" * int((progress or 0) * 20) +
+                                      "-" * (20 - int((progress or 0) * 20)) + "]") if progress is not None else None,
+                     "elapsed_seconds": time.time() - t0})
             if meta["global_step"] % args.periodic_val_every == 0:
                 validate("periodic_val")
                 if meta["patience_bad_checks"] >= args.patience:
@@ -441,7 +484,8 @@ def run_torch_full_cfna(args):
     best_payload = torch.load(best_path if best_path.exists() else latest_path, map_location="cpu", weights_only=False)
     model.load_state_dict(best_payload["state_dict"])
     model.to(device)
-    test_metrics = _torch_eval(model, test_records, batch_size=max(1, args.batch), max_len=args.max_len, device=device)
+    test_metrics = _torch_eval(model, test_records, batch_size=max(1, args.batch), max_len=args.max_len,
+                               device=device, max_examples=args.full_val_examples)
     summary = {
         "num_params": model.num_params(),
         "device": str(device),
@@ -484,8 +528,13 @@ def main():
     ap.add_argument("--full-val-examples", type=int, default=None)
     ap.add_argument("--checkpoint-every-steps", type=int, default=500)
     ap.add_argument("--log-every", type=int, default=50)
+    ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--max-steps", type=int, default=None)
+    ap.add_argument("--additional-steps", type=int, default=None)
     ap.add_argument("--patience", type=int, default=6)
+    ap.add_argument("--min-delta", type=float, default=0.0,
+                    help="Minimum validation-loss improvement that resets convergence patience.")
+    ap.add_argument("--reset-scheduler-on-resume", action="store_true")
     ap.add_argument("--resume", action="store_true")
 
     # shared

@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
-import numpy as np
+from .backend import xp as np
 
 from .tensor import Tensor, cat
 

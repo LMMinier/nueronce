@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 from typing import Iterator, List, Optional
 
-import numpy as np
+from .backend import xp as np
 
 from . import functional as F
 from .tensor import Tensor, cat, stack

@@ -17,6 +17,11 @@ env/
 .coverage
 htmlcov/
 
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
 # DVC state
 .dvc/
 

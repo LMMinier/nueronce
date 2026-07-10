@@ -24,9 +24,10 @@ import torch
 from .model import CFNAModel, ModelConfig
 from .prompting import (
     ASSISTANT,
+    END,
     STOP_SEQUENCES,
+    SYSTEM,
     USER,
-    assemble_conversation_prompt,
     extract_assistant_continuation,
 )
 
@@ -93,12 +94,21 @@ class Conversation:
     transcript: List[Tuple[str, str]] = field(default_factory=list)
 
     def _context(self, user_msg: str) -> bytes:
-        return assemble_conversation_prompt(
-            system_message=self.system,
-            current_user=user_msg,
-            recent_turns=self.transcript,
-            max_chars=self.max_ctx,
-        ).encode("utf-8")
+        # Match cfna.training.dialogue_data.encode_messages exactly for
+        # message-SFT checkpoints: no empty evidence/plan blocks.
+        turns = list(self.transcript)
+        while True:
+            text = f"{SYSTEM}\n{self.system.strip() if self.system else ''}\n"
+            for role, content in turns:
+                if role == "user":
+                    text += f"{USER}\n{content}\n"
+                else:
+                    text += f"{ASSISTANT}\n{content}\n{END}\n"
+            text += f"{USER}\n{user_msg}\n{ASSISTANT}\n"
+            out = text.encode("utf-8")
+            if len(out) <= self.max_ctx or not turns:
+                return out[-self.max_ctx:]
+            turns = turns[2:] if len(turns) >= 2 else []
 
     def say(self, user_msg: str) -> str:
         context = self._context(user_msg)
@@ -115,6 +125,8 @@ class Conversation:
 
 def _tidy(text: str) -> str:
     """Trim a generated continuation to its last complete sentence for readability."""
+    if "<|" in text:
+        text = text.split("<|", 1)[0]
     text = text.replace("\n", " ").strip()
     for end in range(len(text) - 1, -1, -1):
         if text[end] in ".!?":

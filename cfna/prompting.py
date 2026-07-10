@@ -11,7 +11,7 @@ PLAN = "<|plan|>"
 ASSISTANT = "<|assistant|>"
 END = "<|end|>"
 
-STOP_SEQUENCES = (END.encode("utf-8"), f"\n{USER}".encode("utf-8"), b"\nUser:")
+STOP_SEQUENCES = (END.encode("utf-8"), b"<|", f"\n{USER}".encode("utf-8"), b"\nUser:")
 
 
 def _block(marker: str, text: str) -> str:

@@ -173,6 +173,9 @@ class ShardedSFTConfig:
     full_val_examples: Optional[int] = None  # None = the entire fixed validation set
     checkpoint_every_steps: int = 500
     log_every: int = 50
+    epochs: int = 1
+    max_steps: Optional[int] = None
+    additional_steps: Optional[int] = None
     seed: int = 42
     resume: bool = True
 
@@ -196,6 +199,7 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
 
     meta = {
         "next_shard_index": 0, "step_within_shard": 0, "global_step": 0,
+        "next_shard_visit": 0, "epoch_index": 0,
         "examples_seen": 0, "best_val_loss": float("inf"), "best_shard": None,
         "lr": cfg.lr, "consecutive_no_improve": 0, "elapsed_seconds": 0.0,
     }
@@ -206,7 +210,10 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
         opt = AdamW(list(model.parameters()), lr=payload["opt_lr"], weight_decay=0.01)
         apply_checkpoint(payload, model, opt)
         meta = payload["meta"]
-        log_fn(f"resumed from {latest_path}: shard {meta['next_shard_index']}, "
+        meta.setdefault("next_shard_visit", meta.get("next_shard_index", 0))
+        meta.setdefault("epoch_index", meta["next_shard_visit"] // max(1, cfg.num_shards))
+        log_fn(f"resumed from {latest_path}: epoch {meta['epoch_index'] + 1}, "
+               f"shard {meta['next_shard_index']}, "
                f"step_within_shard {meta['step_within_shard']}, examples_seen {meta['examples_seen']:,}")
     else:
         model, opt = new_model_and_optimizer(model_cfg, cfg.lr, cfg.seed)
@@ -233,19 +240,33 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
         meta["best_val_loss"] = pre["loss"]
 
     shard_summaries: List[dict] = []
+    total_shard_visits = cfg.num_shards * max(1, cfg.epochs)
+    start_visit = int(meta.get("next_shard_visit", meta.get("next_shard_index", 0)))
+    stop_after_step = cfg.max_steps
+    if cfg.additional_steps is not None:
+        stop_after_step = meta["global_step"] + cfg.additional_steps
+        if cfg.max_steps is not None:
+            stop_after_step = min(stop_after_step, cfg.max_steps)
+    stopped_early = False
 
-    for shard_idx in range(meta["next_shard_index"], cfg.num_shards):
+    for visit in range(start_visit, total_shard_visits):
+        shard_idx = visit % cfg.num_shards
+        epoch_idx = visit // cfg.num_shards
         shard_path = _shard_path(cfg, shard_idx)
         records = load_jsonl(shard_path)
         assert len(records) == cfg.examples_per_shard, (
             f"{shard_path} has {len(records)} records, expected {cfg.examples_per_shard}")
 
-        order = np.random.default_rng(cfg.seed + 1000 * shard_idx).permutation(len(records))
-        start_step = meta["step_within_shard"] if shard_idx == meta["next_shard_index"] else 0
+        order_seed = cfg.seed + 1000 * shard_idx + 1_000_000 * epoch_idx
+        order = np.random.default_rng(order_seed).permutation(len(records))
+        start_step = meta["step_within_shard"] if visit == start_visit else 0
         n_steps = len(records) // cfg.batch_size
         train_loss_ema = None
 
         for step in range(start_step, n_steps):
+            if stop_after_step is not None and meta["global_step"] >= stop_after_step:
+                stopped_early = True
+                break
             idx = order[step * cfg.batch_size:(step + 1) * cfg.batch_size]
             chunk = [records[i] for i in idx]
             batch = _batch_from_records(chunk, cfg.max_len)
@@ -269,11 +290,15 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
             train_loss_ema = step_loss if train_loss_ema is None else 0.95 * train_loss_ema + 0.05 * step_loss
             meta["global_step"] += 1
             meta["examples_seen"] += batch["byte_ids"].shape[0]
+            meta["next_shard_visit"] = visit
+            meta["next_shard_index"] = shard_idx
+            meta["epoch_index"] = epoch_idx
             meta["step_within_shard"] = step + 1
             meta["elapsed_seconds"] = time.time() - t0
 
             if meta["global_step"] % cfg.log_every == 0:
-                log_fn(f"shard {shard_idx + 1}/{cfg.num_shards} step {step + 1}/{n_steps} "
+                log_fn(f"epoch {epoch_idx + 1}/{cfg.epochs} shard {shard_idx + 1}/{cfg.num_shards} "
+                       f"step {step + 1}/{n_steps} "
                        f"| examples_seen {meta['examples_seen']:,} | train_loss(ema) {train_loss_ema:.4f} "
                        f"| lr {opt.lr:.2e} | elapsed {meta['elapsed_seconds']:.0f}s")
 
@@ -286,15 +311,21 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
 
             if meta["global_step"] % cfg.checkpoint_every_steps == 0:
                 save_checkpoint(str(latest_path), model, opt, meta)
+        if stopped_early:
+            save_checkpoint(str(latest_path), model, opt, meta)
+            break
 
         # end-of-shard: full validation, checkpoint, LR policy
+        meta["next_shard_visit"] = visit + 1
         meta["next_shard_index"] = shard_idx + 1
+        meta["epoch_index"] = epoch_idx
         meta["step_within_shard"] = 0
         val = full_val()
         is_best = val["loss"] < meta["best_val_loss"]
         if is_best:
             meta["best_val_loss"] = val["loss"]
             meta["best_shard"] = shard_idx + 1
+            meta["best_epoch"] = epoch_idx + 1
             meta["consecutive_no_improve"] = 0
             save_checkpoint(str(best_path), model, opt, dict(meta))
         else:
@@ -305,7 +336,7 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
         save_checkpoint(str(latest_path), model, opt, meta)
 
         rec = {
-            "event": "end_of_shard", "shard": shard_idx + 1, "step": meta["global_step"],
+            "event": "end_of_shard", "epoch": epoch_idx + 1, "shard": shard_idx + 1, "step": meta["global_step"],
             "examples_seen": meta["examples_seen"], "train_loss": train_loss_ema,
             "val_loss": val["loss"], "val_bits_per_byte": val["bits_per_byte"],
             "val_byte_accuracy": val["byte_accuracy"], "lr": opt.lr, "is_best": is_best,
@@ -315,6 +346,22 @@ def run_sharded_sft(model_cfg: MicroModelConfig, cfg: ShardedSFTConfig,
         shard_summaries.append(rec)
 
     test_records = load_jsonl(cfg.test_path)
+    if stopped_early:
+        val = full_val()
+        is_best = val["loss"] < meta["best_val_loss"]
+        if is_best:
+            meta["best_val_loss"] = val["loss"]
+            meta["best_shard"] = int(meta.get("next_shard_index", 0)) + 1
+            meta["best_epoch"] = int(meta.get("epoch_index", 0)) + 1
+            meta["consecutive_no_improve"] = 0
+            save_checkpoint(str(best_path), model, opt, dict(meta))
+        save_checkpoint(str(latest_path), model, opt, meta)
+        log_metric({"event": "early_stop_val", "epoch": int(meta.get("epoch_index", 0)) + 1,
+                    "shard": int(meta.get("next_shard_index", 0)) + 1,
+                    "step": meta["global_step"], "examples_seen": meta["examples_seen"],
+                    "val_loss": val["loss"], "val_bits_per_byte": val["bits_per_byte"],
+                    "val_byte_accuracy": val["byte_accuracy"], "lr": opt.lr,
+                    "is_best": is_best, "elapsed_seconds": meta["elapsed_seconds"]})
     # Final model selection is the best-validation checkpoint, not shard 10's.
     best_payload = load_checkpoint(str(best_path)) if best_path.exists() else load_checkpoint(str(latest_path))
     best_model = MicroCFNAModel(MicroModelConfig(**best_payload["config"]))

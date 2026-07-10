@@ -22,8 +22,7 @@ def test_legacy_context_is_byte_exact_training_prefix():
 
 def test_canonical_context_uses_markers():
     convo = MicroConversation(model=None, prompt_format="canonical")
-    ctx = convo._context("Hello").decode("utf-8")
-    assert "<|user|>" in ctx and "<|assistant|>" in ctx
+    assert convo._context("Hello") == b"<|system|>\n\n<|user|>\nHello\n<|assistant|>\n"
 
 
 def test_resolve_format_defaults_legacy_for_old_checkpoints():

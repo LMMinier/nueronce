@@ -13,7 +13,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Iterable, Optional, Tuple, Union
 
-import numpy as np
+from .backend import to_cpu, xp as np
 
 ArrayLike = Union["Tensor", np.ndarray, float, int, list]
 
@@ -85,7 +85,7 @@ class Tensor:
         return float(self.data.reshape(-1)[0])
 
     def numpy(self) -> np.ndarray:
-        return self.data
+        return to_cpu(self.data)
 
     def __repr__(self):
         return f"Tensor(shape={self.shape}, op={self._op!r}, requires_grad={self.requires_grad})"
