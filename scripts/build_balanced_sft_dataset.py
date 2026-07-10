@@ -11,11 +11,18 @@ from __future__ import annotations
 import argparse
 import itertools
 import json
+import sys
 import time
 from collections import Counter
 from pathlib import Path
 
 import numpy as np
+
+# Allow direct execution from a clean checkout without requiring installation
+# or an externally configured PYTHONPATH.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from cfna.training.dataset_prep import assert_no_leakage, record_normalized_hash, validate_record
 from cfna.training.synthetic_dialogue import GENERATORS
