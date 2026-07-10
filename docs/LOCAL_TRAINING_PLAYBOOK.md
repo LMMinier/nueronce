@@ -14,7 +14,7 @@ pytest tests/test_gpu_amp.py -v        # AMP-safety green light (2 CUDA tests)
 
 ## 1. Pull the multi-subject corpus (license-gated stack)
 
-`cfna.corpus.stack.CORPUS_STACK` now covers the requested subjects:
+`nueronce.corpus.stack.CORPUS_STACK` now covers the requested subjects:
 math/physics (`open_web_math`), code in ~30 languages (`the_stack_smol`,
 filter rows to the permissive-license allowlist), literature/fantasy
 (`project_gutenberg`, `standard_ebooks`), health (`pmc_oa_comm`), psychology/
@@ -35,7 +35,7 @@ mix. Cap any single source near ~25% of bytes.
 
 ## 2. Base pretraining at the next parameter rung
 
-Presets in `cfna.model.CONFIG_PRESETS`, parameter counts verified by
+Presets in `nueronce.model.CONFIG_PRESETS`, parameter counts verified by
 construction (test_config_presets.py):
 
 | preset | params | GPU guidance |
@@ -57,8 +57,8 @@ init otherwise.
 ## 3. Instruction tuning: subjects + MCQs
 
 ```python
-from cfna.corpus.stack import get_entry
-from cfna.training.mcq_sft import load_and_convert
+from nueronce.corpus.stack import get_entry
+from nueronce.training.mcq_sft import load_and_convert
 import json
 with open("data/subject_sft/train_raw.jsonl", "w") as f:
     for sid in ["arc_easy", "arc_challenge", "openbookqa", "commonsense_qa", "math_qa", "gsm8k"]:
@@ -66,14 +66,14 @@ with open("data/subject_sft/train_raw.jsonl", "w") as f:
             f.write(json.dumps(rec) + "\n")
 ```
 
-Then the existing pipeline unchanged: `cfna.training.dataset_prep`
+Then the existing pipeline unchanged: `nueronce.training.dataset_prep`
 (validate/dedupe/split/shard, keeps val+test frozen) → `scripts/train_sft.py`
 / the forgeloop SFT trainer over the shards, mixed with OASST1/Dolly and the
 built-in turn-taking set.
 
 ## 4. Evaluate knowledge two ways (this is the accuracy story)
 
-1. **Choice ranking** (`cfna.training.mcq_sft.evaluate_mcq`): scores each MCQ
+1. **Choice ranking** (`nueronce.training.mcq_sft.evaluate_mcq`): scores each MCQ
    option by masked answer loss — measures *knowledge* even while generation
    is imperfect, and reports chance level alongside. Run it on the held-out
    MCQ split before and after SFT; this is the number that shows subjects

@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import random
 
-from cfna.cognition_v2 import (FAMILIES, STRATEGIES, generate_suite, is_correct,
+from nueronce.cognition_v2 import (FAMILIES, STRATEGIES, generate_suite, is_correct,
                                policy)
-from cfna.cognitive_eval import run
-from cfna.cognitive_holdouts import generate_holdouts
+from nueronce.cognitive_eval import run
+from nueronce.cognitive_holdouts import generate_holdouts
 
 
 def _acc(trials, strategy):
@@ -55,7 +55,7 @@ def test_every_ablation_is_worse_than_full():
 
 def test_full_beats_baselines_on_value_accuracy():
     trials = generate_suite(5, 300)
-    from cfna.cognition_v2 import Verdict  # noqa
+    from nueronce.cognition_v2 import Verdict  # noqa
 
     def value_acc(strategy):
         rng = random.Random(0)

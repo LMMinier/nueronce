@@ -1,0 +1,68 @@
+{
+  "model": "Nueronce Engine NUERONCE base_35m",
+  "parameters": 34368049,
+  "automation": {
+    "passes_completed": 10,
+    "steps_per_pass": 10,
+    "start_step": 40,
+    "end_step": 140,
+    "total_updates": 100
+  },
+  "training_mix": {
+    "pretraining_steps": 80,
+    "sft_steps": 20,
+    "pretraining_target_bytes": 40880,
+    "sft_target_bytes": 1192,
+    "direct_sft_steps": 10,
+    "grounded_sft_steps": 5,
+    "verification_sft_steps": 5
+  },
+  "stability": {
+    "all_100_steps_completed": true,
+    "all_gradient_tensors_finite": true,
+    "expected_gradient_tensors_per_step": 177,
+    "nonfinite_steps": 0
+  },
+  "heldout_suite": {
+    "name": "heldout-3docs-4windows-v1",
+    "targets_per_evaluation": 6132,
+    "step40_average_bpb": 5.493508415301177,
+    "step140_average_bpb": 4.643708457452246,
+    "absolute_bpb_improvement": 0.8497999578489308,
+    "relative_bpb_improvement_pct": 15.469166397961024,
+    "step40_accuracy": 0.14024787997390736,
+    "step140_accuracy": 0.1888454011741683,
+    "accuracy_point_gain": 4.8597521200260925,
+    "final_documents": {
+      "tale_of_two_cities": {"average_bpb": 4.6907193131263165, "accuracy": 0.18933463796477495},
+      "plato_apology": {"average_bpb": 4.673539966131631, "accuracy": 0.18639921722113503},
+      "discourse_on_method": {"average_bpb": 4.56686609309879, "accuracy": 0.1908023483365949}
+    }
+  },
+  "pass_trend": [
+    {"pass":1,"step":50,"average_bpb":5.266715982831847,"accuracy":0.1550880626223092},
+    {"pass":2,"step":60,"average_bpb":5.110919794456518,"accuracy":0.15574037834311807},
+    {"pass":3,"step":70,"average_bpb":5.0465041798600305,"accuracy":0.1415525114155251},
+    {"pass":4,"step":80,"average_bpb":4.943606644547286,"accuracy":0.1632420091324201},
+    {"pass":5,"step":90,"average_bpb":4.901383986519662,"accuracy":0.1632420091324201},
+    {"pass":6,"step":100,"average_bpb":4.859176462965313,"accuracy":0.1759621656881931},
+    {"pass":7,"step":110,"average_bpb":4.811940396009938,"accuracy":0.16617742987606002},
+    {"pass":8,"step":120,"average_bpb":4.7537287689055745,"accuracy":0.18281148075668624},
+    {"pass":9,"step":130,"average_bpb":4.718599449321462,"accuracy":0.18754076973255054},
+    {"pass":10,"step":140,"average_bpb":4.643708457452246,"accuracy":0.1888454011741683}
+  ],
+  "checkpoint": {
+    "bytes": 138262296,
+    "sha256": "066ae348b4fc0cd28b096eb3d296e889f53f9a808db726e8163615fbe9f6ee0c",
+    "canonical_state_sha256": "8a9c5c5b12f4fede8e8c9c6f6ba207e31f506ed1dc58ea52aa6a06bd66d233b4",
+    "optimizer_step": 140,
+    "learning_rate": 1e-05
+  },
+  "generation_probe": {
+    "readable": false,
+    "the_prompt": "ooooiio o",
+    "liberty_prompt": "lisiseeeeeeees s s sees s s ses",
+    "evidence_prompt": "iitaiiiiiiiiiooooooooooooooooooo"
+  },
+  "honesty_note": "Held-out BPB and next-byte accuracy improved materially, but greedy samples remain repetitive and unreadable. The checkpoint is learning byte distributions but is not yet a usable language or instruction model."
+}

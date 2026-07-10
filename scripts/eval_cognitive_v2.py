@@ -14,7 +14,7 @@ import argparse
 import json
 from pathlib import Path
 
-from cfna.cognitive_eval import run
+from nueronce.cognitive_eval import run
 
 
 def _fmt(x: float) -> str:
@@ -26,7 +26,7 @@ def markdown(res: dict) -> str:
     ind = res["in_distribution"]
     hol = res["adversarial_holdout"]
     gate = res["gate"]
-    L = ["# CFNA Cognitive Suite V2 - Report", ""]
+    L = ["# NUERONCE Cognitive Suite V2 - Report", ""]
     L.append(f"- seeds: {cfg['seeds']}  |  trials/seed: {cfg['n_per_seed']}  |  "
              f"holdout/seed: {cfg['holdout_n']}")
     L.append(f"- families: {len(cfg['families'])} in-distribution, "

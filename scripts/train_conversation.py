@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Resumable conversational training for CFNAModel (PLAN.md Phases 3-5).
+"""Resumable conversational training for NUERONCEModel (PLAN.md Phases 3-5).
 
 Runs on whatever compute exists (CUDA GPU, Colab T4, or CPU): the data/batch
-logic is the torch-free ``cfna.training.mixed_sft`` (unit-tested without a
+logic is the torch-free ``nueronce.training.mixed_sft`` (unit-tested without a
 GPU); this script is only the thin torch loop around it.
 
 Two loss modes:
@@ -10,7 +10,7 @@ Two loss modes:
                       from-scratch runs; padding is never a target),
 - ``--loss response`` the SFT contract — CE on assistant-response bytes only.
 
-Checkpoints are ``cfna.chat.load_checkpoint``-compatible and stamp
+Checkpoints are ``nueronce.chat.load_checkpoint``-compatible and stamp
 ``meta.prompt_format`` per docs/FORMAT.md. ``best.pt`` is best-by-val (never
 last-step); ``latest.pt`` is for resume.
 
@@ -35,9 +35,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from cfna.model import CFNAModel, CONFIG_PRESETS, ModelConfig
-from cfna.training.dialogue_data import PROMPT_FORMAT
-from cfna.training.mixed_sft import build_batches, load_jsonl
+from nueronce.model import NUERONCEModel, CONFIG_PRESETS, ModelConfig
+from nueronce.training.dialogue_data import PROMPT_FORMAT
+from nueronce.training.mixed_sft import build_batches, load_jsonl
 
 LN2 = math.log(2.0)
 
@@ -104,7 +104,7 @@ def main():
                                      seed=1, loss="response"))[: args.val_batches]
 
     cfg = CONFIG_PRESETS[args.preset]()
-    model = CFNAModel(cfg)
+    model = NUERONCEModel(cfg)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scaler = torch.amp.GradScaler("cuda", enabled=amp)
 

@@ -6,9 +6,9 @@ July 2026
 
 ## Abstract
 
-Training neural language models is commonly organized around a monolithic execution pattern: construct a full forward graph, retain intermediate activations, execute a full reverse pass, retain parameter gradients, and update globally resident optimizer state. That pattern is effective on accelerators with large high-bandwidth memory, but it couples logical model depth to physical memory residency and makes full-parameter experimentation difficult on ordinary computers. NUERONCE investigates a different systems arrangement. Its model architecture, the Cognitive Fractal Neural Architecture (CFNA), is implemented in a NumPy-native automatic-differentiation engine called MicroTorch. The runtime separates model definition, execution planning, activation residency, optimizer-state ownership, evaluation, and checkpoint recovery. Heavy CFNA stages use exact activation recomputation: stage internals are discarded during the original forward pass and reconstructed only when their output gradient arrives. Optimizer state is partitioned temporally by model subsystem and loaded, updated, saved, and released block by block. A factorized tiled optimizer, StreamFactor, replaces full matrix second-moment tensors with row and column statistics and bounds update working sets through tiled in-place processing.
+Training neural language models is commonly organized around a monolithic execution pattern: construct a full forward graph, retain intermediate activations, execute a full reverse pass, retain parameter gradients, and update globally resident optimizer state. That pattern is effective on accelerators with large high-bandwidth memory, but it couples logical model depth to physical memory residency and makes full-parameter experimentation difficult on ordinary computers. NUERONCE investigates a different systems arrangement. Its model architecture, the Cognitive Fractal Neural Architecture (NUERONCE), is implemented in a NumPy-native automatic-differentiation engine called Nueronce Engine. The runtime separates model definition, execution planning, activation residency, optimizer-state ownership, evaluation, and checkpoint recovery. Heavy NUERONCE stages use exact activation recomputation: stage internals are discarded during the original forward pass and reconstructed only when their output gradient arrives. Optimizer state is partitioned temporally by model subsystem and loaded, updated, saved, and released block by block. A factorized tiled optimizer, StreamFactor, replaces full matrix second-moment tensors with row and column statistics and bounds update working sets through tiled in-place processing.
 
-On a 35,301-parameter CFNA test model, the activation-checkpointed path produced identical loss and parameter gradients to the resident-graph baseline while reducing the reachable forward graph from 1,064 Tensor nodes to 241, a 77.35% reduction. A decomposed three-step training smoke test reduced next-byte loss from approximately 5.88 to 5.19 while paging optimizer state across eight CFNA subsystems. A 352,993,825-parameter configuration is constructable and wired to the float32, activation-recomputed, factorized-optimizer path; however, a complete sustained 355M training run has not yet been demonstrated. The work therefore establishes a functioning research runtime and a falsifiable scaling hypothesis, not a completed claim of efficient 355M convergence or superior intelligence.
+On a 35,301-parameter NUERONCE test model, the activation-checkpointed path produced identical loss and parameter gradients to the resident-graph baseline while reducing the reachable forward graph from 1,064 Tensor nodes to 241, a 77.35% reduction. A decomposed three-step training smoke test reduced next-byte loss from approximately 5.88 to 5.19 while paging optimizer state across eight NUERONCE subsystems. A 352,993,825-parameter configuration is constructable and wired to the float32, activation-recomputed, factorized-optimizer path; however, a complete sustained 355M training run has not yet been demonstrated. The work therefore establishes a functioning research runtime and a falsifiable scaling hypothesis, not a completed claim of efficient 355M convergence or superior intelligence.
 
 ## 1. Introduction
 
@@ -22,8 +22,8 @@ The project does not claim that computation can be eliminated. A 355M-parameter 
 
 The project contains two related contributions:
 
-1. **CFNA**, a byte-first model combining local byte perception, dynamic patching, typed recurrent memory, hybrid state-space and attention processing, retrieval context, and byte decoding.
-2. **A decomposed MicroTorch training runtime**, which separates the mathematical model from execution, activation lifetime, optimizer-state lifetime, checkpoint recovery, and evaluation.
+1. **NUERONCE**, a byte-first model combining local byte perception, dynamic patching, typed recurrent memory, hybrid state-space and attention processing, retrieval context, and byte decoding.
+2. **A decomposed Nueronce Engine training runtime**, which separates the mathematical model from execution, activation lifetime, optimizer-state lifetime, checkpoint recovery, and evaluation.
 
 The strongest verified contribution at the present stage is the training-runtime decomposition. Claims about broad intelligence, superior architecture quality, or inexpensive full 355M convergence remain open experimental questions.
 
@@ -33,13 +33,13 @@ The strongest verified contribution at the present stage is the training-runtime
 
 Reverse-mode automatic differentiation computes gradients efficiently for scalar losses but needs information from the forward computation. A conventional dynamic graph keeps references to the operations and values required for backward propagation. This ties activation memory to graph depth and sequence length.
 
-Chen et al., *Training Deep Nets with Sublinear Memory Cost* (2016), formalized the compute-memory trade: selected values can be retained while other activations are recomputed during backward. Their work showed that memory can be reduced below linear growth in network depth by accepting additional forward computation. NUERONCE applies the same general principle through an independently implemented MicroTorch checkpoint operator specialized around CFNA stage boundaries.
+Chen et al., *Training Deep Nets with Sublinear Memory Cost* (2016), formalized the compute-memory trade: selected values can be retained while other activations are recomputed during backward. Their work showed that memory can be reduced below linear growth in network depth by accepting additional forward computation. NUERONCE applies the same general principle through an independently implemented Nueronce Engine checkpoint operator specialized around NUERONCE stage boundaries.
 
 Reference: https://arxiv.org/abs/1604.06174
 
 ### 2.2 Reversible computation
 
-Gomez et al., *The Reversible Residual Network* (2017), showed that some layer activations can be reconstructed from later states, allowing activation storage to become largely independent of depth for reversible sections. NUERONCE does not currently claim a reversible CFNA implementation. Reversible typed-channel transitions are a future research direction, while exact recomputation checkpoints are the present verified mechanism.
+Gomez et al., *The Reversible Residual Network* (2017), showed that some layer activations can be reconstructed from later states, allowing activation storage to become largely independent of depth for reversible sections. NUERONCE does not currently claim a reversible NUERONCE implementation. Reversible typed-channel transitions are a future research direction, while exact recomputation checkpoints are the present verified mechanism.
 
 Reference: https://arxiv.org/abs/1707.04585
 
@@ -47,7 +47,7 @@ Reference: https://arxiv.org/abs/1707.04585
 
 Adam maintains exponentially smoothed first- and second-moment estimates for each parameter. AdamW later clarified that weight decay should be decoupled from the adaptive gradient update. These methods are effective but create optimizer-state memory proportional to the parameter count.
 
-Adafactor, introduced by Shazeer and Stern in 2018, reduces auxiliary state for matrix parameters by approximating second moments from row and column statistics. It also introduced update clipping, increasing second-moment decay, and parameter-scale-relative updates. StreamFactor adopts the row/column factorization principle and update clipping, but is implemented independently within MicroTorch and integrated with block-paged state and tiled CPU updates.
+Adafactor, introduced by Shazeer and Stern in 2018, reduces auxiliary state for matrix parameters by approximating second moments from row and column statistics. It also introduced update clipping, increasing second-moment decay, and parameter-scale-relative updates. StreamFactor adopts the row/column factorization principle and update clipping, but is implemented independently within Nueronce Engine and integrated with block-paged state and tiled CPU updates.
 
 References:
 
@@ -56,7 +56,7 @@ References:
 
 ### 2.4 State partitioning and heterogeneous storage
 
-ZeRO demonstrated that parameters, gradients, and optimizer states need not be redundantly resident across every device. ZeRO-Infinity extended the hierarchy across GPU, CPU, and NVMe storage. NUERONCE targets a different setting—a single CPU-first process—but adopts the transferable systems principle that inactive training state should not occupy active memory. Instead of spatial partitioning across GPUs, NUERONCE performs temporal partitioning across CFNA subsystems.
+ZeRO demonstrated that parameters, gradients, and optimizer states need not be redundantly resident across every device. ZeRO-Infinity extended the hierarchy across GPU, CPU, and NVMe storage. NUERONCE targets a different setting—a single CPU-first process—but adopts the transferable systems principle that inactive training state should not occupy active memory. Instead of spatial partitioning across GPUs, NUERONCE performs temporal partitioning across NUERONCE subsystems.
 
 References:
 
@@ -72,9 +72,9 @@ References:
 - 8-bit optimizers: https://arxiv.org/abs/2110.02861
 - GaLore: https://arxiv.org/abs/2403.03507
 
-## 3. CFNA Model Organization
+## 3. NUERONCE Model Organization
 
-The MicroTorch CFNA implementation follows this data path:
+The Nueronce Engine NUERONCE implementation follows this data path:
 
 ```text
 byte identifiers
@@ -106,11 +106,11 @@ The architecture includes named subsystems that also provide natural runtime own
 
 These boundaries are used by the decomposed runtime for validation, checkpoint policy, optimizer-state ownership, and update scheduling.
 
-## 4. MicroTorch and Runtime Decomposition
+## 4. Nueronce Engine and Runtime Decomposition
 
 ### 4.1 NumPy-native automatic differentiation
 
-MicroTorch is a reverse-mode automatic-differentiation engine implemented with Python and NumPy. Each Tensor stores its numeric data, optional gradient, predecessor references, an operation label, and a backward closure. A topological traversal propagates gradients from the output to graph leaves.
+Nueronce Engine is a reverse-mode automatic-differentiation engine implemented with Python and NumPy. Each Tensor stores its numeric data, optional gradient, predecessor references, an operation label, and a backward closure. A topological traversal propagates gradients from the output to graph leaves.
 
 The original implementation accepted only an implicit all-ones seed in `Tensor.backward()`. Activation recomputation requires vector-Jacobian products at non-scalar stage outputs, so backward was extended to accept an explicit gradient array. This permits a recomputed stage to receive the gradient of its checkpoint output and propagate it through the local replay graph.
 
@@ -128,7 +128,7 @@ MEMMAP      retain through mapped storage
 REVERSIBLE  reconstruct from a later state (future)
 ```
 
-The current CFNA plan marks heavy single-output stages such as memory, core, decoder, unit projection, retrieval projection, and boundary projection for recomputation.
+The current NUERONCE plan marks heavy single-output stages such as memory, core, decoder, unit projection, retrieval projection, and boundary projection for recomputation.
 
 ### 4.3 Exact activation-recomputation checkpoint
 
@@ -148,11 +148,11 @@ When backward reaches the checkpoint:
 5. Allow parameter gradients to accumulate directly on the shared stage parameters.
 6. Release the replay graph when the closure returns and references become unreachable.
 
-This design does not implement hand-written derivatives for every CFNA subsystem. It uses the existing MicroTorch operation derivatives while controlling graph lifetime at stage boundaries.
+This design does not implement hand-written derivatives for every NUERONCE subsystem. It uses the existing Nueronce Engine operation derivatives while controlling graph lifetime at stage boundaries.
 
 ### 4.4 Gradient correctness
 
-Two independently instantiated tiny CFNA models were initialized with identical parameter values. One used the original resident graph and the other enabled activation checkpointing. They processed the same byte sequence and computed next-byte cross-entropy.
+Two independently instantiated tiny NUERONCE models were initialized with identical parameter values. One used the original resident graph and the other enabled activation checkpointing. They processed the same byte sequence and computed next-byte cross-entropy.
 
 Observed result:
 
@@ -180,7 +180,7 @@ Node count is a structural indicator, not a complete peak-RSS measurement. Tenso
 
 ### 5.1 Block state manager
 
-The runtime persists optimizer state separately for each CFNA subsystem. At update time it:
+The runtime persists optimizer state separately for each NUERONCE subsystem. At update time it:
 
 ```text
 loads one block state
@@ -222,7 +222,7 @@ The block-paged runtime currently uses momentum-free factorized state. Quantized
 
 ## 6. 355M-Class Configuration
 
-A measured MicroTorch configuration uses:
+A measured Nueronce Engine configuration uses:
 
 ```text
 byte embedding dimension: 128
@@ -254,7 +254,7 @@ The model has been constructed successfully. Construction is not equivalent to a
 
 ## 7. Training Demonstration
 
-A 35,301-parameter CFNA model was trained through the decomposed runtime on a small next-byte task. The runtime owned eight model subsystems and paged optimizer state by subsystem.
+A 35,301-parameter NUERONCE model was trained through the decomposed runtime on a small next-byte task. The runtime owned eight model subsystems and paged optimizer state by subsystem.
 
 A representative checkpointed run reported:
 
@@ -304,7 +304,7 @@ broad byte-level pretraining
 → conversational supervised fine-tuning
 ```
 
-This separation matters scientifically. The runtime contribution addresses whether training can fit within constrained memory. The model-learning contribution must separately establish whether CFNA gains useful capabilities under controlled data and compute budgets.
+This separation matters scientifically. The runtime contribution addresses whether training can fit within constrained memory. The model-learning contribution must separately establish whether NUERONCE gains useful capabilities under controlled data and compute budgets.
 
 ## 9. Novelty and Relationship to Prior Work
 
@@ -316,7 +316,7 @@ None of the individual ingredients should be presented as invented in isolation:
 - tiled numerical kernels are standard systems practice,
 - low-rank and quantized optimizer state are active research areas.
 
-The potentially original contribution is the integrated organization and CFNA-specific specialization:
+The potentially original contribution is the integrated organization and NUERONCE-specific specialization:
 
 1. A NumPy-native dynamic autograd engine with exact seeded stage replay.
 2. Training-stage boundaries derived from a byte-first hybrid architecture’s semantic subsystems.
@@ -337,7 +337,7 @@ The present system has important limitations:
 4. **Perception is not fully checkpointed.** It produces multiple outputs and needs a tuple-aware checkpoint operator.
 5. **Python and NumPy overhead.** Dynamic Python graph construction and unfused NumPy operations may make CPU throughput impractical at large scale.
 6. **Pickle-based state prototypes.** A typed memory-mapped format is needed for large, reliable state.
-7. **No controlled architecture baseline.** CFNA has not yet demonstrated superiority to an equal-parameter Transformer or state-space baseline.
+7. **No controlled architecture baseline.** NUERONCE has not yet demonstrated superiority to an equal-parameter Transformer or state-space baseline.
 8. **Weak current learned behavior.** Earlier small-model experiments showed memorization, repetition, and poor model-only task performance.
 9. **No proof of typed-channel specialization.** The architecture names functional channels, but empirical probes must show that they learn distinct roles.
 10. **No energy or economic benchmark.** Claims of efficiency require wall-clock and power measurements.
@@ -374,7 +374,7 @@ Compare AdamW where feasible, momentum-free StreamFactor, float32-momentum Strea
 
 ### 11.4 Architecture comparison
 
-Compare CFNA against equal-parameter Transformer and state-space baselines using the same byte corpus, sequence length, training-token budget, and evaluation suite.
+Compare NUERONCE against equal-parameter Transformer and state-space baselines using the same byte corpus, sequence length, training-token budget, and evaluation suite.
 
 ### 11.5 Intelligence and generalization
 
@@ -410,7 +410,7 @@ The project has crossed the boundary from an architecture sketch into a function
 
 The central hypothesis remains falsifiable:
 
-> A CFNA model can be trained with memory bounded primarily by active stages and parameter storage, rather than by simultaneous residency of the complete activation graph and conventional optimizer state.
+> A NUERONCE model can be trained with memory bounded primarily by active stages and parameter storage, rather than by simultaneous residency of the complete activation graph and conventional optimizer state.
 
 The repository now contains enough implementation to test that hypothesis directly.
 

@@ -1,5 +1,5 @@
 {
-  "checkpoint": "checkpoints\\cfna_prompt_aligned\\best.pt",
+  "checkpoint": "checkpoints\\nueronce_prompt_aligned\\best.pt",
   "suite": "data\\eval\\inference_phase2.jsonl",
   "metrics": {
     "n": 5,

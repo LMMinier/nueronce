@@ -1,4 +1,4 @@
-from cfna.ingestion import IngestionCrawler, PolicyGate, score_quality
+from nueronce.ingestion import IngestionCrawler, PolicyGate, score_quality
 
 
 def _meta(**over):

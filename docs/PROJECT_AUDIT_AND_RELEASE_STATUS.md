@@ -1,7 +1,7 @@
 # NUERONCE Project Audit and Release Status
 
 **Audit date:** July 2026  
-**Project:** NUERONCE / Cognitive Fractal Neural Architecture (CFNA)  
+**Project:** NUERONCE / Cognitive Fractal Neural Architecture (NUERONCE)
 **Author:** Luis M. Minier
 
 ## Status labels
@@ -16,16 +16,16 @@
 
 | Claim or contribution | Status | Current evidence | Missing proof |
 |---|---|---|---|
-| NumPy-native reverse-mode autograd engine | Verified | MicroTorch Tensor graph, seeded backward, gradient tests | Broader operation coverage and performance benchmarking |
-| Full CFNA architecture runs without PyTorch in its call graph | Verified | MicroCFNAModel implements perception, segmentation, memory, hybrid core, retrieval, decoder | Independent reproduction |
+| NumPy-native reverse-mode autograd engine | Verified | Nueronce Engine Tensor graph, seeded backward, gradient tests | Broader operation coverage and performance benchmarking |
+| Full NUERONCE architecture runs without PyTorch in its call graph | Verified | NueronceModel implements perception, segmentation, memory, hybrid core, retrieval, decoder | Independent reproduction |
 | Byte-first model with dynamic patching | Verified as implementation | Discrete segmentation, patch pooling, boundary head | Demonstrate quality or efficiency advantage over fixed bytes/tokens |
 | Differentiable boundary influence despite hard segmentation | Verified as implementation | Boundary feature carries LM gradient through boundary projection | Ablation proving benefit |
 | Typed recurrent channels | Implemented | Named channel architecture and recurrent memory code | Probes showing distinct learned semantic roles |
 | Hybrid state-space, local attention, sparse/global processing | Implemented | Hybrid core modules and tests | Equal-budget baseline and true operation-count measurement |
 | Retrieval-aware generation path | Verified as plumbing | Retrieval context reaches core and decoder | Reliable model-only retrieval use and attribution accuracy |
 | Verification/revision mechanism | Verified as plumbing | Revision can be triggered in inference path | Learned verification accuracy and reduced factual error |
-| 11M, 35M, 90M MicroTorch presets | Verified as construction/configuration | Parameter-count tests and constructability | Sustained training runs |
-| 355M-class MicroTorch configuration | Verified as construction/configuration | 352,993,825-parameter configuration measured and wired | Complete instrumented optimization step and sustained run |
+| 11M, 35M, 90M Nueronce Engine presets | Verified as construction/configuration | Parameter-count tests and constructability | Sustained training runs |
+| 355M-class Nueronce Engine configuration | Verified as construction/configuration | 352,993,825-parameter configuration measured and wired | Complete instrumented optimization step and sustained run |
 | Float32 large-scale training policy | Implemented | Large-scale launcher selects float32 while tests retain float64 | Full numerical-stability campaign |
 | Factorized optimizer second moments | Verified on small models | StreamFactor row/column statistics and update smoke tests | Equal-budget convergence comparison against AdamW/Adafactor |
 | Tiled in-place optimizer updates | Verified as implementation | Row-tiled matrix update path | Peak temporary-allocation profiling at scale |
@@ -38,26 +38,26 @@
 | Training without heavy compute | Unsupported if interpreted literally | Memory can be traded for recomputation | Arithmetic cost remains substantial and must be measured honestly |
 | Superior intelligence/reasoning | Unsupported at present | Small procedural tasks can train; earlier generalization is weak | Untouched OOD reasoning benchmarks and baselines |
 | New foundational-model substrate | Partial research claim | Distinct architecture plus custom runtime | Demonstrated capability/efficiency advantage and external review |
-| Scientifically novel integrated runtime | Plausible, not established | Unusual integration of CFNA-aware decomposition, temporal state ownership, and MicroTorch replay | Formal literature comparison, publication, replication |
+| Scientifically novel integrated runtime | Plausible, not established | Unusual integration of NUERONCE-aware decomposition, temporal state ownership, and Nueronce Engine replay | Formal literature comparison, publication, replication |
 
 ## Verified engineering milestones
 
-1. Clean-checkout MicroTorch imports were repaired.
+1. Clean-checkout Nueronce Engine imports were repaired.
 2. The balanced SFT builder was made directly runnable.
-3. The custom MicroTorch backend was restored.
-4. A 352.99M parameter CFNA configuration was identified.
+3. The custom Nueronce Engine backend was restored.
+4. A 352.99M parameter NUERONCE configuration was identified.
 5. Large-scale float32 policy was introduced.
 6. StreamFactor was implemented.
 7. Generic optimizer serialization was introduced.
 8. A dedicated 355M launcher was added.
 9. Model subsystems were assigned explicit parameter ownership.
 10. Block optimizer state was separated and paged.
-11. Seeded non-scalar backward was added to MicroTorch.
+11. Seeded non-scalar backward was added to Nueronce Engine.
 12. Exact activation recomputation checkpoints were added.
-13. Heavy CFNA stages were converted to recomputation boundaries.
+13. Heavy NUERONCE stages were converted to recomputation boundaries.
 14. Gradient equivalence against the resident graph was tested.
 15. Resident graph node count was reduced by 77.35% on the test model.
-16. Multi-step decomposed MicroTorch training produced declining finite loss.
+16. Multi-step decomposed Nueronce Engine training produced declining finite loss.
 
 ## Current release classification
 
@@ -78,7 +78,7 @@ A legitimate, functioning **research prototype for a byte-first hybrid language 
 | Layer | Readiness | Grade |
 |---|---:|---:|
 | Architecture implementation | Research-complete enough for experiments | B+ |
-| MicroTorch autograd correctness | Strong prototype | B+ |
+| Nueronce Engine autograd correctness | Strong prototype | B+ |
 | Low-memory optimizer | Working prototype | B |
 | Activation-memory system | Working and exactly tested on small model | A- |
 | State/checkpoint system | Prototype; needs memmap schema | B- |
@@ -137,7 +137,7 @@ Compare against equal-parameter Transformer and state-space baselines with ident
 | Goal | Estimated completion |
 |---|---:|
 | Research codebase / architecture lab | 80% |
-| Low-memory MicroTorch runtime | 65% |
+| Low-memory Nueronce Engine runtime | 65% |
 | Reproducible 355M one-step demonstrator | 45% |
 | Stable 35M language model | 40% |
 | Competitive small foundation model | 25% |
@@ -150,6 +150,6 @@ These percentages are engineering judgments, not measured scientific quantities.
 
 NUERONCE should be released as an **experimental research system**. Public descriptions should use the following language:
 
-> NUERONCE implements and tests a CPU-first, NumPy-native training runtime for CFNA models using exact activation recomputation, factorized tiled optimization, and temporal optimizer-state partitioning. Small-model tests verify gradient equivalence and reduced graph residency. A 352.99M-parameter configuration is constructable and wired to the runtime, but full 355M training efficiency and convergence remain unproven.
+> NUERONCE implements and tests a CPU-first, NumPy-native training runtime for NUERONCE models using exact activation recomputation, factorized tiled optimization, and temporal optimizer-state partitioning. Small-model tests verify gradient equivalence and reduced graph residency. A 352.99M-parameter configuration is constructable and wired to the runtime, but full 355M training efficiency and convergence remain unproven.
 
 That statement is strong, accurate, and defensible.

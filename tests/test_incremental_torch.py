@@ -1,4 +1,4 @@
-"""Torch-gated equivalence contract for cfna.incremental.IncrementalGenerator.
+"""Torch-gated equivalence contract for nueronce.incremental.IncrementalGenerator.
 
 Run wherever torch is installed (desktop/Colab): greedy stepwise logits must
 match the dense forward, and greedy generation must be byte-identical to a
@@ -8,13 +8,13 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.incremental import IncrementalGenerator
-from cfna.model import CFNAModel, ModelConfig
+from nueronce.incremental import IncrementalGenerator
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
 def _small_model(seed=0):
     torch.manual_seed(seed)
-    m = CFNAModel(ModelConfig(
+    m = NUERONCEModel(ModelConfig(
         byte_embed_dim=8, d_local=12, d_model=16, p_max=8, physical_blocks=1,
         logical_depth=2, n_heads=2, unit_window=6, decoder_window=8,
         decoder_layers=2, d_state=4, channel_dim=4, min_patch=2, max_patch=6))

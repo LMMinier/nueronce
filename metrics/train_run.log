@@ -22,8 +22,8 @@ shard 4/10 step 164/312 | examples_seen 35,200 | train_loss(ema) 0.4608 | lr 2.0
 shard 4/10 step 264/312 | examples_seen 38,400 | train_loss(ema) 0.4156 | lr 2.00e-03 | elapsed 602s
 {"event": "periodic", "shard": 4, "step": 1200, "examples_seen": 38400, "train_loss": 0.41561001021782207, "val_loss_subset": 0.4380697029583973, "val_byte_accuracy_subset": 0.8516431924882629, "lr": 0.002, "elapsed_seconds": 602.2087068557739, "wall_time": "2026-07-01T15:37:05Z"}
 {"event": "end_of_shard", "shard": 4, "step": 1248, "examples_seen": 39936, "train_loss": 0.42374377838974764, "val_loss": 0.4293125702835844, "val_bits_per_byte": 0.6193671161394217, "val_byte_accuracy": 0.8550077671490475, "lr": 0.002, "is_best": true, "elapsed_seconds": 623.5134241580963, "wall_time": "2026-07-01T15:37:54Z"}
-resumed from checkpoints/micro_cfna_sft_100k/latest.pt: shard 4, step_within_shard 0, examples_seen 39,936
-resumed from checkpoints/micro_cfna_sft_100k/latest.pt: shard 4, step_within_shard 0, examples_seen 39,936
+resumed from checkpoints/micro_nueronce_sft_100k/latest.pt: shard 4, step_within_shard 0, examples_seen 39,936
+resumed from checkpoints/micro_nueronce_sft_100k/latest.pt: shard 4, step_within_shard 0, examples_seen 39,936
 shard 5/10 step 52/312 | examples_seen 41,600 | train_loss(ema) 0.4222 | lr 2.00e-03 | elapsed 670s
 shard 5/10 step 152/312 | examples_seen 44,800 | train_loss(ema) 0.4685 | lr 2.00e-03 | elapsed 711s
 {"event": "periodic", "shard": 5, "step": 1400, "examples_seen": 44800, "train_loss": 0.468469854757413, "val_loss_subset": 0.44402779046854235, "val_byte_accuracy_subset": 0.848982785602504, "lr": 0.002, "elapsed_seconds": 711.1590225696564, "wall_time": "2026-07-01T15:43:35Z"}

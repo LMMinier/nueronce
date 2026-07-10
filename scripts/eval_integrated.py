@@ -2,7 +2,7 @@
 """Wave 2 driver: the end-to-end learned cognitive loop, measured against the
 contract-only baseline, with the counterfactual-citation fix.
 
-Trains the authority classifier (from-scratch microtorch backend when torch is
+Trains the authority classifier (from-scratch engine backend when torch is
 absent), then on the frozen V3.3 blind cases compares:
   - provenance_contract (the V3.3 baseline that "full" tied)
   - integrated_learned, authority_mode in {none, oracle, predicted}
@@ -20,10 +20,10 @@ import json
 import platform
 from pathlib import Path
 
-from cfna.authority_clf import AuthorityClassifier
-from cfna.authority_data import gen_examples
-from cfna.integrated_eval import aggregate, run_integrated, score_case
-from cfna.provenance_v33 import generate_dev_cases, run_system
+from nueronce.authority_clf import AuthorityClassifier
+from nueronce.authority_data import gen_examples
+from nueronce.integrated_eval import aggregate, run_integrated, score_case
+from nueronce.provenance_v33 import generate_dev_cases, run_system
 
 
 def _contract_only_rows(cases):

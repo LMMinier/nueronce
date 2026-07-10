@@ -51,7 +51,7 @@ pip install -r requirements.lock
 ```
 
 `requirements.lock` is the exact `pip freeze` of the baseline environment. Use it
-to reproduce the exact dependency set; `pip install -e .` installs the `cfna`
+to reproduce the exact dependency set; `pip install -e .` installs the `nueronce`
 package itself in editable mode.
 
 ### 4. Run the test suite

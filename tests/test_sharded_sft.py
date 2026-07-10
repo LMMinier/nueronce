@@ -1,5 +1,5 @@
-"""The resumable, continuous, sharded microtorch SFT trainer for the full
-MicroCFNAModel. No PyTorch anywhere in this file or what it imports."""
+"""The resumable, continuous, sharded engine SFT trainer for the full
+NueronceModel. No PyTorch anywhere in this file or what it imports."""
 
 import json
 from pathlib import Path
@@ -7,18 +7,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.microtorch.optim import AdamW
-from cfna.prompting import END
-from cfna.training.dialogue_data import encode_messages
-from cfna.training.sharded_sft import (
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.engine.optim import AdamW
+from nueronce.prompting import END
+from nueronce.training.dialogue_data import encode_messages
+from nueronce.training.sharded_sft import (
     ShardedSFTConfig, apply_checkpoint, evaluate, load_checkpoint,
     new_model_and_optimizer, run_sharded_sft, save_checkpoint,
 )
 
 
-def _tiny_cfg() -> MicroModelConfig:
-    return MicroModelConfig(
+def _tiny_cfg() -> NueronceConfig:
+    return NueronceConfig(
         byte_embed_dim=12, d_local=16, d_model=24, p_max=12, physical_blocks=1,
         logical_depth=2, n_heads=4, unit_window=8, decoder_window=12,
         decoder_layers=1, d_state=6, channel_dim=8, ret_byte_dim=8,
@@ -78,7 +78,7 @@ def _cfg(fixture_root, save_dir=None, metrics_dir=None, **overrides):
 # --------------------------------------------------------------------------- #
 
 def test_prompt_bytes_contribute_zero_gradient_response_bytes_do():
-    model = MicroCFNAModel(_tiny_cfg())
+    model = NueronceModel(_tiny_cfg())
     full, mask = encode_messages(_conv("Hello", "Hi!"))
     ids = np.array([list(full)])
     tmask = np.array([mask])
@@ -110,7 +110,7 @@ def test_prompt_bytes_contribute_zero_gradient_response_bytes_do():
 
 
 def test_masked_token_loss_matches_manual_single_position_reference():
-    model = MicroCFNAModel(_tiny_cfg())
+    model = NueronceModel(_tiny_cfg())
     full, mask = encode_messages(_conv("Hi", "Ok."))
     ids = np.array([list(full)])
     tmask = np.array([mask])
@@ -139,7 +139,7 @@ def test_encode_messages_masks_the_trailing_stop_byte():
 
 
 def test_generation_terminates_at_stop_byte():
-    model = MicroCFNAModel(_tiny_cfg())
+    model = NueronceModel(_tiny_cfg())
     # An untrained model's first sampled byte is unpredictable, so test the
     # *mechanism* directly: treat every byte as a stop byte, which guarantees
     # termination after exactly one new byte regardless of which byte it is.
@@ -149,14 +149,14 @@ def test_generation_terminates_at_stop_byte():
 
 
 def test_generation_respects_min_new_before_checking_stop_bytes():
-    model = MicroCFNAModel(_tiny_cfg())
+    model = NueronceModel(_tiny_cfg())
     out = model.generate(b"Assistant: ", max_new=40, greedy=True,
                          stop_bytes=bytes(range(256)), min_new=5)
     assert len(out) == len(b"Assistant: ") + 5
 
 
 def test_generation_without_stop_bytes_runs_to_max_new():
-    model = MicroCFNAModel(_tiny_cfg())
+    model = NueronceModel(_tiny_cfg())
     out = model.generate(b"hi", max_new=15, greedy=True)
     assert len(out) == 2 + 15
 
@@ -180,7 +180,7 @@ def test_checkpoint_roundtrip_restores_weights_and_optimizer_state(tmp_path):
     assert payload["meta"]["global_step"] == 3
     assert payload["opt_t"] == 3
 
-    model2 = MicroCFNAModel(MicroModelConfig(**payload["config"]))
+    model2 = NueronceModel(NueronceConfig(**payload["config"]))
     opt2 = AdamW(list(model2.parameters()), lr=payload["opt_lr"])
     apply_checkpoint(payload, model2, opt2)
 
@@ -202,7 +202,7 @@ def test_resume_continues_from_correct_shard_and_step_with_continuous_state(tmp_
     summary_full = run_sharded_sft(_tiny_cfg(), cfg_full, log_fn=lambda *a: None)
 
     # Same config, but interrupt after a few optimizer steps into shard 1 and resume.
-    import cfna.training.sharded_sft as ssft
+    import nueronce.training.sharded_sft as ssft
     orig_step = ssft.AdamW.step
     calls = {"n": 0}
 

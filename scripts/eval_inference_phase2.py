@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Frozen model-only inference evaluation for prompt-aligned CFNA SFT."""
+"""Frozen model-only inference evaluation for prompt-aligned NUERONCE SFT."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from typing import Iterable, List
 
 import torch
 
-from cfna.chat import load_checkpoint
-from cfna.coherent_inference import surface_failure_reason
-from cfna.prompting import STOP_SEQUENCES, extract_assistant_continuation, format_inference_prompt
+from nueronce.chat import load_checkpoint
+from nueronce.coherent_inference import surface_failure_reason
+from nueronce.prompting import STOP_SEQUENCES, extract_assistant_continuation, format_inference_prompt
 
 
 def _suite() -> List[dict]:
@@ -24,7 +24,7 @@ def _suite() -> List[dict]:
         rows.append({
             "id": f"phase2-{len(rows):04d}",
             "category": category,
-            "system_message": "You are CFNA. Answer from trusted evidence and the response plan.",
+            "system_message": "You are NUERONCE. Answer from trusted evidence and the response plan.",
             "user_request": user,
             "trusted_evidence": evidence or [],
             "response_plan": plan or ["Answer briefly and do not invent unsupported facts."],

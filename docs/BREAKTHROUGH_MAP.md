@@ -1,4 +1,4 @@
-# CFNA Breakthrough Map — connecting the dots across every branch
+# NUERONCE Breakthrough Map — connecting the dots across every branch
 
 *An analysis pass over the full project state (design doc, all reports, all
 branches) answering three questions: what is actually proven, where is the
@@ -48,7 +48,7 @@ the actual result:
   this number at all.
 - New as of this branch: the V3.2 benchmark JSON reproduces **bit-identical**
   across OS (Windows→Linux), Python (3.13→3.11), and backend (PyTorch→
-  microtorch). That is an unusually strong reproducibility property for a
+  engine). That is an unusually strong reproducibility property for a
   claimed defense result.
 
 **Framed properly, this is a publishable-shape result:** *a provenance-gated
@@ -77,7 +77,7 @@ observation with the wrong implied cause. The remedy is Wave 2 (§5): put the
 symbolic cognitive layer are islands. The only bridge is a data contract
 (`ingestion → SourceRecord → respond()`'s evidence gate). The neural model
 never conditions on authority; the authority classifier never feeds
-`respond()`. Meanwhile `CFNA_concurrent_plan.txt`'s FINAL DIRECTIVE — "do not
+`respond()`. Meanwhile `NUERONCE_concurrent_plan.txt`'s FINAL DIRECTIVE — "do not
 spend the next sprint adding more cognitive modules" — was written before
 V2→V3→V3.1→V3.2→V3.3, which are all cognitive modules. The drift produced
 the strongest result (§2), so it wasn't wasted — but the integration debt is
@@ -85,7 +85,7 @@ now the single blocking item between "two good systems" and "one defensible
 architecture."
 
 ### 3.3 H2 is the thesis — and Wave 3 falsified it at this scale
-Every differentiation argument for CFNA over a plain decoder ultimately
+Every differentiation argument for NUERONCE over a plain decoder ultimately
 leans on typed state. Lane G has now run (`scripts/probe_typed_channels.py`):
 train one model on tasks with distinct memory demands (local structure,
 long-range key recall, running count), then zero each typed channel and
@@ -130,7 +130,7 @@ renderer garbled the final string (the inverse of blindness point 3.1).
 ## 5. The falsification path (what this branch is building)
 
 - **Wave 1 (done, this branch):** whole symbolic stack runs without torch
-  (microtorch authority backend, bit-identical V3.2 reproduction); evidence
+  (engine authority backend, bit-identical V3.2 reproduction); evidence
   gate extracted torch-free; V3.3 negative result replicated on a fresh seed.
 - **Wave 2 (in progress):** the first *real* end-to-end learned cognitive
   loop — Ed25519 ingestion → learned authority classifier on unsigned text →

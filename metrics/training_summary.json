@@ -24,7 +24,7 @@
     "train_dir": "data/sft_100k/train_shards",
     "val_path": "data/sft_100k/validation.jsonl",
     "test_path": "data/sft_100k/test.jsonl",
-    "save_dir": "checkpoints/micro_cfna_sft_100k",
+    "save_dir": "checkpoints/micro_nueronce_sft_100k",
     "metrics_dir": "metrics",
     "num_shards": 10,
     "examples_per_shard": 10000,

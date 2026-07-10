@@ -4,10 +4,10 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.baselines import BaselineConfig, ByteSSMLM, ByteTransformerLM
-from cfna.data import larger_corpus_bytes, make_batches, train_val_split
-from cfna.eval import bits_per_byte, compare
-from cfna.model import CFNAModel, ModelConfig
+from nueronce.baselines import BaselineConfig, ByteSSMLM, ByteTransformerLM
+from nueronce.data import larger_corpus_bytes, make_batches, train_val_split
+from nueronce.eval import bits_per_byte, compare
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
 def test_train_val_split_is_disjoint():
@@ -38,7 +38,7 @@ def test_compare_reports_heldout_for_all():
     train_batches = make_batches(tr, 48, 8, 30, seed=0)
     val_batches = make_batches(va, 48, 8, 3, seed=1)
     factories = {
-        "CFNA": lambda: CFNAModel(ModelConfig(
+        "NUERONCE": lambda: NUERONCEModel(ModelConfig(
             byte_embed_dim=24, d_local=48, d_model=64, p_max=16, physical_blocks=1,
             logical_depth=2, n_heads=4, unit_window=12, decoder_window=16,
             decoder_layers=1, d_state=8, channel_dim=12)),

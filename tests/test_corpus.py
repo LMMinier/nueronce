@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from cfna.corpus.build import clean_text, parse_header, quality_score
-from cfna.corpus.sources import EXCLUDED_KINDS, safe_commercial_sources
+from nueronce.corpus.build import clean_text, parse_header, quality_score
+from nueronce.corpus.sources import EXCLUDED_KINDS, safe_commercial_sources
 
 
 def test_only_safe_commercial_sources_are_used():
@@ -54,7 +54,7 @@ def _write_doc(d: Path, doc_id: str, text: str, split: str) -> dict:
 
 
 def test_byte_corpus_document_uniform_sampling(tmp_path):
-    from cfna.corpus.dataset import ByteCorpus
+    from nueronce.corpus.dataset import ByteCorpus
 
     records = [
         _write_doc(tmp_path, "small_book", "small text here. " * 50, "train"),

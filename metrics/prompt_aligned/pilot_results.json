@@ -1,7 +1,7 @@
 {
   "note": "Diagnostic only: 5-step CPU run, not the required 500-1000 step pilot gate.",
   "original": {
-    "checkpoint": "checkpoints/cfna_chat.pt",
+    "checkpoint": "checkpoints/nueronce_chat.pt",
     "n": 5,
     "nonempty_generation_rate": 0.0,
     "valid_generation_rate": 0.0,
@@ -64,7 +64,7 @@
     ]
   },
   "diagnostic_5_step": {
-    "checkpoint": "checkpoints/cfna_prompt_aligned/best.pt",
+    "checkpoint": "checkpoints/nueronce_prompt_aligned/best.pt",
     "n": 5,
     "nonempty_generation_rate": 0.0,
     "valid_generation_rate": 0.0,

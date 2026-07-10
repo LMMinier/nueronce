@@ -13,10 +13,10 @@ import numpy
 try:
     import torch
     _TORCH_VERSION = torch.__version__
-except ModuleNotFoundError:  # classifier falls back to the microtorch backend
-    _TORCH_VERSION = "not installed (microtorch backend)"
+except ModuleNotFoundError:  # classifier falls back to the engine backend
+    _TORCH_VERSION = "not installed (engine backend)"
 
-from cfna.provenance_v32 import run
+from nueronce.provenance_v32 import run
 
 
 def _fmt(value) -> str:

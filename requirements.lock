@@ -21,7 +21,7 @@ bleach==6.2.0
 bottle==0.13.4
 certifi==2025.1.31
 cffi==2.0.0
--e git+https://github.com/LMMinier/nueronce.git@d712c36a0a717d7fe2dfac7edeb2e976d595752c#egg=cfna
+-e git+https://github.com/LMMinier/nueronce.git@d712c36a0a717d7fe2dfac7edeb2e976d595752c#egg=nueronce
 charset-normalizer==3.4.1
 click==8.3.2
 cloudpickle==3.1.2

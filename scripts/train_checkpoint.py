@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert a built corpus into CFNA weights (a real checkpoint).
+"""Convert a built corpus into NUERONCE weights (a real checkpoint).
 
 Trains on train documents, evaluates bits/byte on held-out documents, and saves
 weights + optimizer + config + history. Runs for a bounded time, saves every 50
@@ -7,7 +7,7 @@ steps, resumes cleanly across CPU/CUDA, and uses atomic checkpoint replacement s
 an interrupted Google Drive write does not destroy the last valid checkpoint.
 
 Usage:
-    python scripts/train_checkpoint.py --minutes 20 --out checkpoints/cfna_chat.pt
+    python scripts/train_checkpoint.py --minutes 20 --out checkpoints/nueronce_chat.pt
 """
 
 from __future__ import annotations
@@ -21,8 +21,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from cfna.corpus.dataset import ByteCorpus, val_batches
-from cfna.model import CFNAModel, CONFIG_PRESETS, ModelConfig
+from nueronce.corpus.dataset import ByteCorpus, val_batches
+from nueronce.model import NUERONCEModel, CONFIG_PRESETS, ModelConfig
 
 LN2 = math.log(2.0)
 
@@ -73,11 +73,11 @@ def main():
     ap.add_argument("--seq", type=int, default=192)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--lr", type=float, default=2e-3)
-    ap.add_argument("--out", type=str, default="checkpoints/cfna_chat.pt")
+    ap.add_argument("--out", type=str, default="checkpoints/nueronce_chat.pt")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--resume", action="store_true", help="continue from an existing checkpoint")
     ap.add_argument("--preset", default="", choices=[""] + sorted(CONFIG_PRESETS),
-                    help="cfna.model.CONFIG_PRESETS rung (default: local chat_config)")
+                    help="nueronce.model.CONFIG_PRESETS rung (default: local chat_config)")
     ap.add_argument("--device", default="auto", help="auto|cuda|cpu")
     ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
     args = ap.parse_args()
@@ -95,7 +95,7 @@ def main():
           f"({', '.join(val.titles[:8])}{' ...' if len(val.titles) > 8 else ''})")
 
     cfg = CONFIG_PRESETS[args.preset]() if args.preset else chat_config()
-    model = CFNAModel(cfg)
+    model = NUERONCEModel(cfg)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     scaler = torch.amp.GradScaler("cuda", enabled=amp)
 

@@ -13,7 +13,7 @@ import argparse
 import json
 from pathlib import Path
 
-from cfna.provenance_bench import run
+from nueronce.provenance_bench import run
 
 
 def markdown(res: dict, seed: int) -> str:

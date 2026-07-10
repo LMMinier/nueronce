@@ -14,7 +14,7 @@ import argparse
 import json
 from pathlib import Path
 
-from cfna.authority_eval import train_and_evaluate
+from nueronce.authority_eval import train_and_evaluate
 
 
 def markdown(res: dict, seed: int) -> str:

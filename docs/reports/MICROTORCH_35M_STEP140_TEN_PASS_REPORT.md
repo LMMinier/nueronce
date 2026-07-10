@@ -1,4 +1,4 @@
-# MicroTorch CFNA 35M — Ten-Pass Training Report
+# Nueronce Engine NUERONCE 35M — Ten-Pass Training Report
 
 - Steps: **40 → 140** (100 updates)
 - Mix: **80 pretraining + 20 SFT**

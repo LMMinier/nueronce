@@ -12,7 +12,7 @@
 \usepackage{hyperref}
 
 \hypersetup{
-  pdftitle={CFNA: A From-Scratch, Byte-Level, Provenance-Gated Language Model},
+  pdftitle={NUERONCE: A From-Scratch, Byte-Level, Provenance-Gated Language Model},
   pdfauthor={Luis M. Minier},
   pdfsubject={Byte-level language model with learned dynamic patching, hybrid routed sequence core, and a cryptographic provenance layer},
   pdfkeywords={byte-level language models, dynamic patching, state-space models, hybrid architectures, provenance, reproducibility, pre-registered evaluation},
@@ -24,7 +24,7 @@
 
 \begin{document}
 
-\title{CFNA: A From-Scratch, Byte-Level, Provenance-Gated\\
+\title{NUERONCE: A From-Scratch, Byte-Level, Provenance-Gated\\
        Language Model and Its Honest Empirical Ledger}
 
 \author{Luis~M.~Minier%
@@ -36,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-This paper describes CFNA, a language model and surrounding research system built entirely from primitive tensor operations: no pre-built transformer layers, no external state-space packages, and no tokenizer. CFNA reads and writes raw bytes and learns where to cut the byte stream into variable-length units with a boundary head trained by a self-supervised word-onset objective and by the language-model gradient itself; the discrete cut is a threshold on the learned boundary probability under minimum and maximum patch lengths. Units flow through a typed multi-timescale recurrent memory and a hybrid core in which every block computes a selective state-space scan, local windowed attention, sparse-global attention, and retrieval cross-attention in parallel, blended per position by a learned router; a byte decoder cross-attends to completed units to emit next-byte logits. Four elements are distinctive in combination: learned dynamic byte patching; a native provenance layer separating apparent authority (learnable from text) from authenticity (provable only by Ed25519 signature); a second, from-scratch NumPy autograd backend that reproduces a benchmark bit-identically across operating systems, Python versions, and backends; and a pre-registered acceptance-gate methodology for scaling. Empirically, an 11.1M-parameter model trained from scratch on a 0.367~GB license-audited corpus fell from 4.515 to 1.785 held-out bits per byte in 55 minutes on one A100, clearing a pre-registered gate in-session; continued training reached 1.313 before that checkpoint was lost to an unpersisted runtime, which we report in full. We also report a textbook overfitting case study, a falsified architectural hypothesis, and a provenance result with zero poison acceptance across text-borne attack families. No standardized external benchmark and no equal-compute transformer baseline have been run; both are stated plainly as future work. CFNA is a verified process departure from the established LLM recipe, not a demonstrated superiority claim.
+This paper describes NUERONCE, a language model and surrounding research system built entirely from primitive tensor operations: no pre-built transformer layers, no external state-space packages, and no tokenizer. NUERONCE reads and writes raw bytes and learns where to cut the byte stream into variable-length units with a boundary head trained by a self-supervised word-onset objective and by the language-model gradient itself; the discrete cut is a threshold on the learned boundary probability under minimum and maximum patch lengths. Units flow through a typed multi-timescale recurrent memory and a hybrid core in which every block computes a selective state-space scan, local windowed attention, sparse-global attention, and retrieval cross-attention in parallel, blended per position by a learned router; a byte decoder cross-attends to completed units to emit next-byte logits. Four elements are distinctive in combination: learned dynamic byte patching; a native provenance layer separating apparent authority (learnable from text) from authenticity (provable only by Ed25519 signature); a second, from-scratch NumPy autograd backend that reproduces a benchmark bit-identically across operating systems, Python versions, and backends; and a pre-registered acceptance-gate methodology for scaling. Empirically, an 11.1M-parameter model trained from scratch on a 0.367~GB license-audited corpus fell from 4.515 to 1.785 held-out bits per byte in 55 minutes on one A100, clearing a pre-registered gate in-session; continued training reached 1.313 before that checkpoint was lost to an unpersisted runtime, which we report in full. We also report a textbook overfitting case study, a falsified architectural hypothesis, and a provenance result with zero poison acceptance across text-borne attack families. No standardized external benchmark and no equal-compute transformer baseline have been run; both are stated plainly as future work. NUERONCE is a verified process departure from the established LLM recipe, not a demonstrated superiority claim.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -46,7 +46,7 @@ Byte-level language models, dynamic patching, hybrid state-space architectures, 
 %%% ------------------------------------------------------------------
 \section{Introduction}
 %%% ------------------------------------------------------------------
-\IEEEPARstart{T}{he} dominant recipe for large language models fixes a subword vocabulary in advance, embeds tokens into a single dense stream, and processes that stream with stacked dense-attention transformer blocks; the scaling report of Brown \emph{et al.}~\cite{Brown2020} is the canonical demonstration that capability emerges predictably with parameters and data. CFNA starts from a different set of design commitments and asks how far a very small model built on them can be pushed with a modest, license-clean corpus and honest bookkeeping.
+\IEEEPARstart{T}{he} dominant recipe for large language models fixes a subword vocabulary in advance, embeds tokens into a single dense stream, and processes that stream with stacked dense-attention transformer blocks; the scaling report of Brown \emph{et al.}~\cite{Brown2020} is the canonical demonstration that capability emerges predictably with parameters and data. NUERONCE starts from a different set of design commitments and asks how far a very small model built on them can be pushed with a modest, license-clean corpus and honest bookkeeping.
 
 The first commitment is \emph{no borrowed machinery}. Every parametric layer is constructed from parameter tensors and raw tensor math: linear maps, embeddings, root-mean-square normalization~\cite{Zhang2019}, gated feed-forward blocks~\cite{Shazeer2020}, attention assembled from matrix multiplies and softmax~\cite{Vaswani2017}, and a selective state-space recurrence written as an explicit scan~\cite{Gu2023}. The deep-learning framework is used only as a tensor, autograd, and optimizer substrate. This constraint makes a second, independent backend feasible: a from-scratch NumPy autograd engine that runs the same architecture with no framework installed, which becomes the basis of an unusually strong reproducibility property (Section~\ref{sec:engineering}).
 
@@ -61,14 +61,14 @@ The fourth commitment is \emph{pre-registered honesty}. The project maintains a 
 %%% ------------------------------------------------------------------
 \section{Engineering Interpretation}
 %%% ------------------------------------------------------------------
-CFNA is easiest to understand before the mechanisms. A conventional model reads text through a fixed dictionary of roughly 50{,}000 pre-cut word pieces. CFNA reads the raw characters and \emph{learns} where one unit of meaning ends and the next begins, the way a reader learns to see words in a stream of letters. Each unit then passes through a memory that keeps several kinds of running notes at different timescales, and through a reasoning core that blends four different processing mechanisms---a cheap running summary, a careful look at nearby context, a sparse look at distant context, and a lookup into retrieved reference material---choosing the blend separately at every position. A decoder then writes the answer back out character by character.
+NUERONCE is easiest to understand before the mechanisms. A conventional model reads text through a fixed dictionary of roughly 50{,}000 pre-cut word pieces. NUERONCE reads the raw characters and \emph{learns} where one unit of meaning ends and the next begins, the way a reader learns to see words in a stream of letters. Each unit then passes through a memory that keeps several kinds of running notes at different timescales, and through a reasoning core that blends four different processing mechanisms---a cheap running summary, a careful look at nearby context, a sparse look at distant context, and a lookup into retrieved reference material---choosing the blend separately at every position. A decoder then writes the answer back out character by character.
 
 Around the model sits a trust system: every piece of retrieved evidence carries both an assessment of how authoritative it \emph{looks} and a cryptographic verdict on whether it is \emph{genuine}, and text that merely looks official is never granted trusted status. Finally, the entire system exists twice---once on a standard deep-learning toolkit and once re-implemented from scratch in NumPy---and the two implementations are required to agree to the last bit on a reference benchmark. Every experimental claim in this paper traces to a committed file or logged run, and the failures (an overfitting incident, a lost checkpoint, a falsified hypothesis) are reported next to the successes.
 
 \begin{figure}[!t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig1_pipeline.pdf}
-  \caption{The end-to-end CFNA forward pass. The discrete segmentation is detached from the gradient; the boundary head is trained by the auxiliary word-onset loss and by the language-model loss through a per-unit mean-boundary feature.}
+  \caption{The end-to-end NUERONCE forward pass. The discrete segmentation is detached from the gradient; the boundary head is trained by the auxiliary word-onset loss and by the language-model loss through a per-unit mean-boundary feature.}
   \label{fig:pipeline}
 \end{figure}
 
@@ -77,13 +77,13 @@ Around the model sits a trust system: every piece of retrieved evidence carries 
 %%% ------------------------------------------------------------------
 
 \subsection{Byte- and Character-Level Modeling}
-ByT5~\cite{Xue2022} established that token-free byte models are viable and noise-robust at the cost of longer sequences. MegaByte~\cite{Yu2023} introduced the two-level patch/byte decomposition that CFNA's unit-core/byte-decoder split belongs to. The Byte Latent Transformer~\cite{Pagnoni2024} is closest in spirit with dynamic, entropy-driven patching; CFNA's patcher instead thresholds a single learned boundary probability trained jointly by word-onset self-supervision and the language-model gradient, with the discrete cuts detached. MambaByte~\cite{Wang2024} demonstrated byte modeling on a state-space backbone; CFNA uses a selective scan as one of four routed paths rather than the sole mixer. Unlike all of these, CFNA has not been evaluated on a standardized byte benchmark; its placement here is architectural, not results-based.
+ByT5~\cite{Xue2022} established that token-free byte models are viable and noise-robust at the cost of longer sequences. MegaByte~\cite{Yu2023} introduced the two-level patch/byte decomposition that NUERONCE's unit-core/byte-decoder split belongs to. The Byte Latent Transformer~\cite{Pagnoni2024} is closest in spirit with dynamic, entropy-driven patching; NUERONCE's patcher instead thresholds a single learned boundary probability trained jointly by word-onset self-supervision and the language-model gradient, with the discrete cuts detached. MambaByte~\cite{Wang2024} demonstrated byte modeling on a state-space backbone; NUERONCE uses a selective scan as one of four routed paths rather than the sole mixer. Unlike all of these, NUERONCE has not been evaluated on a standardized byte benchmark; its placement here is architectural, not results-based.
 
 \subsection{State-Space and Hybrid Sequence Models}
-Mamba~\cite{Gu2023} motivates the recurrent path, implemented by hand as an input-dependent selective scan. Jamba~\cite{Lieber2024} and Griffin~\cite{De2024} validate mixing recurrence with attention, but interleave block types by depth; CFNA computes all four mixers in every block and blends them per position with a learned router. Whether per-position fusion beats a plain interleave at equal compute is untested.
+Mamba~\cite{Gu2023} motivates the recurrent path, implemented by hand as an input-dependent selective scan. Jamba~\cite{Lieber2024} and Griffin~\cite{De2024} validate mixing recurrence with attention, but interleave block types by depth; NUERONCE computes all four mixers in every block and blends them per position with a learned router. Whether per-position fusion beats a plain interleave at equal compute is untested.
 
 \subsection{Tokenizer-Based Frontier Designs}
-The GPT-3~\cite{Brown2020}, PaLM~\cite{Chowdhery2022}, and LLaMA~\cite{Touvron2023} line is the backdrop for CFNA's departures; Chinchilla's compute-optimality lesson~\cite{Hoffmann2022} is encoded directly in the parameter-ladder presets (scale data with parameters; drop learning rate roughly with inverse width). The retrieval path draws on the RETRO lineage~\cite{Borgeaud2022}, kept at byte level so exact identifiers stay copyable. The typed memory descends conceptually from the protected cell state of long short-term memory~\cite{Hochreiter1997}. The calibration methodology for the authority classifier follows~\cite{Guo2017}.
+The GPT-3~\cite{Brown2020}, PaLM~\cite{Chowdhery2022}, and LLaMA~\cite{Touvron2023} line is the backdrop for NUERONCE's departures; Chinchilla's compute-optimality lesson~\cite{Hoffmann2022} is encoded directly in the parameter-ladder presets (scale data with parameters; drop learning rate roughly with inverse width). The retrieval path draws on the RETRO lineage~\cite{Borgeaud2022}, kept at byte level so exact identifiers stay copyable. The typed memory descends conceptually from the protected cell state of long short-term memory~\cite{Hochreiter1997}. The calibration methodology for the authority classifier follows~\cite{Guo2017}.
 
 \subsection{Contribution Statement}
 \begin{enumerate}
@@ -98,16 +98,16 @@ The GPT-3~\cite{Brown2020}, PaLM~\cite{Chowdhery2022}, and LLaMA~\cite{Touvron20
 \section{Departures From the Established Process}
 %%% ------------------------------------------------------------------
 
-Table~\ref{tab:process} states, stage by stage, where CFNA's process departs from the established LLM production recipe. Every entry in the CFNA column is implemented and testable in the repository; none is aspirational. The table lists verified process differences, not superiority claims---the equal-compute comparison that could support a superiority claim has not been run.
+Table~\ref{tab:process} states, stage by stage, where NUERONCE's process departs from the established LLM production recipe. Every entry in the NUERONCE column is implemented and testable in the repository; none is aspirational. The table lists verified process differences, not superiority claims---the equal-compute comparison that could support a superiority claim has not been run.
 
 \begin{table*}[!t]
-\caption{The Established LLM Process vs.\ What CFNA Verifiably Does}
+\caption{The Established LLM Process vs.\ What NUERONCE Verifiably Does}
 \label{tab:process}
 \centering
 \small
 \begin{tabularx}{\textwidth}{lYY}
 \toprule
-\textbf{Stage} & \textbf{Established process} & \textbf{CFNA (verified in code)} \\
+\textbf{Stage} & \textbf{Established process} & \textbf{NUERONCE (verified in code)} \\
 \midrule
 Text ingestion & Subword tokenizer fit in advance; model inherits its vocabulary and failure modes & No tokenizer anywhere; raw bytes in and out; learned boundary head cuts variable-length units at run time \\
 Sequence mixing & Homogeneous dense-attention stack, or fixed attention/state-space interleaves by depth & Four mixers computed in every block, blended per position by a learned router; physical blocks reused over logical depth \\
@@ -319,7 +319,7 @@ One simulated gate & A tie true by construction & Real pipeline in the loop \\
 \end{tabularx}
 \end{table}
 
-This paper is small-scale and classical. The 1.785 and 1.313 bits-per-byte figures are on the project's own held-out split and cannot be compared to published numbers. No equal-compute, equal-data transformer has been trained alongside CFNA, so no claim is made that the architecture beats a conventional design at matched budget. The learned byte core and the symbolic provenance layer are connected only by a data contract: the neural model does not yet condition on authority signals, so the strongest provenance result is a property of the symbolic layer, not of an integrated model. One provenance evaluation contained a full-system/contract-only tie that was guaranteed by construction because the pipeline was simulated; it is flagged rather than counted.
+This paper is small-scale and classical. The 1.785 and 1.313 bits-per-byte figures are on the project's own held-out split and cannot be compared to published numbers. No equal-compute, equal-data transformer has been trained alongside NUERONCE, so no claim is made that the architecture beats a conventional design at matched budget. The learned byte core and the symbolic provenance layer are connected only by a data contract: the neural model does not yet condition on authority signals, so the strongest provenance result is a property of the symbolic layer, not of an integrated model. One provenance evaluation contained a full-system/contract-only tie that was guaranteed by construction because the pipeline was simulated; it is flagged rather than counted.
 
 %%% ------------------------------------------------------------------
 \section{Assumptions and Future Work}
@@ -333,7 +333,7 @@ This paper is small-scale and classical. The 1.785 and 1.313 bits-per-byte figur
 \section{Conclusion}
 %%% ------------------------------------------------------------------
 
-CFNA demonstrates that a tokenizer-free, from-scratch, provenance-gated language model can be built, trained, and audited end to end by a single-owner research effort: an 11.1M-parameter model reached fluent-shaped output from raw bytes in under an hour of A100 time under a pre-registered gate; a cryptographic provenance layer holds zero poison acceptance on blind text-borne attacks; and the entire system reproduces a reference benchmark bit-identically across two independent implementations. The honest position is equally clear: the model is small, its loss numbers are not yet externally comparable, its architectural advantages over a conventional transformer are untested at matched budget, and one of its central architectural hypotheses is falsified. What distinguishes this work is therefore the verified \emph{process}---no borrowed machinery, trust inside the data contract, gates before scaling, and failures published beside successes---and the complete, reproducible ledger that lets every claim in this paper be checked against a file, a test, or a logged run.
+NUERONCE demonstrates that a tokenizer-free, from-scratch, provenance-gated language model can be built, trained, and audited end to end by a single-owner research effort: an 11.1M-parameter model reached fluent-shaped output from raw bytes in under an hour of A100 time under a pre-registered gate; a cryptographic provenance layer holds zero poison acceptance on blind text-borne attacks; and the entire system reproduces a reference benchmark bit-identically across two independent implementations. The honest position is equally clear: the model is small, its loss numbers are not yet externally comparable, its architectural advantages over a conventional transformer are untested at matched budget, and one of its central architectural hypotheses is falsified. What distinguishes this work is therefore the verified \emph{process}---no borrowed machinery, trust inside the data contract, gates before scaling, and failures published beside successes---and the complete, reproducible ledger that lets every claim in this paper be checked against a file, a test, or a logged run.
 
 \section*{Acknowledgment}
 The author thanks the automated review passes that audited every claim in this manuscript against the repository's code and committed experiment reports, and that removed one inaccurate mechanism description before publication.
@@ -434,12 +434,12 @@ in \emph{Proc.\ Int.\ Conf.\ Machine Learning}, 2017.
 
 \IfFileExists{author_photo.jpg}{%
 \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip]{author_photo.jpg}}]{Luis M. Minier}
-is an independent researcher based in New York, NY, USA. He is the creator of CFNA and the nueronce research system. His research interests include byte-level language models, learned segmentation, hybrid state-space architectures, cryptographic provenance for machine learning, and reproducible small-scale foundation-model research.
+is an independent researcher based in New York, NY, USA. He is the creator of NUERONCE and the nueronce research system. His research interests include byte-level language models, learned segmentation, hybrid state-space architectures, cryptographic provenance for machine learning, and reproducible small-scale foundation-model research.
 \end{IEEEbiography}
 }{%
 \section*{Biography}
 \begingroup\footnotesize
-\noindent\textbf{Luis M. Minier} is an independent researcher based in New York, NY, USA. He is the creator of CFNA and the nueronce research system. His research interests include byte-level language models, learned segmentation, hybrid state-space architectures, cryptographic provenance for machine learning, and reproducible small-scale foundation-model research.\par
+\noindent\textbf{Luis M. Minier} is an independent researcher based in New York, NY, USA. He is the creator of NUERONCE and the nueronce research system. His research interests include byte-level language models, learned segmentation, hybrid state-space architectures, cryptographic provenance for machine learning, and reproducible small-scale foundation-model research.\par
 \endgroup
 }
 

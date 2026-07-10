@@ -24,7 +24,7 @@
     "train_dir": "data/sft_balanced/train_shards",
     "val_path": "data/sft_balanced/validation.jsonl",
     "test_path": "data/sft_balanced/test.jsonl",
-    "save_dir": "checkpoints/micro_cfna_sft_balanced",
+    "save_dir": "checkpoints/micro_nueronce_sft_balanced",
     "metrics_dir": "metrics/balanced_sft",
     "num_shards": 5,
     "examples_per_shard": 1500,

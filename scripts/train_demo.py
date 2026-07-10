@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train the from-scratch CFNA model on the tiny demo corpus.
+"""Train the from-scratch NUERONCE model on the tiny demo corpus.
 
 This is the "give the architecture a run" entry point. It trains the hand-built
 two-level byte model for a few hundred steps on CPU and reports:
@@ -22,12 +22,12 @@ from pathlib import Path
 
 import torch
 
-from cfna.data import UNIFORM_BYTE_BPB, corpus_bytes, make_batches
-from cfna.model import CFNAModel, ModelConfig
-from cfna.segment import segment_ids_from_boundaries
+from nueronce.data import UNIFORM_BYTE_BPB, corpus_bytes, make_batches
+from nueronce.model import NUERONCEModel, ModelConfig
+from nueronce.segment import segment_ids_from_boundaries
 
 
-def patch_stats(model: CFNAModel, batch: torch.Tensor) -> float:
+def patch_stats(model: NUERONCEModel, batch: torch.Tensor) -> float:
     c = model.cfg
     with torch.no_grad():
         _, blogits = model.perception(batch)
@@ -52,10 +52,10 @@ def main() -> dict:
     torch.set_num_threads(max(1, torch.get_num_threads()))
 
     data = corpus_bytes(repeat=10)
-    model = CFNAModel(ModelConfig())
+    model = NUERONCEModel(ModelConfig())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     n_params = model.num_params()
-    print(f"CFNA model: {n_params:,} parameters | corpus: {len(data)} bytes")
+    print(f"NUERONCE model: {n_params:,} parameters | corpus: {len(data)} bytes")
 
     batches = make_batches(data, args.seq, args.batch, args.steps, seed=args.seed)
     eval_batch = make_batches(data, args.seq, args.batch, 1, seed=args.seed + 999)[0]
@@ -85,7 +85,7 @@ def main() -> dict:
     model.eval()
     with torch.no_grad():
         final_loss, final = model.loss(eval_batch)
-    sample = model.generate(b"CFNA separates ", max_new=80, greedy=True)
+    sample = model.generate(b"NUERONCE separates ", max_new=80, greedy=True)
     try:
         sample_text = sample.decode("utf-8", errors="replace")
     except Exception:

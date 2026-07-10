@@ -1,10 +1,10 @@
-"""Config presets: parameter counts verified by construction (microtorch), and
-field parity between the torch and microtorch preset definitions."""
+"""Config presets: parameter counts verified by construction (engine), and
+field parity between the torch and engine preset definitions."""
 
 import numpy as np
 import pytest
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, preset_configs
+from nueronce.engine.nueronce_model import NueronceModel, preset_configs
 
 EXPECTED = {
     "chat_11m": (10_500_000, 11_800_000),
@@ -16,12 +16,12 @@ EXPECTED = {
 @pytest.mark.parametrize("name", list(EXPECTED))
 def test_preset_param_counts_in_documented_range(name):
     lo, hi = EXPECTED[name]
-    n = MicroCFNAModel(preset_configs()[name]).num_params()
+    n = NueronceModel(preset_configs()[name]).num_params()
     assert lo < n < hi, f"{name}: {n:,} params outside documented range"
 
 
-def test_torch_and_microtorch_presets_agree_field_for_field():
-    torch_side = pytest.importorskip("cfna.model", reason="needs torch")
+def test_torch_and_engine_presets_agree_field_for_field():
+    torch_side = pytest.importorskip("nueronce.model", reason="needs torch")
     micro = preset_configs()
     for name, factory in torch_side.CONFIG_PRESETS.items():
         if name == "large_337m":

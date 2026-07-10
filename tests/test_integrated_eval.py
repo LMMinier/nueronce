@@ -11,8 +11,8 @@ import pytest
 
 pytest.importorskip("cryptography.hazmat.primitives.asymmetric.ed25519")
 
-from cfna.integrated_eval import aggregate, run_integrated, score_case
-from cfna.provenance_v33 import generate_dev_cases, run_system
+from nueronce.integrated_eval import aggregate, run_integrated, score_case
+from nueronce.provenance_v33 import generate_dev_cases, run_system
 
 
 def _cases(n=60):
@@ -61,8 +61,8 @@ def test_admitting_unsigned_by_channel_reintroduces_poison():
 def test_trained_classifier_matches_oracle_end_to_end():
     """The trained authority classifier is not the bottleneck: predicted-mode
     accuracy equals oracle-mode accuracy (the threat model is the limit)."""
-    from cfna.authority_clf import AuthorityClassifier
-    from cfna.authority_data import gen_examples
+    from nueronce.authority_clf import AuthorityClassifier
+    from nueronce.authority_data import gen_examples
 
     clf = AuthorityClassifier(seed=0)
     clf.fit(gen_examples(seed=0, n=2000), steps=300, seed=0)

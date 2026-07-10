@@ -4,7 +4,7 @@ Branch: `codex/finalize-coherent-inference`
 
 ## What Changed
 
-This pass adds two practical pieces around the existing CFNA training stack:
+This pass adds two practical pieces around the existing NUERONCE training stack:
 
 1. A coherent inference wrapper:
    - consistent chat probing;
@@ -25,7 +25,7 @@ started.
 Command:
 
 ```bash
-python scripts/coherent_chat.py --backend torch --ckpt checkpoints/cfna_chat.pt \
+python scripts/coherent_chat.py --backend torch --ckpt checkpoints/nueronce_chat.pt \
   --probe --json metrics/coherent_probe_assisted.json
 ```
 
@@ -38,7 +38,7 @@ Result:
 Model-only probe:
 
 ```bash
-python scripts/coherent_chat.py --backend torch --ckpt checkpoints/cfna_chat.pt \
+python scripts/coherent_chat.py --backend torch --ckpt checkpoints/nueronce_chat.pt \
   --probe --no-assist-tools --json metrics/coherent_probe_model_only.json
 ```
 
@@ -58,8 +58,8 @@ Command:
 
 ```bash
 python scripts/train_sft.py --backend torch --model small \
-  --ckpt checkpoints/cfna_chat.pt \
-  --out checkpoints/cfna_chat_sft_smoke.pt \
+  --ckpt checkpoints/nueronce_chat.pt \
+  --out checkpoints/nueronce_chat_sft_smoke.pt \
   --steps 20 --batch 4 --lr 5e-4 --seed 0
 ```
 
@@ -88,16 +88,16 @@ python scripts/build_balanced_sft_dataset.py \
   --seed 43
 ```
 
-Then run microtorch full-CFNA SFT:
+Then run engine full-NUERONCE SFT:
 
 ```bash
 python scripts/train_sft.py \
-  --backend microtorch --model full-cfna \
+  --backend engine --model full-nueronce \
   --train-dir data/sft_balanced/train_shards \
   --validation data/sft_balanced/validation.jsonl \
   --test data/sft_balanced/test.jsonl \
   --num-shards 5 --examples-per-shard 1500 \
-  --save-dir checkpoints/micro_cfna_sft_balanced \
+  --save-dir checkpoints/micro_nueronce_sft_balanced \
   --metrics-dir metrics/balanced_sft \
   --batch 32 --lr 1e-3 --seed 43 --resume
 ```
@@ -105,8 +105,8 @@ python scripts/train_sft.py \
 Evaluate:
 
 ```bash
-python scripts/coherent_chat.py --backend microtorch \
-  --ckpt checkpoints/micro_cfna_sft_balanced/best.pt \
+python scripts/coherent_chat.py --backend engine \
+  --ckpt checkpoints/micro_nueronce_sft_balanced/best.pt \
   --probe --json metrics/coherent_probe_balanced.json
 ```
 
@@ -116,12 +116,12 @@ Command:
 
 ```bash
 python scripts/train_sft.py \
-  --backend microtorch --model full-cfna \
+  --backend engine --model full-nueronce \
   --train-dir data/sft_balanced/train_shards \
   --validation data/sft_balanced/validation.jsonl \
   --test data/sft_balanced/test.jsonl \
   --num-shards 5 --examples-per-shard 1500 \
-  --save-dir checkpoints/micro_cfna_sft_balanced \
+  --save-dir checkpoints/micro_nueronce_sft_balanced \
   --metrics-dir metrics/balanced_sft \
   --batch 32 --lr 1e-3 --seed 43 --resume
 ```
@@ -138,8 +138,8 @@ Measured result:
 Balanced checkpoint probe:
 
 ```bash
-python scripts/coherent_chat.py --backend microtorch \
-  --ckpt checkpoints/micro_cfna_sft_balanced/best.pt \
+python scripts/coherent_chat.py --backend engine \
+  --ckpt checkpoints/micro_nueronce_sft_balanced/best.pt \
   --probe --json metrics/coherent_probe_balanced_assisted.json
 ```
 
@@ -150,8 +150,8 @@ python scripts/coherent_chat.py --backend microtorch \
 Model-only balanced probe:
 
 ```bash
-python scripts/coherent_chat.py --backend microtorch \
-  --ckpt checkpoints/micro_cfna_sft_balanced/best.pt \
+python scripts/coherent_chat.py --backend engine \
+  --ckpt checkpoints/micro_nueronce_sft_balanced/best.pt \
   --probe --no-assist-tools --json metrics/coherent_probe_balanced_model_only.json
 ```
 

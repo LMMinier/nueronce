@@ -1,4 +1,4 @@
-"""Acceptance tests for the CFNA cognitive loop and its falsification suite.
+"""Acceptance tests for the NUERONCE cognitive loop and its falsification suite.
 
 These pin the architectural claim: the full cognitive loop solves the controlled
 tasks, and removing any single stage breaks exactly the tasks that need it.
@@ -6,8 +6,8 @@ tasks, and removing any single stage breaks exactly the tasks that need it.
 
 from __future__ import annotations
 
-from cfna.cognition import ABLATION_FLAGS, grade, run
-from cfna.cognitive_suite import default_scenarios
+from nueronce.cognition import ABLATION_FLAGS, grade, run
+from nueronce.cognitive_suite import default_scenarios
 
 
 def _score(ablations):

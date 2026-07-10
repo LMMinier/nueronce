@@ -1,19 +1,19 @@
 # Split-Run 35M SFT Workflow
 
-The 35M MicroTorch SFT runner can divide one optimization step into two separate operating-system processes.
+The 35M Nueronce Engine SFT runner can divide one optimization step into two separate operating-system processes.
 
 ## Why the graph is rebuilt
 
-MicroTorch autograd nodes contain Python backward closures. Those closures are not a stable checkpoint format and should not be serialized. The prepare process therefore stores the exact deterministic training inputs and checkpoint identity, not the live graph. The backward process verifies the same checkpoint and reconstructs the graph from the saved bytes before running backward.
+Nueronce Engine autograd nodes contain Python backward closures. Those closures are not a stable checkpoint format and should not be serialized. The prepare process therefore stores the exact deterministic training inputs and checkpoint identity, not the live graph. The backward process verifies the same checkpoint and reconstructs the graph from the saved bytes before running backward.
 
 This gives backward its own uninterrupted process budget while preserving mathematical correctness.
 
 ## 1. Prepare a direct-response step
 
 ```bash
-python scripts/train_microtorch_35m_split_step.py prepare \
+python scripts/train_engine_35m_split_step.py prepare \
   --phase direct \
-  --checkpoint checkpoints/microtorch_base35m.pkl \
+  --checkpoint checkpoints/engine_base35m.pkl \
   --plan checkpoints/pending_step.pkl \
   --seq-len 9 \
   --lr 1e-5 \
@@ -32,7 +32,7 @@ The prepare run:
 ## 2. Run backward in its own process
 
 ```bash
-python scripts/train_microtorch_35m_split_step.py backward \
+python scripts/train_engine_35m_split_step.py backward \
   --plan checkpoints/pending_step.pkl
 ```
 

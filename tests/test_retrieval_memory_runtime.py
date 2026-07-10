@@ -1,9 +1,9 @@
 import numpy as np
 
-from cfna.memory import consolidation_decision, consolidation_score
-from cfna.retrieval import combine_scores
-from cfna.runtime import LoRAAdapter
-from cfna.schemas import RECORDS, load_example, load_schema
+from nueronce.memory import consolidation_decision, consolidation_score
+from nueronce.retrieval import combine_scores
+from nueronce.runtime import LoRAAdapter
+from nueronce.schemas import RECORDS, load_example, load_schema
 
 
 def test_combine_scores_weighting():

@@ -1,6 +1,6 @@
 """Coherent inference wrapper tests."""
 
-from cfna.coherent_inference import (
+from nueronce.coherent_inference import (
     clean_reply,
     coherence_warning,
     deterministic_answer,

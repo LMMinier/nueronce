@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Run the >=200-prompt generalization suite against a trained MicroCFNAModel
+"""Run the >=200-prompt generalization suite against a trained NueronceModel
 checkpoint: memorization probes (sampled verbatim from training) vs novel
 prompts (new operands/entities/phrasings), scored and compared side by side.
 
 Usage:
     python scripts/eval_generalization.py \
-        --ckpt checkpoints/micro_cfna_sft_100k/best.pt \
+        --ckpt checkpoints/micro_nueronce_sft_100k/best.pt \
         --train-dir data/sft_100k/train_shards \
         --out metrics/generalization_results.json
 """
@@ -18,12 +18,12 @@ from pathlib import Path
 
 import numpy as np
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.training.generalization_eval import (
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.training.generalization_eval import (
     build_novel_prompts, build_seen_user_text_index, run_generalization_eval,
     sample_memorized_probes,
 )
-from cfna.training.sharded_sft import load_checkpoint, load_jsonl
+from nueronce.training.sharded_sft import load_checkpoint, load_jsonl
 
 
 def main():
@@ -37,7 +37,7 @@ def main():
     args = ap.parse_args()
 
     payload = load_checkpoint(args.ckpt)
-    model = MicroCFNAModel(MicroModelConfig(**payload["config"]))
+    model = NueronceModel(NueronceConfig(**payload["config"]))
     for p, arr in zip(model.parameters(), payload["params"]):
         p.data = arr.copy()
     print(f"loaded {args.ckpt} ({model.num_params():,} params)")

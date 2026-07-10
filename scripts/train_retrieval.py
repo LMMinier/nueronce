@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Retrieval-augmented training demo + ablation.
 
-Trains CFNAModel on the synthetic ``lookup <key> = <value>`` task where each fact
+Trains NUERONCEModel on the synthetic ``lookup <key> = <value>`` task where each fact
 is fresh-random and used once, so the value is recoverable *only* by retrieving
 the matching document. Reports, at each checkpoint, the value-token loss and
 exact-match accuracy WITH vs WITHOUT retrieval — the ablation that shows the model
@@ -18,8 +18,8 @@ from pathlib import Path
 
 import torch
 
-from cfna.model import CFNAModel, ModelConfig
-from cfna.retrieval_train import train_retrieval
+from nueronce.model import NUERONCEModel, ModelConfig
+from nueronce.retrieval_train import train_retrieval
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
     args = ap.parse_args()
 
     torch.manual_seed(args.seed)
-    model = CFNAModel(ModelConfig())
+    model = NUERONCEModel(ModelConfig())
     print(f"model: {model.num_params():,} params | task: lookup <key> = <value> (10 possible values)\n")
 
     hist = train_retrieval(model, steps=args.steps, batch=args.batch, k=args.k,
@@ -53,7 +53,7 @@ def main():
     print("The value is fresh-random per example, so it cannot be memorized in the\n"
           "weights — recovering it requires the retrieval path. The gap is the proof.")
 
-    Path(args.out).write_text(json.dumps({"config": "CFNA-default", "history": hist}, indent=2))
+    Path(args.out).write_text(json.dumps({"config": "NUERONCE-default", "history": hist}, indent=2))
     print(f"\nmetrics written to {args.out}")
 
 

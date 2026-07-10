@@ -1,6 +1,6 @@
 # Integrated Wave 2 — End-to-End Learned Cognitive Loop
 
-- seed: 20260701 | cases: 100 | authority backend: `cfna.microtorch.authority_clf`
+- seed: 20260701 | cases: 100 | authority backend: `nueronce.engine.authority_clf`
 
 ## The question
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Matched-parameter comparison on a held-out split.
 
-Trains CFNA and from-scratch baselines (byte Transformer, pure SSM) on the train
+Trains NUERONCE and from-scratch baselines (byte Transformer, pure SSM) on the train
 region of a non-repeating corpus, then reports bits/byte on a disjoint held-out
 region. This is the honest signal: does the architecture *generalize*, not just
 memorize the training bytes?
@@ -17,14 +17,14 @@ from pathlib import Path
 
 import torch
 
-from cfna.baselines import BaselineConfig, ByteSSMLM, ByteTransformerLM
-from cfna.data import larger_corpus_bytes, make_batches, train_val_split
-from cfna.eval import compare
-from cfna.model import CFNAModel, ModelConfig
+from nueronce.baselines import BaselineConfig, ByteSSMLM, ByteTransformerLM
+from nueronce.data import larger_corpus_bytes, make_batches, train_val_split
+from nueronce.eval import compare
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
-def cfna_factory():
-    return CFNAModel(ModelConfig(
+def nueronce_factory():
+    return NUERONCEModel(ModelConfig(
         byte_embed_dim=32, d_local=64, d_model=96, p_max=24, physical_blocks=2,
         logical_depth=3, n_heads=4, unit_window=16, decoder_window=24,
         decoder_layers=2, d_state=12, channel_dim=16, min_patch=3, max_patch=20,
@@ -49,7 +49,7 @@ def main():
     val_batches = make_batches(val_bytes, args.seq, args.batch, 8, seed=123)
 
     factories = {
-        "CFNA": cfna_factory,
+        "NUERONCE": nueronce_factory,
         "ByteTransformer": lambda: ByteTransformerLM(BaselineConfig(d_model=128, n_layers=5, n_heads=4, max_len=args.seq)),
         "ByteSSM": lambda: ByteSSMLM(BaselineConfig(d_model=128, n_layers=4, d_state=12, max_len=args.seq)),
     }

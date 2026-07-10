@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dump staged CFNA training corpora into the ByteCorpus manifest format.
+"""Dump staged NUERONCE training corpora into the ByteCorpus manifest format.
 
 The script starts with the user's requested stack: TinyStories first, then
 Cosmopedia-100k, then bounded streamed educational corpora. It records source
@@ -18,7 +18,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Iterable, Optional
 
-from cfna.corpus.stack import CORPUS_STACK, CorpusStackEntry, entries_for_phase, get_entry
+from nueronce.corpus.stack import CORPUS_STACK, CorpusStackEntry, entries_for_phase, get_entry
 
 _END = "\n\n<|END_DOCUMENT|>\n\n"
 _SPACE = re.compile(r"\s+")

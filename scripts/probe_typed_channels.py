@@ -6,7 +6,7 @@ H2 (design doc): the typed recurrent state (7 channels: sem, str, goal, evid,
 unc, auth, proc, each with a *fixed distinct* retention timescale) improves
 long-trajectory behavior because channels take on different roles. This has
 never been tested. This probe runs the design's own specialization requirement:
-train one MicroCFNAModel on a mixture of task types that plausibly stress
+train one NueronceModel on a mixture of task types that plausibly stress
 different memory demands, then zero-ablate each channel at eval time and
 measure the per-(channel, task) loss increase.
 
@@ -33,10 +33,10 @@ from pathlib import Path
 
 import numpy as np
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.microtorch.optim import AdamW, clip_grad_norm_
-from cfna.microtorch.tensor import no_grad
-from cfna.types import CHANNELS
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.engine.optim import AdamW, clip_grad_norm_
+from nueronce.engine.tensor import no_grad
+from nueronce.types import CHANNELS
 
 LN2 = np.log(2.0)
 
@@ -95,11 +95,11 @@ def main():
 
     np.random.seed(args.seed)
     rng = np.random.default_rng(args.seed)
-    cfg = MicroModelConfig(byte_embed_dim=16, d_local=24, d_model=32, p_max=16,
+    cfg = NueronceConfig(byte_embed_dim=16, d_local=24, d_model=32, p_max=16,
                            physical_blocks=1, logical_depth=2, n_heads=4, unit_window=12,
                            decoder_window=16, decoder_layers=1, d_state=8, channel_dim=8,
                            min_patch=2, max_patch=12)
-    model = MicroCFNAModel(cfg)
+    model = NueronceModel(cfg)
     opt = AdamW(list(model.parameters()), lr=3e-3, weight_decay=0.01)
 
     task_names = list(TASKS)

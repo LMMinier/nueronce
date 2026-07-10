@@ -38,7 +38,7 @@
     },
     {
       "prompt": "What can you do?",
-      "response": "I can answer simple questions, use narrow tools for exact arithmetic, and generate short text from the CFNA byte model.",
+      "response": "I can answer simple questions, use narrow tools for exact arithmetic, and generate short text from the NUERONCE byte model.",
       "source": "tool",
       "warning": null,
       "expected_substring": "simple questions",

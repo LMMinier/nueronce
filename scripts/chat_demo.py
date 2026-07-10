@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Hold a short conversation with the trained CFNA checkpoint.
+"""Hold a short conversation with the trained NUERONCE checkpoint.
 
 Honest expectation: a ~11M-param byte model trained for minutes on ~14 MB of
 public-domain books and speeches produces *English-shaped continuations* in the
 register it learned — not a genuine instruct-tuned assistant. This script shows
 the model responding to prompts so you can see what it actually learned.
 
-Usage:  python scripts/chat_demo.py [--ckpt checkpoints/cfna_chat.pt] [--temp 0.7]
+Usage:  python scripts/chat_demo.py [--ckpt checkpoints/nueronce_chat.pt] [--temp 0.7]
 """
 
 from __future__ import annotations
 
 import argparse
 
-from cfna.chat import Conversation, load_checkpoint
+from nueronce.chat import Conversation, load_checkpoint
 
 DEFAULT_TURNS = [
     "Good evening. Who are you?",
@@ -25,7 +25,7 @@ DEFAULT_TURNS = [
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ckpt", type=str, default="checkpoints/cfna_chat.pt")
+    ap.add_argument("--ckpt", type=str, default="checkpoints/nueronce_chat.pt")
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--max-new", type=int, default=80)
     ap.add_argument("--seed", type=int, default=0)

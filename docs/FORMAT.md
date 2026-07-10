@@ -1,8 +1,8 @@
-# CFNA turn format ("the turn contract")
+# NUERONCE turn format ("the turn contract")
 
 One canonical prompt layout, shared byte-for-byte by training and inference.
-Single source of truth: `cfna/prompting.py`. Nothing else may define marker
-strings — `cfna.training.dialogue_data` re-exports `USER`/`ASSISTANT` from
+Single source of truth: `nueronce/prompting.py`. Nothing else may define marker
+strings — `nueronce.training.dialogue_data` re-exports `USER`/`ASSISTANT` from
 there, and `tests/test_prompting.py` + `tests/test_chat_format_drift.py` pin
 the invariants below.
 
@@ -63,7 +63,7 @@ User: {message}\nAssistant: {reply}\n
 ```
 
 No system line when empty, stop on `\n`. Every `sharded_sft` checkpoint up to
-and including `checkpoints/micro_cfna_sft_100k` is legacy.
+and including `checkpoints/micro_nueronce_sft_100k` is legacy.
 
 ## Checkpoint stamping — why this file exists
 
@@ -71,14 +71,14 @@ The two formats are **not interchangeable at the byte level**. When the shared
 tags were repointed from legacy to canonical, the 100k legacy checkpoint's
 teacher-forced byte accuracy read 0.524 under canonical prompts vs 0.906 under
 its true legacy format — a 38-point *silent* regression that looked like a
-weak model (`docs/reports/MICRO_CFNA_SFT_100K_REPORT.md`).
+weak model (`docs/reports/MICRO_NUERONCE_SFT_100K_REPORT.md`).
 
 Rules, enforced by `tests/test_chat_format_drift.py`:
 
-1. `cfna.training.sharded_sft.save_checkpoint` stamps
+1. `nueronce.training.sharded_sft.save_checkpoint` stamps
    `meta["prompt_format"]` (`"canonical"` or `"legacy"`, derived from
    `dialogue_data.PROMPT_FORMAT`) into every new checkpoint.
-2. Chat loaders (`cfna.microtorch.chat.MicroConversation.resolve_format`)
+2. Chat loaders (`nueronce.engine.chat.MicroConversation.resolve_format`)
    read the stamp; **unstamped checkpoints resolve to `"legacy"`**, because
    every checkpoint that predates the stamp is legacy.
 3. The legacy prompt path hardcodes the literal `"User: "`/`"Assistant: "`

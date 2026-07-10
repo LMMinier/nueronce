@@ -42,7 +42,7 @@
     "pretraining_corpus_identity": "not recorded in checkpoint"
   },
   {
-    "path": "checkpoints\\cfna_chat.pt",
+    "path": "checkpoints\\nueronce_chat.pt",
     "sha256": "38b01207c72389254166e5e6fa7be6a867412b1b14ecdb6d2e87f7fd25a74164",
     "loads": true,
     "error": null,
@@ -89,7 +89,7 @@
     "pretraining_corpus_identity": "not recorded in checkpoint"
   },
   {
-    "path": "checkpoints\\cfna_chat_sft_smoke.pt",
+    "path": "checkpoints\\nueronce_chat_sft_smoke.pt",
     "sha256": "a8236502ed919408a6fa29302d0c7dd247bdec75f27bc1d7379b11d1c58195aa",
     "loads": true,
     "error": null,
