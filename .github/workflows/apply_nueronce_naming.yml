@@ -1,0 +1,84 @@
+name: Apply full Nueronce naming migration
+
+on:
+  push:
+    branches:
+      - agent/apply-full-nueronce-migration
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/apply-full-nueronce-migration
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Apply deterministic migration
+        run: python scripts/migrate_to_nueronce.py
+
+      - name: Compile renamed package
+        run: python -m compileall -q nueronce
+
+      - name: Verify canonical package and names
+        shell: bash
+        run: |
+          test -d nueronce
+          test -d nueronce/engine
+          test -f nueronce/engine/nueronce_model.py
+          test -f nueronce/engine/nueronce_blocks.py
+          test ! -e cfna
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          excluded = {'.git', '.pytest_cache', '__pycache__'}
+          legacy = ('cfna', 'microtorch', 'MicroCFNAModel', 'MicroCFNAConfig')
+          violations = []
+          for path in root.rglob('*'):
+              if any(part in excluded for part in path.parts):
+                  continue
+              relative = path.as_posix()
+              if any(term.lower() in relative.lower() for term in legacy):
+                  violations.append(f'path: {relative}')
+              if not path.is_file() or path.suffix.lower() not in {
+                  '.py', '.md', '.json', '.jsonl', '.yaml', '.yml', '.toml',
+                  '.txt', '.rst', '.ini', '.cfg', '.sh', '.ps1', '.bat',
+                  '.ipynb', '.csv', '.tsv', '.html', '.js', '.ts', '.cpp',
+                  '.cc', '.c', '.h', '.hpp'
+              }:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for term in legacy:
+                  if term.lower() in text.lower():
+                      violations.append(f'text {term}: {relative}')
+                      break
+          if violations:
+              raise SystemExit('Legacy naming remains:\n' + '\n'.join(violations[:200]))
+          print('Repository-wide Nueronce naming verification passed.')
+          PY
+
+      - name: Commit transformed repository
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Migration already applied."
+            exit 0
+          fi
+          git commit -m "Apply full repository identity migration to Nueronce"
+          git push origin HEAD:agent/apply-full-nueronce-migration
