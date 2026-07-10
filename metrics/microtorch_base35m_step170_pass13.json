@@ -1,0 +1,38 @@
+{
+  "model": "MicroTorch CFNA base_35m",
+  "pass_index": 13,
+  "start_step": 160,
+  "end_step": 170,
+  "steps_logged": [161, 162, 163, 164, 166, 167, 168, 169, 170],
+  "step_165_note": "The atomic checkpoint advanced through step 165 before the first process was interrupted, but its stdout record was not preserved. Final optimizer step, checkpoint hash, and subsequent steps verify the state transition.",
+  "all_logged_gradient_tensors_finite": true,
+  "expected_gradient_tensors_per_step": 177,
+  "heldout": {
+    "suite": "heldout-3docs-4windows-v1",
+    "average_bpb": 4.521699808682773,
+    "accuracy": 0.21559034572733202,
+    "total_targets": 6132,
+    "documents": {
+      "tale_of_two_cities": {"average_bpb": 4.569854291657531, "accuracy": 0.21232876712328766},
+      "plato_apology": {"average_bpb": 4.5498104876214, "accuracy": 0.21379647749510763},
+      "discourse_on_method": {"average_bpb": 4.445434646769389, "accuracy": 0.22064579256360078}
+    }
+  },
+  "checkpoint": {
+    "path": "microtorch_base35m_step170.pkl",
+    "sha256": "2f4e9adbeadc57910451ffc5c644ad0c14350c806fa18c23b9035cc1e3556a2a",
+    "canonical_state_sha256": "5dc860f1a2290867c0e480b10fc5f28345e21147183c62c5dcbed54cfeccf935",
+    "optimizer_step": 170,
+    "learning_rate": 1e-05
+  },
+  "generation_probe": {
+    "readable": false,
+    "samples": {
+      "The ": {"next_byte": 111, "text": "o"},
+      "Liberty is ": {"next_byte": 108, "text": "l"},
+      "Evidence: ": {"next_byte": 111, "text": "o"}
+    }
+  },
+  "converged": false,
+  "honesty_note": "Held-out BPB improved, but fixed-prompt greedy next-byte samples remain unreadable; convergence gates are not met."
+}
