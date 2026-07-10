@@ -54,9 +54,6 @@ class Tensor:
         self._prev = tuple(_children) if _GRAD_ENABLED else ()
         self._op = _op
 
-    # ------------------------------------------------------------------ #
-    # bookkeeping
-    # ------------------------------------------------------------------ #
     @property
     def shape(self):
         return self.data.shape
@@ -90,9 +87,6 @@ class Tensor:
     def __repr__(self):
         return f"Tensor(shape={self.shape}, op={self._op!r}, requires_grad={self.requires_grad})"
 
-    # ------------------------------------------------------------------ #
-    # elementwise
-    # ------------------------------------------------------------------ #
     def _bin(self, other, fwd, back_self, back_other, op):
         other = other if isinstance(other, Tensor) else Tensor(other)
         out = self._make(fwd(self.data, other.data), (self, other), op)
@@ -153,9 +147,6 @@ class Tensor:
         out._backward = _backward
         return out
 
-    # ------------------------------------------------------------------ #
-    # unary math
-    # ------------------------------------------------------------------ #
     def _unary(self, fwd, back, op):
         y = fwd(self.data)
         out = self._make(y, (self,), op)
@@ -182,9 +173,6 @@ class Tensor:
     def sqrt(self):
         return self ** 0.5
 
-    # ------------------------------------------------------------------ #
-    # matmul
-    # ------------------------------------------------------------------ #
     def __matmul__(self, other):
         other = other if isinstance(other, Tensor) else Tensor(other)
         out = self._make(self.data @ other.data, (self, other), "@")
@@ -199,9 +187,6 @@ class Tensor:
         out._backward = _backward
         return out
 
-    # ------------------------------------------------------------------ #
-    # reductions / shape
-    # ------------------------------------------------------------------ #
     def sum(self, axis=None, keepdims=False):
         out = self._make(self.data.sum(axis=axis, keepdims=keepdims), (self,), "sum")
 
@@ -270,10 +255,13 @@ class Tensor:
         out._backward = _backward
         return out
 
-    # ------------------------------------------------------------------ #
-    # backprop
-    # ------------------------------------------------------------------ #
-    def backward(self):
+    def backward(self, gradient=None):
+        """Backpropagate from this tensor.
+
+        ``gradient`` permits vector-Jacobian products and is required by the
+        activation-recomputation checkpoint operator. Scalar losses retain the
+        original no-argument behavior.
+        """
         topo, visited = [], set()
 
         def build(v):
@@ -285,7 +273,10 @@ class Tensor:
             topo.append(v)
 
         build(self)
-        self.grad = np.ones_like(self.data)
+        seed = np.ones_like(self.data) if gradient is None else np.asarray(gradient, dtype=self.data.dtype)
+        if seed.shape != self.data.shape:
+            raise ValueError(f"backward gradient shape {seed.shape} != tensor shape {self.data.shape}")
+        self.grad = seed
         for v in reversed(topo):
             v._backward()
 
