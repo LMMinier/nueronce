@@ -1,0 +1,134 @@
+{
+  "schema": "nueronce-a-grade-gates-v1",
+  "updated": "2026-07-10",
+  "principle": "Grades change only when versioned evidence satisfies every required gate.",
+  "dimensions": {
+    "architecture_capacity": {
+      "current_grade": "B+",
+      "target_grade": "A",
+      "required": [
+        "full_35m_end_to_end_training_with_all_primary_subsystems",
+        "true_sparse_execution_benchmark",
+        "incremental_inference_cache_at_least_3x_speedup_context_256",
+        "authority_provenance_integrated_into_learned_pipeline",
+        "typed_channel_specialization_proven_or_claim_removed",
+        "matched_parameter_component_ablations"
+      ]
+    },
+    "training_mechanism": {
+      "current_grade": "A-",
+      "target_grade": "A",
+      "required": [
+        "deterministic_resume_loss_and_parameter_hash",
+        "1000_consecutive_valid_35m_updates",
+        "complete_rng_cursor_optimizer_phase_resume",
+        "atomic_sha256_verified_release_checkpoints",
+        "nonfinite_step_zero_mutation_proof",
+        "clean_checkout_reproduction"
+      ]
+    },
+    "numerical_stability": {
+      "current_grade": "A-",
+      "target_grade": "A",
+      "required": [
+        "zero_nonfinite_values_1000_updates",
+        "randomized_float32_extreme_value_suite",
+        "all_35m_primitives_gradient_checked",
+        "per_stage_range_and_norm_telemetry",
+        "injected_failure_rollback_test"
+      ]
+    },
+    "memory_constrained_execution": {
+      "current_grade": "B+",
+      "target_grade": "A",
+      "required": [
+        "35m_seq64_below_4gib_rss",
+        "35m_seq256_within_declared_budget",
+        "block_gradient_spooling_or_equivalent",
+        "measured_stage_peak_memory",
+        "90m_100_valid_steps_with_documented_budget"
+      ]
+    },
+    "corpus_availability": {
+      "current_grade": "B",
+      "target_grade": "A",
+      "required": [
+        "machine_readable_license_and_provenance_all_sources",
+        "exact_and_near_duplicate_report",
+        "document_or_source_family_splits",
+        "published_domain_and_byte_distribution",
+        "held_out_prompt_authors_and_templates",
+        "automatic_restricted_source_rejection"
+      ]
+    },
+    "learned_language_knowledge": {
+      "current_grade": "F",
+      "target_grade": "A",
+      "required": [
+        "held_out_bpb_at_most_1_8_or_supported_baseline_win",
+        "readable_coherent_generation_100_held_out_prompts",
+        "unseen_document_and_paraphrase_transfer",
+        "memorization_overlap_controls",
+        "repeatability_across_three_seeds_or_checkpoints"
+      ]
+    },
+    "instruction_following": {
+      "current_grade": "F",
+      "target_grade": "A",
+      "required": [
+        "500_held_out_multicategory_instructions",
+        "at_least_80_percent_frozen_rubric_success",
+        "template_and_author_held_out_evaluation",
+        "grounded_unsupported_addition_scoring",
+        "abstention_precision_and_recall"
+      ]
+    },
+    "reasoning": {
+      "current_grade": "not_measurable",
+      "target_grade": "A",
+      "required": [
+        "frozen_multidomain_reasoning_suite",
+        "beats_pretrained_only_and_matched_baseline",
+        "reasoning_separated_from_renderer_retrieval_tools",
+        "causal_component_ablation",
+        "confidence_intervals_or_multiseed_variance"
+      ]
+    },
+    "retrieval_use_by_weights": {
+      "current_grade": "not_measurable",
+      "target_grade": "A",
+      "required": [
+        "retrieval_at_least_10_point_accuracy_gain_unseen_facts",
+        "citation_precision_at_least_0_85",
+        "decisive_evidence_attribution_at_least_0_85",
+        "counterfactual_evidence_removal_test",
+        "dense_sparse_late_fused_and_none_ablations",
+        "authority_gate_blocks_untrusted_retrieval_influence"
+      ]
+    },
+    "scientific_evidence_trail": {
+      "current_grade": "B+",
+      "target_grade": "A",
+      "required": [
+        "claim_to_benchmark_command_environment_seed_hash_mapping",
+        "positive_null_and_falsified_results_preserved",
+        "external_naturalistic_blind_benchmark",
+        "second_machine_or_os_reproduction",
+        "uncertainty_reported",
+        "immutable_release_assets"
+      ]
+    }
+  },
+  "next_milestone": {
+    "name": "base35m-pretrain-v1",
+    "required": [
+      "github_release_checkpoint_and_manifest",
+      "1000_uninterrupted_valid_updates",
+      "zero_nonfinite_steps",
+      "document_held_out_validation_curve",
+      "deterministic_resume_proof",
+      "peak_memory_report",
+      "fixed_prompt_generation_samples"
+    ]
+  }
+}
