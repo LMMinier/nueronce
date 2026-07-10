@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/apply-full-nueronce-migration
+  pull_request:
+    branches:
+      - claude/new-session-tkjr3b
   workflow_dispatch:
 
 permissions:
