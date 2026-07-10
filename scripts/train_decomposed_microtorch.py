@@ -46,6 +46,7 @@ def main():
         ret_byte_dim=4,
         min_patch=2,
         max_patch=8,
+        activation_checkpointing=True,
     )
     model = MicroCFNAModel(cfg)
     plan = ExecutionPlan.from_cfna(model)
@@ -71,6 +72,7 @@ def main():
                 "params": model.num_params(),
                 "loss_start": history[0]["loss"],
                 "loss_end": history[-1]["loss"],
+                "tape_mode": history[-1]["tape_mode"],
                 "blocks": [b.name for b in plan.blocks],
             }
         )
