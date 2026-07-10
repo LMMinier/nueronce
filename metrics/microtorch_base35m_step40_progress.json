@@ -1,0 +1,42 @@
+{
+  "model": "MicroTorch CFNA base_35m",
+  "parameters": 34368049,
+  "checkpoint_step": 40,
+  "checkpoint_bytes": 138218548,
+  "checkpoint_sha256": "38d90f40729f2369c76df3af822413dcd015ab1dc72af99f5f8982c7dc414cee",
+  "canonical_state_sha256": "9cd7e4d656a57dd025b07184d258c8acb069e719d4827662e965cc8144acb765",
+  "optimizer": "streamfactor",
+  "optimizer_step": 40,
+  "learning_rate": 1e-05,
+  "progress_from_step20": {
+    "completed_steps": 20,
+    "pretraining_steps": 16,
+    "sft_steps": 4,
+    "pretraining_target_bytes": 8176,
+    "sft_target_bytes": 101,
+    "all_gradient_tensors_finite": true
+  },
+  "heldout512_average_bpb": {
+    "step20": 6.519902423494277,
+    "step30": 5.674400054116431,
+    "step40": 5.330932240872209
+  },
+  "bpb_improvement_per_10_step_pass": {
+    "step20_to_30": 0.8455023693778463,
+    "step30_to_40": 0.3434678132442217
+  },
+  "heldout512_step40": {
+    "tale_of_two_cities": {"loss": 3.691915273666382, "bpb": 5.326307856700709, "accuracy": 0.12915851272015655},
+    "plato_apology": {"loss": 3.8052167892456055, "bpb": 5.489767391352059, "accuracy": 0.17221135029354206},
+    "discourse_on_method": {"loss": 3.5882298946380615, "bpb": 5.176721474563859, "accuracy": 0.1780821917808219}
+  },
+  "eta_definition": {
+    "pass": "one chat execution block that advances 10 atomic training steps and then evaluates and preserves the checkpoint",
+    "to_step100": "6 more 10-step passes; potentially 3 passes if 20-step blocks remain stable",
+    "to_heldout_bpb_below_4": "approximately 5-10 more 10-step passes, conditional on continued improvement",
+    "to_readable_generation": "approximately 10-25 more 10-step passes, but generation quality rather than step count is the gate",
+    "to_A_grade_1000_step_stability_gate": "96 more 10-step passes, or 48 more 20-step passes",
+    "to_1_8_bpb": "not credibly predictable yet; likely tens to more than 100 additional 10-step passes and may require optimizer, data, or architecture changes"
+  },
+  "honesty_note": "Step counts are not a guarantee of competence. Held-out BPB, readable fixed-seed generation, and frozen instruction evaluations control regrading."
+}
