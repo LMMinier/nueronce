@@ -19,13 +19,14 @@ predates this port and stays around for the simpler engine demo /
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np
 
 from . import functional as F
 from . import segment
+from .checkpoint import checkpoint
 from .cfna_blocks import (
     ByteDecoder,
     BytePerceptionEncoder,
@@ -61,6 +62,7 @@ class MicroModelConfig:
     max_patch: int = 24
     boundary_loss_weight: float = 0.3
     trainable_segmentation: bool = True
+    activation_checkpointing: bool = False
 
 
 def _softmax_np(v: np.ndarray) -> np.ndarray:
@@ -86,19 +88,17 @@ class MicroCFNAModel(Module):
         self.boundary_proj = Linear(1, c.d_model)
         self._syntax = segment.syntax_table()
 
-    # ------------------------------------------------------------------ #
     def encode_retrieval(self, neighbor_ids: np.ndarray, neighbor_mask: Optional[np.ndarray] = None):
-        """Encode retrieved neighbor byte chunks into a context the core and
-        the decoder can cross-attend. Byte-level (not pooled) so exact
-        identifiers/values stay copyable, same induction-style copy setup as
-        ``CFNAModel.encode_retrieval``."""
         b, m, lc = neighbor_ids.shape
         flat = neighbor_ids.reshape(b * m, lc)
-        feats, _ = self.perception(flat)                              # [B*M, Lc, d_local]
+        feats, _ = self.perception(flat)
         zeros_col = Tensor(np.zeros((feats.shape[0], 1, feats.shape[2])))
-        shifted = cat([zeros_col, feats[:, :-1]], axis=1)              # left context, excludes byte p
-        bemb = self.ret_byte_embed(flat)                               # [B*M, Lc, ret_byte_dim]
-        ctx = self.ret_proj(cat([shifted, bemb], axis=-1)).reshape(b, m * lc, -1)
+        shifted = cat([zeros_col, feats[:, :-1]], axis=1)
+        bemb = self.ret_byte_embed(flat)
+        joined = cat([shifted, bemb], axis=-1)
+        ctx = (checkpoint(self.ret_proj, joined, parameters=self.ret_proj.parameters(), name="ret_proj")
+               if self.cfg.activation_checkpointing else self.ret_proj(joined))
+        ctx = ctx.reshape(b, m * lc, -1)
         if neighbor_mask is None:
             ctx_mask = np.ones((b, m * lc), dtype=bool)
         else:
@@ -107,29 +107,48 @@ class MicroCFNAModel(Module):
 
     def encode_units(self, byte_ids: np.ndarray, ret_ctx: Optional[Tensor] = None,
                      ret_mask: Optional[np.ndarray] = None):
-        """Run perception -> patching -> units -> memory -> core."""
         c = self.cfg
         feats, boundary_logits = self.perception(byte_ids)
-        # Discrete segmentation structure from detached (hard) probabilities.
         prob_hard = 1.0 / (1.0 + np.exp(-boundary_logits.data))
         seg_ids, _ = segment.segment_ids_from_boundaries(
             prob_hard, tau=c.tau, min_patch=c.min_patch, max_patch=c.max_patch, p_max=c.p_max
         )
-        m, unit_mask = segment.pool_matrix(seg_ids, c.p_max)           # [B,P,T], [B,P]
-        pooled_local = Tensor(m) @ feats                               # [B,P,d_local]
-        units = self.unit_embed(pooled_local)
+        m, unit_mask = segment.pool_matrix(seg_ids, c.p_max)
+        pooled_local = Tensor(m) @ feats
+        units = (checkpoint(self.unit_embed, pooled_local,
+                            parameters=self.unit_embed.parameters(), name="unit_embed")
+                 if c.activation_checkpointing else self.unit_embed(pooled_local))
         if c.trainable_segmentation:
-            # A *differentiable* per-unit boundary feature carries the LM
-            # gradient back to the boundary head (m itself is detached/fixed).
-            prob = F.sigmoid(boundary_logits)                           # [B,T], grad-enabled
-            unit_boundary = Tensor(m) @ prob.reshape(prob.shape[0], prob.shape[1], 1)  # [B,P,1]
-            units = units + self.boundary_proj(unit_boundary)
-        units = units + self.memory(units)
+            prob = F.sigmoid(boundary_logits)
+            unit_boundary = Tensor(m) @ prob.reshape(prob.shape[0], prob.shape[1], 1)
+            boundary_delta = (checkpoint(self.boundary_proj, unit_boundary,
+                                         parameters=self.boundary_proj.parameters(), name="boundary_proj")
+                              if c.activation_checkpointing else self.boundary_proj(unit_boundary))
+            units = units + boundary_delta
+        memory_delta = (checkpoint(self.memory, units,
+                                   parameters=self.memory.parameters(), name="memory")
+                        if c.activation_checkpointing else self.memory(units))
+        units = units + memory_delta
         core_ret_mask = None
         if ret_ctx is not None:
-            core_ret_mask = np.broadcast_to(ret_mask[:, None, :], (ret_mask.shape[0], c.p_max, ret_mask.shape[-1]))
-        g = self.core(units, c.logical_depth, key_padding=unit_mask,
-                      retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask)
+            core_ret_mask = np.broadcast_to(ret_mask[:, None, :],
+                                            (ret_mask.shape[0], c.p_max, ret_mask.shape[-1]))
+        if c.activation_checkpointing:
+            if ret_ctx is None:
+                g = checkpoint(
+                    lambda x: self.core(x, c.logical_depth, key_padding=unit_mask,
+                                        retrieval_ctx=None, retrieval_mask=None),
+                    units, parameters=self.core.parameters(), name="core",
+                )
+            else:
+                g = checkpoint(
+                    lambda x, r: self.core(x, c.logical_depth, key_padding=unit_mask,
+                                           retrieval_ctx=r, retrieval_mask=core_ret_mask),
+                    units, ret_ctx, parameters=self.core.parameters(), name="core",
+                )
+        else:
+            g = self.core(units, c.logical_depth, key_padding=unit_mask,
+                          retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask)
         cross_mask = segment.byte_to_unit_mask(seg_ids, unit_mask, c.p_max)
         return g, cross_mask, boundary_logits, seg_ids, unit_mask
 
@@ -141,12 +160,26 @@ class MicroCFNAModel(Module):
             ret_ctx, ret_mask = self.encode_retrieval(np.asarray(neighbor_ids), neighbor_mask)
         g, cross_mask, boundary_logits, _, _ = self.encode_units(byte_ids, ret_ctx, ret_mask)
         t = byte_ids.shape[1]
-        dec_ret_mask = (np.broadcast_to(ret_mask[:, None, :], (ret_mask.shape[0], t, ret_mask.shape[-1]))
+        dec_ret_mask = (np.broadcast_to(ret_mask[:, None, :],
+                                        (ret_mask.shape[0], t, ret_mask.shape[-1]))
                         if ret_ctx is not None else None)
-        logits = self.decoder(byte_ids, g, cross_mask, ret_ctx=ret_ctx, ret_mask=dec_ret_mask)
+        if self.cfg.activation_checkpointing:
+            if ret_ctx is None:
+                logits = checkpoint(
+                    lambda x: self.decoder(byte_ids, x, cross_mask, ret_ctx=None, ret_mask=None),
+                    g, parameters=self.decoder.parameters(), name="decoder",
+                )
+            else:
+                logits = checkpoint(
+                    lambda x, r: self.decoder(byte_ids, x, cross_mask,
+                                              ret_ctx=r, ret_mask=dec_ret_mask),
+                    g, ret_ctx, parameters=self.decoder.parameters(), name="decoder",
+                )
+        else:
+            logits = self.decoder(byte_ids, g, cross_mask,
+                                  ret_ctx=ret_ctx, ret_mask=dec_ret_mask)
         return logits, boundary_logits
 
-    # ------------------------------------------------------------------ #
     def loss(self, byte_ids: np.ndarray) -> Tuple[Tensor, Dict[str, float]]:
         byte_ids = np.asarray(byte_ids)
         logits, boundary_logits = self.forward(byte_ids)
@@ -158,15 +191,11 @@ class MicroCFNAModel(Module):
         return total, stats
 
     def lm_loss(self, byte_ids: np.ndarray) -> Tensor:
-        """Next-byte cross-entropy only. bits/byte = lm_loss / ln 2."""
         byte_ids = np.asarray(byte_ids)
         logits, _ = self.forward(byte_ids)
         return F.cross_entropy(logits[:, :-1].reshape(-1, 256), byte_ids[:, 1:].reshape(-1))
 
     def masked_token_loss(self, logits: Tensor, byte_ids: np.ndarray, target_mask: np.ndarray) -> Tensor:
-        """Cross-entropy only at positions flagged in ``target_mask`` (True at
-        the *target* byte). logits[t] predicts byte[t+1], so target position v
-        uses logits[v-1] — same convention as ``CFNAModel.masked_token_loss``."""
         byte_ids, target_mask = np.asarray(byte_ids), np.asarray(target_mask)
         pred = logits[:, :-1].reshape(-1, 256)
         tgt = byte_ids[:, 1:].reshape(-1)
@@ -174,23 +203,12 @@ class MicroCFNAModel(Module):
         return F.masked_cross_entropy(pred, tgt, sel)
 
     def masked_loss(self, byte_ids: np.ndarray, target_mask: np.ndarray) -> Tensor:
-        """``forward`` + ``masked_token_loss`` in one call — the one-shot
-        interface :mod:`cfna.microtorch.models`' ``train_dialogue_sft``/
-        ``MicroSFTBackend`` expect, so the *real* ported architecture is a
-        drop-in alternative to the smaller ``MicroByteLM`` for VGRFT stage 1."""
         logits, _ = self.forward(byte_ids)
         return self.masked_token_loss(logits, byte_ids, target_mask)
 
-    # ------------------------------------------------------------------ #
     def generate(self, prompt: bytes, max_new: int = 64, temperature: float = 0.8,
                  greedy: bool = False, max_ctx: int = 256,
                  stop_bytes: bytes = b"", min_new: int = 0) -> bytes:
-        """Autoregressively continue ``prompt``. If ``stop_bytes`` is given,
-        generation halts as soon as a byte in it is produced (after at least
-        ``min_new`` new bytes) — the same early-termination contract
-        ``cfna.chat``'s ``_continue`` uses, so a stop byte (e.g. ``\\n``
-        after ``Assistant: ...``) actually ends the turn instead of running
-        to ``max_new`` regardless."""
         ids = list(prompt) or [32]
         new_count = 0
         with no_grad():
@@ -214,24 +232,15 @@ class MicroCFNAModel(Module):
 
 
 def large_config() -> MicroModelConfig:
-    """The same ~337M-parameter configuration as ``cfna.model.large_config``,
-    on the from-scratch engine — proving the "350M budget is real and
-    constructable" claim holds for microtorch too, not just PyTorch. Not
-    trained here (just construction + a tiny forward); see
-    ``tests/test_microtorch_scaling.py``."""
     return MicroModelConfig(
         byte_embed_dim=128, d_local=512, d_model=1024, p_max=64, physical_blocks=6,
         logical_depth=12, n_heads=8, unit_window=256, decoder_window=256,
         decoder_layers=6, d_state=16, channel_dim=64, ret_byte_dim=64,
-        min_patch=4, max_patch=128,
+        min_patch=4, max_patch=128, activation_checkpointing=True,
     )
 
 
 def preset_configs() -> dict:
-    """Mirror of ``cfna.model.CONFIG_PRESETS`` as MicroModelConfig instances,
-    so preset parameter counts are verifiable without torch (the counts in
-    the torch docstrings were produced exactly this way). Field parity with
-    the torch presets is asserted in tests/test_config_presets.py."""
     presets = {
         "chat_11m": dict(byte_embed_dim=64, d_local=128, d_model=256, p_max=48,
                           physical_blocks=3, logical_depth=4, n_heads=8, unit_window=48,
