@@ -1,4 +1,4 @@
-"""Tests for the mixed conversational SFT layer (cfna.training.mixed_sft).
+"""Tests for the mixed conversational SFT layer (nueronce.training.mixed_sft).
 
 Torch-free: these pin the data-side invariants the desktop/Colab torch loop
 relies on — canonical rendering, the response-only mask contract, register
@@ -6,8 +6,8 @@ caps, and batch packing."""
 
 import numpy as np
 
-from cfna.prompting import ASSISTANT, END, USER
-from cfna.training.mixed_sft import (
+from nueronce.prompting import ASSISTANT, END, USER
+from nueronce.training.mixed_sft import (
     build_batches,
     dataset_summary,
     enforce_category_caps,
@@ -26,7 +26,7 @@ def _evidence(i=0):
     return {"id": f"e-{i}", "source": "t", "category": "grounded",
             "messages": [{"role": "user", "content": f"When does dock {i} close?"},
                          {"role": "assistant", "content": f"Dock {i} closes at 18:00."}],
-            "system_message": "You are CFNA.",
+            "system_message": "You are NUERONCE.",
             "trusted_evidence": [f"[doc] Dock {i} closes at 18:00."],
             "response_plan": ["Use decisive evidence only."]}
 
@@ -44,7 +44,7 @@ def test_render_plain_is_canonical_with_response_mask():
 def test_render_evidence_record_includes_blocks():
     b, m = render_record(_evidence())
     text = b.decode("utf-8")
-    assert "<|evidence|>" in text and "<|plan|>" in text and "You are CFNA." in text
+    assert "<|evidence|>" in text and "<|plan|>" in text and "You are NUERONCE." in text
     masked = bytes(v for v, keep in zip(b, m) if keep).decode("utf-8")
     assert masked.startswith("Dock 0 closes")
     assert "decisive evidence" not in masked  # plan/evidence stay unmasked

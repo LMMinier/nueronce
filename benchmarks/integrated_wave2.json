@@ -1,7 +1,7 @@
 {
   "seed": 20260701,
   "n": 100,
-  "authority_backend": "cfna.microtorch.authority_clf",
+  "authority_backend": "nueronce.engine.authority_clf",
   "systems": {
     "provenance_contract": {
       "answer_accuracy": 0.92,

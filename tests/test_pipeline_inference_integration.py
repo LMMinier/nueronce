@@ -2,10 +2,10 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.pipeline import ModelRenderer, evidence_to_retrieval_tensors, verification_feedback
-from cfna.verification import IndependentVerifier
-from cfna.impl import default_verifier_hooks
-from cfna.types import MemoryRecord, VerificationFailure, VerificationReport
+from nueronce.pipeline import ModelRenderer, evidence_to_retrieval_tensors, verification_feedback
+from nueronce.verification import IndependentVerifier
+from nueronce.impl import default_verifier_hooks
+from nueronce.types import MemoryRecord, VerificationFailure, VerificationReport
 
 
 def _memory(mid: str, content: str, status: str = "verified") -> MemoryRecord:
@@ -104,8 +104,8 @@ def test_surface_quality_failures_block_verification():
     verifier = IndependentVerifier(default_verifier_hooks())
     report = verifier.verify(
         "the the the the the the",
-        {"user_goal": "What does CFNA separate?", "completion_checklist": []},
-        [_memory("doc1", "CFNA separates retrieval reasoning and generation.")],
+        {"user_goal": "What does NUERONCE separate?", "completion_checklist": []},
+        [_memory("doc1", "NUERONCE separates retrieval reasoning and generation.")],
         [],
     )
     assert not report.passes
@@ -119,14 +119,14 @@ def test_repetitive_first_draft_can_trigger_one_revision_then_fail_if_still_bad(
             return b"the the the the the the"
 
     model = LoopModel()
-    evidence = [_memory("doc1", "CFNA separates retrieval reasoning and generation.")]
+    evidence = [_memory("doc1", "NUERONCE separates retrieval reasoning and generation.")]
     neighbor_ids, neighbor_mask = evidence_to_retrieval_tensors(evidence)
     renderer = ModelRenderer(model)
     draft = {
-        "query": "What does CFNA separate?",
+        "query": "What does NUERONCE separate?",
         "evidence": evidence,
         "reasoning": {},
-        "plan": {"user_goal": "What does CFNA separate?", "completion_checklist": []},
+        "plan": {"user_goal": "What does NUERONCE separate?", "completion_checklist": []},
         "neighbor_ids": neighbor_ids,
         "neighbor_mask": neighbor_mask,
     }

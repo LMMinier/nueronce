@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from cfna.provenance_bench import run
+from nueronce.provenance_bench import run
 
 
 def test_provenance_gate_reduces_poison_without_excessive_rejection():

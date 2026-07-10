@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use NUERONCE or the CFNA MicroTorch runtime, please cite this software and its research paper."
-title: "NUERONCE: Cognitive Fractal Neural Architecture and CPU-First MicroTorch Runtime"
+message: "If you use NUERONCE or the NUERONCE Nueronce Engine runtime, please cite this software and its research paper."
+title: "NUERONCE: Cognitive Fractal Neural Architecture and CPU-First Nueronce Engine Runtime"
 type: software
 authors:
   - family-names: Minier
@@ -19,7 +19,7 @@ keywords:
   - byte-level modeling
 abstract: >-
   NUERONCE is an experimental byte-first hybrid language-model architecture
-  and NumPy-native training runtime. The MicroTorch path combines exact
+  and NumPy-native training runtime. The Nueronce Engine path combines exact
   activation recomputation, temporal optimizer-state partitioning, and
   factorized tiled optimization for memory-constrained full-parameter
   training research.

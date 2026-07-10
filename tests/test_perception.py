@@ -1,7 +1,7 @@
 import numpy as np
 
-from cfna.config import PerceptionConfig
-from cfna.perception import dynamic_patching, encode_information_units
+from nueronce.config import PerceptionConfig
+from nueronce.perception import dynamic_patching, encode_information_units
 
 
 def _feats_for(data: bytes, dim: int = 8, seed: int = 0):

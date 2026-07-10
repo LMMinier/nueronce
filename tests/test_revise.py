@@ -2,9 +2,9 @@
 
 import pytest
 
-from cfna import impl
-from cfna.types import MemoryRecord, VerificationFailure
-from cfna.verification import IndependentVerifier, verify_and_revise
+from nueronce import impl
+from nueronce.types import MemoryRecord, VerificationFailure
+from nueronce.verification import IndependentVerifier, verify_and_revise
 
 
 def _evidence(text: str) -> MemoryRecord:

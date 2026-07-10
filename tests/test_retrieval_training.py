@@ -5,8 +5,8 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna import retrieval_train as rt
-from cfna.model import CFNAModel, ModelConfig
+from nueronce import retrieval_train as rt
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
 def _cfg():
@@ -26,7 +26,7 @@ def test_retrieval_batch_shapes_and_recall():
 
 def test_retrieval_path_receives_gradients():
     torch.manual_seed(0)
-    m = CFNAModel(_cfg())
+    m = NUERONCEModel(_cfg())
     rng = np.random.default_rng(0)
     b = rt.make_retrieval_batch(rng, batch=8, k=2)
     logits, _ = m(b["seq_ids"], b["neighbor_ids"], b["neighbor_mask"])
@@ -41,7 +41,7 @@ def test_retrieval_path_receives_gradients():
 
 def test_retrieval_improves_value_prediction():
     torch.manual_seed(0)
-    m = CFNAModel(_cfg())
+    m = NUERONCEModel(_cfg())
     hist = rt.train_retrieval(m, steps=200, batch=24, k=2, lr=4e-3, seed=0, log_every=199)
     final = hist[-1]
     # With retrieval the value is predictable; without it, it cannot be (fresh

@@ -24,8 +24,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from cfna.training.dataset_prep import assert_no_leakage, record_normalized_hash, validate_record
-from cfna.training.synthetic_dialogue import GENERATORS
+from nueronce.training.dataset_prep import assert_no_leakage, record_normalized_hash, validate_record
+from nueronce.training.synthetic_dialogue import GENERATORS
 
 
 def _write_records(records, path: Path):
@@ -137,7 +137,7 @@ def main():
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "provenance": {
             "description": (
-                "balanced synthetic SFT curriculum from cfna.training.synthetic_dialogue; "
+                "balanced synthetic SFT curriculum from nueronce.training.synthetic_dialogue; "
                 "train may repeat small-category records as explicit weighting, while "
                 "validation/test are unique and held out before repetition"
             ),

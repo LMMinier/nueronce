@@ -1,6 +1,6 @@
-# CFNA corpus stack
+# NUERONCE corpus stack
 
-This is the staged corpus order requested for CFNA. The first runnable dump path
+This is the staged corpus order requested for NUERONCE. The first runnable dump path
 is Phase 1: TinyStories followed by Cosmopedia-100k. Later phases are recorded
 with their exact pages and extraction notes so their metadata can be preserved
 before they are mixed into training.
@@ -97,7 +97,7 @@ Do this after the base model can already generate coherent text.
 
 ## Recommended mix
 
-First respectable CFNA base model:
+First respectable NUERONCE base model:
 
 ```text
 30% FineWeb-Edu
@@ -130,7 +130,7 @@ PYTHONPATH=. python scripts/dump_corpus_stack.py \
 PYTHONPATH=. python scripts/train_checkpoint.py \
   --corpus corpus_stack \
   --minutes 20 \
-  --out checkpoints/cfna_stack_phase1.pt
+  --out checkpoints/nueronce_stack_phase1.pt
 PYTHONPATH=. python scripts/chat_demo.py \
-  --ckpt checkpoints/cfna_stack_phase1.pt
+  --ckpt checkpoints/nueronce_stack_phase1.pt
 ```

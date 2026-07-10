@@ -7,13 +7,13 @@ torch needed.
 
 import numpy as np
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.microtorch.tensor import no_grad
-from cfna.types import CHANNELS
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.engine.tensor import no_grad
+from nueronce.types import CHANNELS
 
 
 def _tiny():
-    return MicroCFNAModel(MicroModelConfig(
+    return NueronceModel(NueronceConfig(
         byte_embed_dim=12, d_local=16, d_model=24, p_max=12, physical_blocks=1,
         logical_depth=1, n_heads=4, unit_window=8, decoder_window=12,
         decoder_layers=1, d_state=6, channel_dim=8, min_patch=2, max_patch=10))

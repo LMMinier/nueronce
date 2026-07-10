@@ -1,6 +1,6 @@
 import numpy as np
 
-from cfna import ops
+from nueronce import ops
 
 
 def test_cosine_basic():

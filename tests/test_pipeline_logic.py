@@ -6,28 +6,28 @@ import importlib
 
 import pytest
 
-from cfna.tools import ToolExecutor
-from cfna.types import MemoryRecord, VerificationFailure
-from cfna.verification import IndependentVerifier, VerifierHooks, verify_and_revise
+from nueronce.tools import ToolExecutor
+from nueronce.types import MemoryRecord, VerificationFailure
+from nueronce.verification import IndependentVerifier, VerifierHooks, verify_and_revise
 
-CFNA_MODULES = [
-    "cfna", "cfna.types", "cfna.ops", "cfna.config", "cfna._backend",
-    "cfna.ingestion", "cfna.parsing", "cfna.perception", "cfna.embeddings",
-    "cfna.memory", "cfna.routers", "cfna.retrieval", "cfna.core",
-    "cfna.workspace", "cfna.planning", "cfna.verification", "cfna.tools",
-    "cfna.runtime", "cfna.schemas",
-    "cfna.nn", "cfna.blocks", "cfna.segment", "cfna.model", "cfna.data",
-    "cfna.impl", "cfna.pipeline", "cfna.retrieval_train",
-    "cfna.baselines", "cfna.eval", "cfna.chat",
-    "cfna.corpus", "cfna.corpus.sources", "cfna.corpus.build", "cfna.corpus.dataset",
-    "cfna.microtorch", "cfna.microtorch.tensor", "cfna.microtorch.functional",
-    "cfna.microtorch.nn", "cfna.microtorch.optim", "cfna.microtorch.models",
-    "cfna.training", "cfna.training.curriculum", "cfna.training.episodes",
-    "cfna.training.losses", "cfna.training.vgrft",
+NUERONCE_MODULES = [
+    "nueronce", "nueronce.types", "nueronce.ops", "nueronce.config", "nueronce._backend",
+    "nueronce.ingestion", "nueronce.parsing", "nueronce.perception", "nueronce.embeddings",
+    "nueronce.memory", "nueronce.routers", "nueronce.retrieval", "nueronce.core",
+    "nueronce.workspace", "nueronce.planning", "nueronce.verification", "nueronce.tools",
+    "nueronce.runtime", "nueronce.schemas",
+    "nueronce.nn", "nueronce.blocks", "nueronce.segment", "nueronce.model", "nueronce.data",
+    "nueronce.impl", "nueronce.pipeline", "nueronce.retrieval_train",
+    "nueronce.baselines", "nueronce.eval", "nueronce.chat",
+    "nueronce.corpus", "nueronce.corpus.sources", "nueronce.corpus.build", "nueronce.corpus.dataset",
+    "nueronce.engine", "nueronce.engine.tensor", "nueronce.engine.functional",
+    "nueronce.engine.nn", "nueronce.engine.optim", "nueronce.engine.models",
+    "nueronce.training", "nueronce.training.curriculum", "nueronce.training.episodes",
+    "nueronce.training.losses", "nueronce.training.vgrft",
 ]
 
 
-@pytest.mark.parametrize("mod", CFNA_MODULES)
+@pytest.mark.parametrize("mod", NUERONCE_MODULES)
 def test_module_imports(mod):
     assert importlib.import_module(mod) is not None
 

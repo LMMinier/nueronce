@@ -1,10 +1,10 @@
 # Colab A100 session — 2026-07-02: base pretrain clears the SFT gate
 
 First GPU training session of the forgeloop pipeline (`notebooks/
-cfna_large_corpus_forgeloop.ipynb`), run by the owner on Colab Pro,
+nueronce_large_corpus_forgeloop.ipynb`), run by the owner on Colab Pro,
 NVIDIA A100-SXM4-40GB, torch 2.11.0+cu128, AMP fp16. Numbers below are
 transcribed from the live training log (checkpoints + full history JSON in
-the owner's Drive under `CFNA_checkpoints/`; not committed — *.pt is
+the owner's Drive under `NUERONCE_checkpoints/`; not committed — *.pt is
 gitignored).
 
 ## Corpus (validated, cell 5)
@@ -37,7 +37,7 @@ step 225 (~1.6 min)** then climbed to ~1.94 by step 2425 while train loss
 fell to ~0.05 — textbook memorization. The session-era SFT trainer saved
 only final weights, so the deployed checkpoint is the overfit endpoint.
 
-Chat test (cell 12): "Hello CFNA. Introduce yourself" → **"Hello! Whow w
+Chat test (cell 12): "Hello NUERONCE. Introduce yourself" → **"Hello! Whow w
 are you?"** — first turn-taking response (greeting answered with a
 greeting) from a real-corpus base in this project. Long out-of-
 distribution technical prompts → empty responses (expected at 429
@@ -52,7 +52,7 @@ improvement, test/backup cells prefer/include best checkpoints.
 
 - H-gate confirmed at GPU scale: base quality, not SFT step count, was
   the binding constraint all along (consistent with
-  `MICRO_CFNA_SFT_100K_REPORT.md`).
+  `MICRO_NUERONCE_SFT_100K_REPORT.md`).
 - 11M capacity is NOT yet the bottleneck at 0.367 GB corpus: train bpb
   ~1.2 vs held-out 1.785 with the curve still descending at cutoff.
   Plateau estimate 1.6–1.75 after ~4–8 more A100-hours.

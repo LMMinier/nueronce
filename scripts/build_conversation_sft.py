@@ -3,11 +3,11 @@
 
 Mix, all rendered in the canonical prompt format (docs/FORMAT.md):
 
-- every synthetic dialogue register from ``cfna.training.synthetic_dialogue``
+- every synthetic dialogue register from ``nueronce.training.synthetic_dialogue``
   (arithmetic/classification stride-sampled, not prefix-sliced),
 - prompt-aligned direct/grounded/edge records (evidence + plan block skills)
   from ``scripts/build_prompt_aligned_sft.py``'s generators,
-- the hand-written seed set from ``cfna.training.dialogue_data``.
+- the hand-written seed set from ``nueronce.training.dialogue_data``.
 
 Pipeline: generate -> validate+dedupe (``dataset_prep``) -> enforce the <=25%
 per-register cap (the 77%-arithmetic poisoning lesson) -> deterministic
@@ -28,14 +28,14 @@ import sys
 import time
 from pathlib import Path
 
-from cfna.training.dataset_prep import (
+from nueronce.training.dataset_prep import (
     assert_no_leakage,
     build_clean_dataset,
     split_and_shard,
 )
-from cfna.training.dialogue_data import SFT_DATASET
-from cfna.training.mixed_sft import dataset_summary, enforce_category_caps, load_jsonl, stride_sample
-from cfna.training.synthetic_dialogue import GENERATORS
+from nueronce.training.dialogue_data import SFT_DATASET
+from nueronce.training.mixed_sft import dataset_summary, enforce_category_caps, load_jsonl, stride_sample
+from nueronce.training.synthetic_dialogue import GENERATORS
 
 CAPPED = {"arithmetic": 15_000, "classification": 15_000}  # generous pre-cap quotas
 
@@ -70,7 +70,7 @@ def generate_records(n_direct: int, n_grounded: int, n_edge: int):
     for r in pa.build_records(n_direct, n_grounded, n_edge):
         yield {
             "id": r["id"],
-            "source": "cfna-prompt-aligned-v1",
+            "source": "nueronce-prompt-aligned-v1",
             "category": f"pa_{r['category']}",
             "messages": [
                 {"role": "user", "content": r["user_request"]},
@@ -84,7 +84,7 @@ def generate_records(n_direct: int, n_grounded: int, n_edge: int):
     for i, (prompt, response) in enumerate(SFT_DATASET):
         yield {
             "id": f"hw-{i:04d}",
-            "source": "cfna-handwritten-v1",
+            "source": "nueronce-handwritten-v1",
             "category": "handwritten",
             "messages": [
                 {"role": "user", "content": prompt},

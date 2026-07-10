@@ -4,18 +4,18 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.chat import Conversation
-from cfna.model import CFNAModel, ModelConfig
-from cfna.training.sft import (
+from nueronce.chat import Conversation
+from nueronce.model import NUERONCEModel, ModelConfig
+from nueronce.training.sft import (
     SFT_DATASET, encode_example, make_sft_batch, held_out_split,
     sft_step, sft_eval, train_sft, TorchSFTBackend, USER_TAG, BOT_TAG,
 )
-from cfna.prompting import END, format_inference_prompt
-from cfna.training.vgrft import VGRFTTrainer
+from nueronce.prompting import END, format_inference_prompt
+from nueronce.training.vgrft import VGRFTTrainer
 
 
-def _tiny() -> CFNAModel:
-    return CFNAModel(ModelConfig(
+def _tiny() -> NUERONCEModel:
+    return NUERONCEModel(ModelConfig(
         byte_embed_dim=16, d_local=32, d_model=48, p_max=16, physical_blocks=1,
         logical_depth=1, n_heads=4, unit_window=12, decoder_window=16,
         decoder_layers=1, d_state=8, channel_dim=8))

@@ -1,6 +1,6 @@
 """Data-model and config sanity checks."""
 
-from cfna import config, types
+from nueronce import config, types
 
 
 def test_authority_order_matches_literal():

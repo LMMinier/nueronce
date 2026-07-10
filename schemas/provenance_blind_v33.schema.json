@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/LMMinier/nueronce/schemas/provenance_blind_v33.schema.json",
-  "title": "CFNA Provenance Blind Multi-Document Case V3.3",
+  "title": "NUERONCE Provenance Blind Multi-Document Case V3.3",
   "type": "object",
   "required": ["case_id", "domain", "question", "documents", "hidden_gold"],
   "additionalProperties": false,

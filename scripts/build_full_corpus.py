@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a multi-document CFNA corpus from repo books plus bounded HF streams."""
+"""Build a multi-document NUERONCE corpus from repo books plus bounded HF streams."""
 
 from __future__ import annotations
 
@@ -132,7 +132,7 @@ def main():
     hf_summary=[]
     if args.include_hf:
         from datasets import load_dataset
-        from cfna.corpus.stack import get_entry
+        from nueronce.corpus.stack import get_entry
         for source_id,budget in map(parse_job,args.hf_job):
             entry=get_entry(source_id); accepted=0; shard=0; rows=0; buf=[]; buf_bytes=0; status="complete"; error=None
             try:

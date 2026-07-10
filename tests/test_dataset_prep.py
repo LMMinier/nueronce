@@ -6,7 +6,7 @@ import json
 import numpy as np
 import pytest
 
-from cfna.training.dataset_prep import (
+from nueronce.training.dataset_prep import (
     assert_no_leakage, build_clean_dataset, record_normalized_hash,
     record_pair_hash, record_text_hash, split_and_shard, validate_record,
     write_manifest,

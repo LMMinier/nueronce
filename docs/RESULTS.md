@@ -1,8 +1,8 @@
 # Recorded run
 
 Hardware: 4-core CPU, 15 GB RAM, no GPU. PyTorch 2.12 (CPU), used only as a
-tensor/autograd substrate. Every operator is hand-built (`cfna/nn.py`,
-`cfna/blocks.py`).
+tensor/autograd substrate. Every operator is hand-built (`nueronce/nn.py`,
+`nueronce/blocks.py`).
 
 ## Training (`python scripts/train_demo.py --steps 400 --seq 96 --batch 16`)
 
@@ -22,8 +22,8 @@ boundary loss. Corpus: the project's own design vocabulary (~5 KB), byte-level.
   learns.
 - Dynamic patching forms ~13–14 information units per 96 bytes (avg patch ≈ 7
   bytes) — the learned boundary head is active, not degenerate.
-- Greedy continuation of `"CFNA separates "`:
-  > CFNA separates understanding, thinking, remembering, and speaking. Perception
+- Greedy continuation of `"NUERONCE separates "`:
+  > NUERONCE separates understanding, thinking, remembering, and speaking. Perception
   > forms dynamic inf…
 - Training time: ~118 s for 400 steps on CPU.
 
@@ -35,15 +35,15 @@ boundary loss. Corpus: the project's own design vocabulary (~5 KB), byte-level.
 
 ## End-to-end pipeline (`python scripts/run_pipeline.py --steps 300`)
 
-After 300 steps (final train loss 0.114), `cfna.pipeline.respond` on the query
-`"CFNA separates understanding,"`:
+After 300 steps (final train loss 0.114), `nueronce.pipeline.respond` on the query
+`"NUERONCE separates understanding,"`:
 
 ```
 retrieved : ['doc0', 'doc3', 'doc4']        # doc0 is the matching sentence
 reasoning : hypothesis_a (conf 0.887)
 plan      : ['answer', 'support', 'caveats']
 verifier  : {'passes': True, 'supported_fraction': 1.0, 'n_failures': 1}
-answer    : CFNA separates understanding, thinking, remembering, and speaking.
+answer    : NUERONCE separates understanding, thinking, remembering, and speaking.
             Perception forms dynamic informat[i]on units fr[om] raw byt[es]
 ```
 
@@ -85,7 +85,7 @@ the with-vs-without gap is the proof that the retrieval path is genuinely used.
 ## Matched baselines on a held-out split (the honest signal)
 
 Reporting *training-corpus* loss as quality is meaningless. This harness
-(`cfna/eval.py`, `scripts/compare_baselines.py`) trains matched-parameter,
+(`nueronce/eval.py`, `scripts/compare_baselines.py`) trains matched-parameter,
 from-scratch models on one region of a non-repeating corpus and measures
 bits/byte on a **disjoint held-out region**.
 
@@ -94,21 +94,21 @@ each, same optimizer/steps.
 
 | model | params | train bpb | held-out bpb (seed 0, 500 steps) |
 |---|---:|---:|---:|
-| CFNA | 1.22M | 0.83 | **6.54** |
+| NUERONCE | 1.22M | 0.83 | **6.54** |
 | ByteTransformer | 1.14M | 0.51 | 6.75 |
 | ByteSSM (pure) | 1.12M | 0.16 | 6.97 |
 
 Across seeds (held-out bpb), 400 steps:
 
-| seed | CFNA | Transformer | SSM |
+| seed | NUERONCE | Transformer | SSM |
 |---:|---:|---:|---:|
 | 1 | 6.12 | **5.59** | 6.68 |
 | 2 | 6.10 | **5.69** | 6.99 |
 
 **Honest reading:** held-out bpb (6–7) is well below the 8.0 uniform baseline, so
-the models learn *some* transferable byte statistics. CFNA is **competitive** with
+the models learn *some* transferable byte statistics. NUERONCE is **competitive** with
 a matched byte Transformer but does **not** decisively beat it — the Transformer
-is better at 400 steps, CFNA was better at 500 steps; the margins are within
+is better at 400 steps, NUERONCE was better at 500 steps; the margins are within
 seed/step noise. The one consistent finding is that the **pure SSM generalizes
 worst** despite memorizing the training region hardest (train bpb 0.16) — classic
 overfitting. No scaling or superiority claim is made: this is a ~4 KB corpus and
@@ -136,7 +136,7 @@ verifier's claim/evidence matching was also upgraded from char-n-gram overlap
 
 ## 350M is now a real model, not bookkeeping
 
-`cfna.model.large_config()` builds a **337M-parameter** CFNAModel (within ~4% of
+`nueronce.model.large_config()` builds a **337M-parameter** NUERONCEModel (within ~4% of
 the design's 350M budget) that forwards correctly; `test_scaling.py` constructs
 and runs it. It is not trained here (that needs real data and compute).
 

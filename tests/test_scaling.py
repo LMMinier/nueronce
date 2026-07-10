@@ -4,12 +4,12 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.config import DEFAULT_CONFIG
-from cfna.model import CFNAModel, large_config
+from nueronce.config import DEFAULT_CONFIG
+from nueronce.model import NUERONCEModel, large_config
 
 
 def test_large_config_builds_at_target_scale():
-    m = CFNAModel(large_config())
+    m = NUERONCEModel(large_config())
     n = m.num_params()
     # ~337M in practice; assert it is genuinely at the hundreds-of-millions scale.
     assert 250_000_000 < n < 450_000_000, f"unexpected param count: {n:,}"
@@ -20,7 +20,7 @@ def test_large_config_builds_at_target_scale():
 
 def test_large_config_forward_on_tiny_input():
     # one tiny forward to prove the big model is wired, not just allocated.
-    m = CFNAModel(large_config()).eval()
+    m = NUERONCEModel(large_config()).eval()
     ids = torch.randint(0, 256, (1, 16))
     with torch.no_grad():
         logits, _ = m(ids)

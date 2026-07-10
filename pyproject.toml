@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cfna"
+name = "nueronce"
 version = "0.3.0"
-description = "CFNA — a from-scratch hybrid foundational model (perceive → reason → plan → verify)."
+description = "NUERONCE — a from-scratch hybrid foundational model (perceive → reason → plan → verify)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
@@ -20,10 +20,10 @@ dev = ["pytest>=7.4"]
 provenance = ["cryptography>=41.0", "cffi>=1.15"]
 
 [tool.setuptools.packages.find]
-include = ["cfna*"]
+include = ["nueronce*"]
 
 [tool.setuptools.package-data]
-"cfna.schemas" = ["*.json", "examples/*.json"]
+"nueronce.schemas" = ["*.json", "examples/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

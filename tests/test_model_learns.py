@@ -8,8 +8,8 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.data import corpus_bytes, make_batches
-from cfna.model import CFNAModel, ModelConfig
+from nueronce.data import corpus_bytes, make_batches
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
 def _tiny() -> ModelConfig:
@@ -22,7 +22,7 @@ def _tiny() -> ModelConfig:
 
 
 def test_forward_and_loss_shapes():
-    m = CFNAModel(_tiny())
+    m = NUERONCEModel(_tiny())
     ids = torch.randint(0, 256, (3, 64))
     logits, boundary = m(ids)
     assert logits.shape == (3, 64, 256)
@@ -34,7 +34,7 @@ def test_forward_and_loss_shapes():
 
 def test_model_is_causal():
     torch.manual_seed(0)
-    m = CFNAModel(_tiny()).eval()
+    m = NUERONCEModel(_tiny()).eval()
     ids = torch.randint(0, 256, (1, 64))
     with torch.no_grad():
         base, _ = m(ids)
@@ -46,7 +46,7 @@ def test_model_is_causal():
 
 def test_model_learns_on_toy_corpus():
     torch.manual_seed(0)
-    m = CFNAModel(_tiny())
+    m = NUERONCEModel(_tiny())
     opt = torch.optim.AdamW(m.parameters(), lr=3e-3)
     data = corpus_bytes(repeat=6)
     batches = make_batches(data, seq_len=64, batch_size=8, n_batches=60, seed=0)

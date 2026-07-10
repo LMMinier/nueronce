@@ -9,10 +9,10 @@ prevent a silent recurrence. No torch needed.
 
 import numpy as np
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.microtorch.chat import MicroConversation
-from cfna.training.sharded_sft import save_checkpoint
-from cfna.microtorch.optim import AdamW
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.engine.chat import MicroConversation
+from nueronce.training.sharded_sft import save_checkpoint
+from nueronce.engine.optim import AdamW
 
 
 def test_legacy_context_is_byte_exact_training_prefix():
@@ -33,8 +33,8 @@ def test_resolve_format_defaults_legacy_for_old_checkpoints():
 
 
 def test_new_checkpoints_stamp_prompt_format(tmp_path):
-    from cfna.training.dialogue_data import PROMPT_FORMAT
-    m = MicroCFNAModel(MicroModelConfig(
+    from nueronce.training.dialogue_data import PROMPT_FORMAT
+    m = NueronceModel(NueronceConfig(
         byte_embed_dim=8, d_local=12, d_model=16, p_max=8, physical_blocks=1,
         logical_depth=1, n_heads=2, unit_window=6, decoder_window=8,
         decoder_layers=1, d_state=4, channel_dim=4, min_patch=2, max_patch=8))

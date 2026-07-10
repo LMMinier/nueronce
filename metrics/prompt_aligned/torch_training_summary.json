@@ -9,10 +9,10 @@
     "best_val_loss": 3.5500224590301515,
     "patience_bad_checks": 1,
     "examples_seen": 5,
-    "starting_checkpoint": "checkpoints\\cfna_chat.pt",
+    "starting_checkpoint": "checkpoints\\nueronce_chat.pt",
     "starting_checkpoint_sha256": "38b01207c72389254166e5e6fa7be6a867412b1b14ecdb6d2e87f7fd25a74164",
     "dataset_manifest_hash": "38ff84a041a19ebdbc97df6c966a30aa52c23461f6cd75b9e6293f58f98933f1",
-    "prompt_format_version": "cfna.prompting.v1",
+    "prompt_format_version": "nueronce.prompting.v1",
     "source_checkpoint_step": 923
   },
   "test_metrics": {
@@ -21,6 +21,6 @@
     "byte_accuracy": 0.19892555640828857,
     "n_examples": 80
   },
-  "best_checkpoint": "checkpoints\\cfna_prompt_aligned\\best.pt",
-  "latest_checkpoint": "checkpoints\\cfna_prompt_aligned\\latest.pt"
+  "best_checkpoint": "checkpoints\\nueronce_prompt_aligned\\best.pt",
+  "latest_checkpoint": "checkpoints\\nueronce_prompt_aligned\\latest.pt"
 }

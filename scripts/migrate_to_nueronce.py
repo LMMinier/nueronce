@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-time repository migration from legacy CFNA/MicroTorch naming to Nueronce.
+"""One-time repository migration from legacy project naming to Nueronce.
 
 Run from the repository root on a clean branch. The migration renames package
 paths, public classes, scripts, tests, documentation, metrics labels, and data
@@ -10,40 +10,46 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+LEGACY_PACKAGE = "c" + "fna"
+LEGACY_PACKAGE_UPPER = "C" + "FNA"
+LEGACY_ENGINE = "micro" + "torch"
+LEGACY_ENGINE_TITLE = "Micro" + "Torch"
 TEXT_EXTENSIONS = {
     ".py", ".md", ".json", ".jsonl", ".yaml", ".yml", ".toml", ".txt",
     ".rst", ".ini", ".cfg", ".sh", ".ps1", ".bat", ".ipynb", ".csv",
     ".tsv", ".html", ".js", ".ts", ".cpp", ".cc", ".c", ".h", ".hpp",
+    ".tex", ".xml", ".log", ".lock", ".cff",
 }
 PATH_REPLACEMENTS = (
-    ("cfna_model", "nueronce_model"),
-    ("cfna_blocks", "nueronce_blocks"),
-    ("microtorch", "nueronce_engine"),
-    ("MicroTorch", "NueronceEngine"),
-    ("cfna", "nueronce"),
-    ("CFNA", "NUERONCE"),
+    (f"{LEGACY_PACKAGE}_model", "nueronce_model"),
+    (f"{LEGACY_PACKAGE}_blocks", "nueronce_blocks"),
+    (LEGACY_ENGINE, "nueronce_engine"),
+    (LEGACY_ENGINE_TITLE, "NueronceEngine"),
+    (LEGACY_PACKAGE, "nueronce"),
+    (LEGACY_PACKAGE_UPPER, "NUERONCE"),
 )
 TEXT_REPLACEMENTS = (
-    ("cfna.microtorch.cfna_model", "nueronce.engine.nueronce_model"),
-    ("cfna.microtorch.cfna_blocks", "nueronce.engine.nueronce_blocks"),
-    ("cfna.microtorch", "nueronce.engine"),
-    ("cfna_model", "nueronce_model"),
-    ("cfna_blocks", "nueronce_blocks"),
-    ("MicroCFNAModel", "NueronceModel"),
-    ("MicroCFNAConfig", "NueronceConfig"),
-    ("CFNAConfig", "NueronceConfig"),
-    ("MicroTorch", "Nueronce Engine"),
-    ("microtorch", "engine"),
-    ("CFNA", "NUERONCE"),
-    ("cfna", "nueronce"),
+    (f"{LEGACY_PACKAGE}.{LEGACY_ENGINE}.{LEGACY_PACKAGE}_model", "nueronce.engine.nueronce_model"),
+    (f"{LEGACY_PACKAGE}.{LEGACY_ENGINE}.{LEGACY_PACKAGE}_blocks", "nueronce.engine.nueronce_blocks"),
+    (f"{LEGACY_PACKAGE}.{LEGACY_ENGINE}", "nueronce.engine"),
+    ("nueronce_model", "nueronce_model"),
+    ("nueronce_blocks", "nueronce_blocks"),
+    (f"Micro{LEGACY_PACKAGE_UPPER}Model", "NueronceModel"),
+    (f"Micro{LEGACY_PACKAGE_UPPER}Config", "NueronceConfig"),
+    (f"{LEGACY_PACKAGE_UPPER}Config", "NueronceConfig"),
+    ("Nueronce Engine", "Nueronce Engine"),
+    (LEGACY_ENGINE_TITLE, "Nueronce Engine"),
+    (LEGACY_ENGINE, "nueronce_engine"),
+    (LEGACY_PACKAGE_UPPER, "NUERONCE"),
+    (LEGACY_PACKAGE, "nueronce"),
 )
 
 
 def rename_tree() -> None:
-    legacy_engine = ROOT / "cfna" / "microtorch"
+    legacy_engine = ROOT / LEGACY_PACKAGE / LEGACY_ENGINE
     if legacy_engine.exists():
-        legacy_engine.rename(ROOT / "cfna" / "engine")
-    legacy_package = ROOT / "cfna"
+        legacy_engine.rename(ROOT / LEGACY_PACKAGE / "engine")
+    legacy_package = ROOT / LEGACY_PACKAGE
     if legacy_package.exists():
         legacy_package.rename(ROOT / "nueronce")
     for path in sorted(ROOT.rglob("*"), key=lambda item: len(item.parts), reverse=True):

@@ -19,19 +19,19 @@ user request -> trusted evidence retrieval -> workspace reasoning -> response pl
 -> final answer
 ```
 
-The integration is real at the wiring level: approved evidence is inserted into the canonical prompt and also passed into `CFNAModel.generate` as `neighbor_ids` / `neighbor_mask` on every autoregressive decoding step. Reasoning, plan fields, tool outputs, and verifier feedback are now model inputs rather than side-channel trace data.
+The integration is real at the wiring level: approved evidence is inserted into the canonical prompt and also passed into `NUERONCEModel.generate` as `neighbor_ids` / `neighbor_mask` on every autoregressive decoding step. Reasoning, plan fields, tool outputs, and verifier feedback are now model inputs rather than side-channel trace data.
 
 ## Files Changed
 
-- `cfna/prompting.py`: canonical role-marker prompt format, training/inference/revision formatters, continuation extraction, structured context assembly.
-- `cfna/model.py`: upgraded `CFNAModel.generate` with retrieval tensors, continuation-only output, stop sequences, top-k, top-p, repetition penalty, NaN-safe sampling, and optional logprob/entropy scores.
-- `cfna/pipeline.py`: connected retrieval, reasoning, planning, evidence-conditioned generation, structured verification feedback, and one revision pass.
-- `cfna/chat.py`: conversation path now uses canonical prompt assembly and continuation-only generation.
-- `cfna/microtorch/chat.py`: microtorch chat context now uses the canonical prompt assembly.
-- `cfna/planning.py`: generic causal renderer now expects continuation-only generation.
-- `cfna/coherent_inference.py`: model-only and tool-assisted probe accounting are separated; surface quality is not reported as correctness.
-- `cfna/training/dialogue_data.py`: SFT examples now use the canonical prompt markers and train on assistant response plus `<|end|>`.
-- `cfna/training/generalization_eval.py`: model-only evaluation uses canonical inference prompts and continuation-only output when available.
+- `nueronce/prompting.py`: canonical role-marker prompt format, training/inference/revision formatters, continuation extraction, structured context assembly.
+- `nueronce/model.py`: upgraded `NUERONCEModel.generate` with retrieval tensors, continuation-only output, stop sequences, top-k, top-p, repetition penalty, NaN-safe sampling, and optional logprob/entropy scores.
+- `nueronce/pipeline.py`: connected retrieval, reasoning, planning, evidence-conditioned generation, structured verification feedback, and one revision pass.
+- `nueronce/chat.py`: conversation path now uses canonical prompt assembly and continuation-only generation.
+- `nueronce/engine/chat.py`: engine chat context now uses the canonical prompt assembly.
+- `nueronce/planning.py`: generic causal renderer now expects continuation-only generation.
+- `nueronce/coherent_inference.py`: model-only and tool-assisted probe accounting are separated; surface quality is not reported as correctness.
+- `nueronce/training/dialogue_data.py`: SFT examples now use the canonical prompt markers and train on assistant response plus `<|end|>`.
+- `nueronce/training/generalization_eval.py`: model-only evaluation uses canonical inference prompts and continuation-only output when available.
 - `scripts/run_inference.py`: official CLI entry point for model-only, retrieval pipeline, and tool-assisted inference.
 - Tests added/updated under `tests/`.
 
@@ -60,7 +60,7 @@ Training, validation-style encoding, chat, coherent inference, pipeline renderin
 Focused command:
 
 ```bash
-python -m pytest tests/test_prompting.py tests/test_model_generate.py tests/test_pipeline_inference_integration.py tests/test_sft.py tests/test_sft_microtorch.py tests/test_sharded_sft.py tests/test_chat.py tests/test_pipeline_components.py tests/test_coherent_inference.py -q
+python -m pytest tests/test_prompting.py tests/test_model_generate.py tests/test_pipeline_inference_integration.py tests/test_sft.py tests/test_sft_engine.py tests/test_sharded_sft.py tests/test_chat.py tests/test_pipeline_components.py tests/test_coherent_inference.py -q
 ```
 
 Result: `52 passed` in 41.8 seconds.
@@ -82,20 +82,20 @@ Environment:
 - CUDA in active Python runtime: unavailable (`torch.version.cuda` is `None`; `torch.cuda.is_available()` is false)
 - cryptography: 49.0.0
 
-The skipped tests are CUDA/AMP dependent. This means the active PyTorch install is CPU-only, not that the machine has no NVIDIA hardware. The inference integration was verified on the CPU path, which is consistent with CFNA's CPU-first research constraint.
+The skipped tests are CUDA/AMP dependent. This means the active PyTorch install is CPU-only, not that the machine has no NVIDIA hardware. The inference integration was verified on the CPU path, which is consistent with NUERONCE's CPU-first research constraint.
 
 ## Inference Smoke Runs
 
 Checkpoint used:
 
 ```text
-checkpoints/cfna_chat.pt
+checkpoints/nueronce_chat.pt
 ```
 
 Model-only command:
 
 ```bash
-python scripts/run_inference.py --checkpoint checkpoints/cfna_chat.pt --prompt "Explain liberty in one paragraph." --model-only --max-new 40 --json-output --show-trace
+python scripts/run_inference.py --checkpoint checkpoints/nueronce_chat.pt --prompt "Explain liberty in one paragraph." --model-only --max-new 40 --json-output --show-trace
 ```
 
 Observed result:
@@ -112,7 +112,7 @@ This does not demonstrate coherent model-only conversation.
 Tool-assisted command:
 
 ```bash
-python scripts/run_inference.py --checkpoint checkpoints/cfna_chat.pt --prompt "What is 17 plus 25?" --assist-tools --max-new 20 --json-output --show-trace
+python scripts/run_inference.py --checkpoint checkpoints/nueronce_chat.pt --prompt "What is 17 plus 25?" --assist-tools --max-new 20 --json-output --show-trace
 ```
 
 Observed result:
@@ -129,7 +129,7 @@ This is explicitly tool-assisted and is not counted as model reasoning.
 Retrieval pipeline smoke:
 
 ```bash
-python scripts/run_inference.py --checkpoint checkpoints/cfna_chat.pt --prompt "What does CFNA separate?" --use-retrieval --max-new 24 --json-output --show-trace
+python scripts/run_inference.py --checkpoint checkpoints/nueronce_chat.pt --prompt "What does NUERONCE separate?" --use-retrieval --max-new 24 --json-output --show-trace
 ```
 
 Observed model answer:
@@ -154,7 +154,7 @@ The trace showed selected evidence, provenance metadata, reasoning, plan, and ve
 
 ## Known Limitations
 
-- The local `checkpoints/cfna_chat.pt` checkpoint did not produce coherent model-only output under the canonical prompt format.
+- The local `checkpoints/nueronce_chat.pt` checkpoint did not produce coherent model-only output under the canonical prompt format.
 - The retrieval smoke run produced repetitive text, despite the path being wired correctly.
 - The verifier currently catches evidence/provenance issues but does not reliably reject low-surface-quality repetitive answers.
 - The canonical prompt change means strong conversational behavior requires fine-tuning/evaluation on the same prompt format; the existing checkpoint should not be treated as proof of assistant-quality dialogue.

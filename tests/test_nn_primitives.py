@@ -6,7 +6,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna import nn as cnn
+from nueronce import nn as cnn
 
 
 def test_shapes_and_backward():

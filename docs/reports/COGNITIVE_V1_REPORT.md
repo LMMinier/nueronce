@@ -1,4 +1,4 @@
-# CFNA Cognitive Ablation - V1 Report
+# NUERONCE Cognitive Ablation - V1 Report
 
 Scenarios (4): authority_overwrite, temporal_supersession, uncertainty_on_untrusted, distractor_resistance
 

@@ -1,5 +1,5 @@
 {
-  "checkpoint": "checkpoints\\cfna_chat.pt",
+  "checkpoint": "checkpoints\\nueronce_chat.pt",
   "suite": "data\\eval\\inference_phase2.jsonl",
   "metrics": {
     "n": 1,

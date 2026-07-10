@@ -1,8 +1,8 @@
 """The >=200-prompt generalization suite and its seen/novel classification.
 No PyTorch needed."""
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.training.generalization_eval import (
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.training.generalization_eval import (
     EvalPrompt, build_novel_prompts, classify_prompt_seen,
     run_generalization_eval, sample_memorized_probes, summarize_generalization,
 )
@@ -36,7 +36,7 @@ def test_sample_memorized_probes_uses_real_training_gold_answers():
 
 
 def _tiny_model():
-    return MicroCFNAModel(MicroModelConfig(
+    return NueronceModel(NueronceConfig(
         byte_embed_dim=12, d_local=16, d_model=24, p_max=12, physical_blocks=1,
         logical_depth=2, n_heads=4, unit_window=8, decoder_window=12,
         decoder_layers=1, d_state=6, channel_dim=8, ret_byte_dim=8,

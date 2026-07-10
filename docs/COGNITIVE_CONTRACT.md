@@ -1,10 +1,10 @@
-# CFNA Cognitive Contract & First Milestone
+# NUERONCE Cognitive Contract & First Milestone
 
-This document records the corrected direction for CFNA: **prove the cognitive
+This document records the corrected direction for NUERONCE: **prove the cognitive
 architecture first**, and treat the byte language model as one *renderer*
 component — not the spine. It corresponds to Phase 1 (freeze the cognitive
 contract) and the first milestone of the plan in
-[`CFNA_concurrent_plan.txt`](CFNA_concurrent_plan.txt).
+[`NUERONCE_concurrent_plan.txt`](NUERONCE_concurrent_plan.txt).
 
 Subsystem label (honesty rule): **REAL / HEURISTIC** — real, exercised structures
 and resolution logic; **not learned**.
@@ -32,7 +32,7 @@ precise about what it does and does not show:
 
 ## The strongest honest claim
 
-> CFNA now has a deterministic, provenance-aware cognitive orchestration layer
+> NUERONCE now has a deterministic, provenance-aware cognitive orchestration layer
 > whose authority, retrieval, supersession, planning, and verification components
 > are behaviorally testable through controlled ablations.
 
@@ -48,7 +48,7 @@ LM fluency — but four hand-authored scenarios are not enough to answer the
 question. Cognitive Suite V2 (randomized trials, competing baselines, adversarial
 holdouts) is the real test.
 
-## Phase 1 — the frozen contract (`cfna/contract.py`)
+## Phase 1 — the frozen contract (`nueronce/contract.py`)
 
 Every stage consumes and produces a named, provenance-carrying dataclass, so the
 system's decision is auditable from typed intermediate state rather than an opaque
@@ -70,7 +70,7 @@ forward pass:
 
 ## First milestone — modular necessity by ablation
 
-`cfna/cognition.py` runs the loop; `cfna/cognitive_suite.py` defines controlled
+`nueronce/cognition.py` runs the loop; `nueronce/cognitive_suite.py` defines controlled
 tasks; `scripts/eval_cognitive.py` runs FULL vs each single-stage ablation.
 
 The canonical task (`authority_overwrite`) is the plan's milestone: a user states

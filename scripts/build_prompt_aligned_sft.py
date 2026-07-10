@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the prompt-aligned SFT curriculum for the connected CFNA inference path."""
+"""Build the prompt-aligned SFT curriculum for the connected NUERONCE inference path."""
 
 from __future__ import annotations
 
@@ -15,10 +15,10 @@ from typing import Iterable, List
 
 import numpy as np
 
-from cfna.prompting import format_training_example
+from nueronce.prompting import format_training_example
 
 
-SYSTEM = "You are CFNA."
+SYSTEM = "You are NUERONCE."
 
 
 def _norm(text: str) -> str:
@@ -304,7 +304,7 @@ def main():
     }
     manifest = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "prompt_format": "cfna.prompting.v1",
+        "prompt_format": "nueronce.prompting.v1",
         "seed": args.seed,
         "split_by": "source_group",
         "counts": {

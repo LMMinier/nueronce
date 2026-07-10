@@ -1,4 +1,4 @@
-from cfna.prompting import (
+from nueronce.prompting import (
     ASSISTANT,
     END,
     EVIDENCE,

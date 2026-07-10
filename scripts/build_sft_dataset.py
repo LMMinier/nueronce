@@ -15,8 +15,8 @@ import json
 import time
 from pathlib import Path
 
-from cfna.training.dataset_prep import assert_no_leakage, build_clean_dataset, split_and_shard, write_manifest
-from cfna.training.synthetic_dialogue import GENERATORS, generate_all
+from nueronce.training.dataset_prep import assert_no_leakage, build_clean_dataset, split_and_shard, write_manifest
+from nueronce.training.synthetic_dialogue import GENERATORS, generate_all
 
 
 def main():
@@ -65,9 +65,9 @@ def main():
     manifest = write_manifest(
         str(out_dir), stats, split,
         source_description=(
-            "cfna-synthetic-template-v1: programmatically generated (self-authored templates x "
+            "nueronce-synthetic-template-v1: programmatically generated (self-authored templates x "
             "randomized/enumerated parameters, no third-party corpus). See "
-            "cfna/training/synthetic_dialogue.py for every template and entity table."
+            "nueronce/training/synthetic_dialogue.py for every template and entity table."
         ),
         license_description="Original content authored for this repository; no external license to track.",
     )

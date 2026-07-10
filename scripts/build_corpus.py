@@ -12,7 +12,7 @@ import argparse
 from collections import Counter
 from pathlib import Path
 
-from cfna.corpus.build import build_corpus
+from nueronce.corpus.build import build_corpus
 
 # Whole documents held out for validation (never trained on). Spans the small
 # NLTK sample, a US speech, and two full-length Gutenberg books so held-out

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Chat/probe a CFNA checkpoint through the coherent inference wrapper."""
+"""Chat/probe a NUERONCE checkpoint through the coherent inference wrapper."""
 
 from __future__ import annotations
 
@@ -7,16 +7,16 @@ import argparse
 import json
 from pathlib import Path
 
-from cfna.coherent_inference import respond, run_probes
+from nueronce.coherent_inference import respond, run_probes
 
 
 def _torch_model_fn(ckpt: str, temp: float, max_new: int):
-    from cfna.chat import Conversation, load_checkpoint
+    from nueronce.chat import Conversation, load_checkpoint
 
     model, _ = load_checkpoint(ckpt)
     convo = Conversation(
         model,
-        system="You are CFNA, a small byte-level research assistant. Answer briefly.",
+        system="You are NUERONCE, a small byte-level research assistant. Answer briefly.",
         temperature=temp,
         max_new=max_new,
     )
@@ -24,12 +24,12 @@ def _torch_model_fn(ckpt: str, temp: float, max_new: int):
 
 
 def _micro_model_fn(ckpt: str, temp: float, max_new: int):
-    from cfna.microtorch.chat import MicroConversation, load_checkpoint
+    from nueronce.engine.chat import MicroConversation, load_checkpoint
 
     model, _ = load_checkpoint(ckpt)
     convo = MicroConversation(
         model,
-        system="You are CFNA, a small byte-level research assistant. Answer briefly.",
+        system="You are NUERONCE, a small byte-level research assistant. Answer briefly.",
         temperature=temp,
         max_new=max_new,
     )
@@ -38,8 +38,8 @@ def _micro_model_fn(ckpt: str, temp: float, max_new: int):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backend", choices=["torch", "microtorch"], default="torch")
-    ap.add_argument("--ckpt", default="checkpoints/cfna_chat.pt")
+    ap.add_argument("--backend", choices=["torch", "engine"], default="torch")
+    ap.add_argument("--ckpt", default="checkpoints/nueronce_chat.pt")
     ap.add_argument("--temp", type=float, default=0.0)
     ap.add_argument("--max-new", type=int, default=80)
     ap.add_argument("--no-assist-tools", action="store_true")

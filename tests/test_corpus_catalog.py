@@ -1,4 +1,4 @@
-from cfna.corpus.catalog import load_collections, load_works, validate_catalog
+from nueronce.corpus.catalog import load_collections, load_works, validate_catalog
 
 
 def test_expanded_catalog_counts_and_unique_ids():

@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-07-02T00:41:28Z",
-  "prompt_format": "cfna.prompting.v1",
+  "prompt_format": "nueronce.prompting.v1",
   "seed": 44,
   "split_by": "source_group",
   "counts": {

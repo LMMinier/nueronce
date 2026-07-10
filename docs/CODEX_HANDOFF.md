@@ -18,25 +18,25 @@ below is already merged.*
    pip install torch --index-url https://download.pytorch.org/whl/cu124
    pytest tests/test_gpu_amp.py -v   # 2 CUDA tests green = fp16/AMP path is safe (already hardened)
    ```
-2. **The base checkpoint is too weak to SFT.** `cfna_chat.pt` is at step 923,
+2. **The base checkpoint is too weak to SFT.** `nueronce_chat.pt` is at step 923,
    held-out bpb **3.60**. This repo has already proven (61-example vs 100K
-   runs, `docs/reports/MICRO_CFNA_SFT_100K_REPORT.md`) that SFT *shapes*
+   runs, `docs/reports/MICRO_NUERONCE_SFT_100K_REPORT.md`) that SFT *shapes*
    competence but cannot *create* it. Your 500-step SFT improving val loss
    2.39→2.00 while output stays unusable is exactly that result again.
    **Gate: do not run SFT until base held-out bpb < 1.8** (11M rung) —
-   prefer moving to `base_35m` (34.4M, `cfna.model.CONFIG_PRESETS`) with the
+   prefer moving to `base_35m` (34.4M, `nueronce.model.CONFIG_PRESETS`) with the
    corpus from `docs/LOCAL_TRAINING_PLAYBOOK.md` §1.
 3. **800 unique SFT records will memorize, not generalize.** Feed your
    canonical-prompt builder (`scripts/build_prompt_aligned_sft.py`) from the
    generators already in-repo until you have **≥50,000 unique** records:
-   `cfna.training.synthetic_dialogue` (~127K), `cfna.training.mcq_sft`
+   `nueronce.training.synthetic_dialogue` (~127K), `nueronce.training.mcq_sft`
    (ARC/OpenBookQA/CommonsenseQA/MathQA/GSM8K via `load_and_convert`),
    OASST1/Dolly from the stack. Cap any single register at ~25% of records
    (the 77%-arithmetic poisoning lesson).
 4. **You are measuring knowledge with the wrong metric during the transition.**
    Structure generalizes before content at these scales, so generative
    exact-match stays near zero long after knowledge is present. Report
-   **choice-ranking accuracy** (`cfna.training.mcq_sft.evaluate_mcq`: scores
+   **choice-ranking accuracy** (`nueronce.training.mcq_sft.evaluate_mcq`: scores
    each option by masked answer loss; chance level reported alongside) next
    to your `eval_inference_phase2` pass rate. Do not discard checkpoints on
    generative metrics alone (`docs/BREAKTHROUGH_MAP.md` §3.4).

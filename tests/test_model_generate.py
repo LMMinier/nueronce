@@ -4,11 +4,11 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from cfna.model import CFNAModel, ModelConfig
+from nueronce.model import NUERONCEModel, ModelConfig
 
 
 def _tiny():
-    return CFNAModel(ModelConfig(
+    return NUERONCEModel(ModelConfig(
         byte_embed_dim=16, d_local=32, d_model=48, p_max=16, physical_blocks=1,
         logical_depth=1, n_heads=4, unit_window=12, decoder_window=16,
         decoder_layers=1, d_state=8, channel_dim=8))

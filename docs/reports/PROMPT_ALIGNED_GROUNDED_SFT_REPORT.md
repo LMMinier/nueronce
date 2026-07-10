@@ -7,7 +7,7 @@ Branch: `codex/prompt-aligned-grounded-sft`
 
 **D. The experiment was inconclusive because training or data integrity failed.**
 
-More precisely: the data and training path were repaired and verified, but the required 500-1,000 step pilot and 10,000 step full run were not feasible in the active runtime. The active PyTorch install is CPU-only (`torch 2.11.0+cpu`, `torch.version.cuda = None`), and a full-CFNA CPU training smoke showed that even tiny diagnostic runs are slow enough that the requested phase cannot honestly be completed in this session.
+More precisely: the data and training path were repaired and verified, but the required 500-1,000 step pilot and 10,000 step full run were not feasible in the active runtime. The active PyTorch install is CPU-only (`torch 2.11.0+cpu`, `torch.version.cuda = None`), and a full-NUERONCE CPU training smoke showed that even tiny diagnostic runs are slow enough that the requested phase cannot honestly be completed in this session.
 
 No architecture changes were made. No VGRFT stages 2-4 were started.
 
@@ -16,12 +16,12 @@ No architecture changes were made. No VGRFT stages 2-4 were started.
 Chosen checkpoint:
 
 ```text
-checkpoints/cfna_chat.pt
+checkpoints/nueronce_chat.pt
 ```
 
 Audit result:
 
-- Loads as a PyTorch `CFNAModel`: yes
+- Loads as a PyTorch `NUERONCEModel`: yes
 - Parameter count: `11,131,477`
 - Training step: `923`
 - Last recorded history item: step `900`, train bpb `3.4384`, held-out bpb `3.6043`
@@ -33,7 +33,7 @@ Audit result:
 Other audited PyTorch checkpoints:
 
 - `checkpoints/baseline.pt`: loads, `11,131,477` params, step `26`
-- `checkpoints/cfna_chat_sft_smoke.pt`: loads, `11,131,477` params, older smoke SFT, also predates canonical prompt metadata
+- `checkpoints/nueronce_chat_sft_smoke.pt`: loads, `11,131,477` params, older smoke SFT, also predates canonical prompt metadata
 
 Full audit artifact:
 
@@ -86,19 +86,19 @@ Composition:
 - Rejected duplicates: `0`
 - Manifest SHA-256: `38ff84a041a19ebdbc97df6c966a30aa52c23461f6cd75b9e6293f58f98933f1`
 
-All training examples are rendered through `cfna.prompting.format_training_example`.
+All training examples are rendered through `nueronce.prompting.format_training_example`.
 
 ## Training Path
 
 Extended:
 
 ```text
-scripts/train_sft.py --backend torch --model full-cfna
+scripts/train_sft.py --backend torch --model full-nueronce
 ```
 
 Implemented features:
 
-- Loads an existing PyTorch `CFNAModel` checkpoint and fails if missing.
+- Loads an existing PyTorch `NUERONCEModel` checkpoint and fails if missing.
 - Uses response-bytes-only loss including `<|end|>`.
 - Uses textual evidence and retrieval tensors for records containing evidence.
 - Saves `latest.pt` and `best.pt`.
@@ -114,12 +114,12 @@ The requested 500-1,000 step pilot was not completed. A 5-step diagnostic was ru
 ```bash
 python scripts/train_sft.py \
   --backend torch \
-  --model full-cfna \
-  --ckpt checkpoints/cfna_chat.pt \
+  --model full-nueronce \
+  --ckpt checkpoints/nueronce_chat.pt \
   --train-dir data/sft_prompt_aligned/train \
   --validation data/sft_prompt_aligned/validation.jsonl \
   --test data/sft_prompt_aligned/test.jsonl \
-  --save-dir checkpoints/cfna_prompt_aligned \
+  --save-dir checkpoints/nueronce_prompt_aligned \
   --metrics-dir metrics/prompt_aligned \
   --max-len 512 \
   --batch 1 \
@@ -146,9 +146,9 @@ This proves the training path is active, not that the pilot succeeded.
 
 Checkpoint artifacts produced but not committed:
 
-- `checkpoints/cfna_prompt_aligned/best.pt`
+- `checkpoints/nueronce_prompt_aligned/best.pt`
   - SHA-256: `166dad0633637ccdca887594aa6c0362e544ad59637c933070672f24e6e5aad6`
-- `checkpoints/cfna_prompt_aligned/latest.pt`
+- `checkpoints/nueronce_prompt_aligned/latest.pt`
   - SHA-256: `ddf9f05e09863cf004a8c74a7b96e8a50bbe98a3fc018ef74edfb7bfb7c97f2e`
 
 ## Pilot Format Diagnostic
@@ -165,7 +165,7 @@ Results on five fixed prompts:
 
 | checkpoint | nonempty generation | valid generation | termination | repetition loops |
 |---|---:|---:|---:|---:|
-| original `cfna_chat.pt` | `0.0` | `0.0` | `0.0` | `0.0` |
+| original `nueronce_chat.pt` | `0.0` | `0.0` | `0.0` | `0.0` |
 | 5-step diagnostic | `0.0` | `0.0` | `0.0` | `0.0` |
 
 Both checkpoints generated empty continuations under the canonical prompt.

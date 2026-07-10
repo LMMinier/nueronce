@@ -36,7 +36,7 @@ pytest tests/test_cognitive_suite_v2.py -q
 
 ## 4. V2 generator design
 
-- **Deterministic randomized generator** (`cfna/cognition_v2.py`): seeded RNG,
+- **Deterministic randomized generator** (`nueronce/cognition_v2.py`): seeded RNG,
   15 scenario families, entities/attributes/values/timestamps/source order/
   authority/wording/distractor-count/effective-dates/malicious-phrasing all
   randomized. 1050 trials/seed × 5 seeds (5250 in-distribution trials).
@@ -45,12 +45,12 @@ pytest tests/test_cognitive_suite_v2.py -q
   IRRELEVANT_HIGH_AUTHORITY, AUTHORITY_IMPERSONATION, PARAPHRASED_POISON,
   MULTIPLE_COMPETING_FACTS, UNCERTAIN_TRUSTED_SOURCE, SOURCE_REVOCATION,
   SCOPE_LIMITED_FACT, MISSING_EVIDENCE, CITATION_REQUIREMENT, CONFLICT_SURFACING.
-- **Adversarial holdouts** (`cfna/cognitive_holdouts.py`): 8 templates with attack
+- **Adversarial holdouts** (`nueronce/cognitive_holdouts.py`): 8 templates with attack
   surfaces the policy was *not* written against — paraphrased escalation, indirect
   injection, Unicode confusables, quoted/code-fenced/citation-embedded malicious
   text, contradictory trusted sources, misleading-but-true distractors. Separate
   seed stream from the dev suite. 480 trials/seed.
-- **Contract extension** (`cfna/contract.py`): `EvidenceItem` gained
+- **Contract extension** (`nueronce/contract.py`): `EvidenceItem` gained
   `effective_date`, `expiry_date`, `scope`, `revoked`, `revokes`, `raw_text`,
   `uncertain`, `is_working` — all optional, so V1 is unaffected.
 
@@ -154,7 +154,7 @@ deterministic so the system stays auditable):
 
 Keep authority *resolution* and supersession *policy* deterministic. That yields a
 system where **neural perception populates an explicit, auditable cognitive
-contract** — the original CFNA architecture — rather than one decoder learning
+contract** — the original NUERONCE architecture — rather than one decoder learning
 everything invisibly.
 
 ## 10. Explicitly NOT started

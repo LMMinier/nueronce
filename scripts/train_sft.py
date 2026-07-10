@@ -3,31 +3,31 @@
 
 Every checkpoint produced by ``train_checkpoint.py`` is trained with pure
 next-byte cross-entropy on monologic prose — it learns what English looks like,
-not what to say back when spoken to (see ``cfna/chat.py``'s honest framing).
+not what to say back when spoken to (see ``nueronce/chat.py``'s honest framing).
 This script closes that gap for real, with three backends:
 
 - ``--backend torch --model small`` (default, backward-compatible): fine-tunes
-  the real PyTorch ``CFNAModel`` on the small 61-turn hand-written dialogue set.
-- ``--backend microtorch --model small``: the same small dialogue set, but on
-  the from-scratch microtorch engine (``MicroByteLM``), no PyTorch needed.
-- ``--backend microtorch --model full-cfna``: the real, large-scale run —
-  continuous sharded SFT of the full ``MicroCFNAModel`` over a JSONL dialogue
+  the real PyTorch ``NUERONCEModel`` on the small 61-turn hand-written dialogue set.
+- ``--backend engine --model small``: the same small dialogue set, but on
+  the from-scratch Nueronce Engine (``MicroByteLM``), no PyTorch needed.
+- ``--backend engine --model full-nueronce``: the real, large-scale run —
+  continuous sharded SFT of the full ``NueronceModel`` over a JSONL dialogue
   corpus (e.g. 10 shards x 10,000 conversations), with resumable
   shard/step/optimizer state, checkpointing, LR decay, and validation/test
-  evaluation. See ``cfna.training.sharded_sft``.
+  evaluation. See ``nueronce.training.sharded_sft``.
 
 Usage (small, backward-compatible):
-    python scripts/train_sft.py --ckpt checkpoints/cfna_chat.pt \\
-        --out checkpoints/cfna_chat_sft.pt --steps 400
+    python scripts/train_sft.py --ckpt checkpoints/nueronce_chat.pt \\
+        --out checkpoints/nueronce_chat_sft.pt --steps 400
 
-Usage (large-scale, microtorch, full architecture):
+Usage (large-scale, engine, full architecture):
     python scripts/train_sft.py \\
-        --backend microtorch --model full-cfna \\
+        --backend engine --model full-nueronce \\
         --train-dir data/sft_100k/train_shards \\
         --validation data/sft_100k/validation.jsonl \\
         --test data/sft_100k/test.jsonl \\
         --num-shards 10 --examples-per-shard 10000 \\
-        --save-dir checkpoints/micro_cfna_sft_100k \\
+        --save-dir checkpoints/micro_nueronce_sft_100k \\
         --resume --seed 42
 """
 
@@ -47,10 +47,10 @@ DEMO_TURNS = ["Hello, who are you?", "What is two plus two?", "Thank you, goodby
 def run_torch_small(args):
     import torch
 
-    from cfna.chat import Conversation, load_checkpoint
-    from cfna.model import CFNAModel, ModelConfig
-    from cfna.training.sft import SFT_DATASET, held_out_split, sft_eval, make_sft_batch, TorchSFTBackend
-    from cfna.training.vgrft import VGRFTTrainer
+    from nueronce.chat import Conversation, load_checkpoint
+    from nueronce.model import NUERONCEModel, ModelConfig
+    from nueronce.training.sft import SFT_DATASET, held_out_split, sft_eval, make_sft_batch, TorchSFTBackend
+    from nueronce.training.vgrft import VGRFTTrainer
 
     torch.manual_seed(args.seed)
 
@@ -59,7 +59,7 @@ def run_torch_small(args):
         model, ckpt = load_checkpoint(str(ckpt_path))
         print(f"loaded pretrained checkpoint {ckpt_path} ({model.num_params():,} params)")
     else:
-        model = CFNAModel(ModelConfig())
+        model = NUERONCEModel(ModelConfig())
         ckpt = {"config": vars(model.cfg)}
         print(f"no checkpoint at {ckpt_path}; starting SFT from a freshly-initialized "
               f"({model.num_params():,}-param) model — pretrain first for a real result")
@@ -99,16 +99,16 @@ def run_torch_small(args):
         print(f"Assistant: {reply}\n")
 
 
-def run_microtorch_small(args):
+def run_engine_small(args):
     import numpy as np
 
-    from cfna.microtorch.models import MicroByteLM, MicroSFTBackend
-    from cfna.training.dialogue_data import SFT_DATASET, held_out_split
-    from cfna.training.vgrft import VGRFTTrainer
+    from nueronce.engine.models import MicroByteLM, MicroSFTBackend
+    from nueronce.training.dialogue_data import SFT_DATASET, held_out_split
+    from nueronce.training.vgrft import VGRFTTrainer
 
     np.random.seed(args.seed)
     model = MicroByteLM(d_model=32, n_heads=4, window=16, d_state=8)
-    print(f"microtorch MicroByteLM: {sum(p.data.size for p in model.parameters()):,} params")
+    print(f"engine MicroByteLM: {sum(p.data.size for p in model.parameters()):,} params")
 
     train_ex, val_ex = held_out_split(SFT_DATASET, val_frac=args.val_frac, seed=args.seed)
     print(f"SFT set: {len(train_ex)} train turns / {len(val_ex)} held-out turns\n")
@@ -125,17 +125,17 @@ def run_microtorch_small(args):
         print(line)
 
 
-def run_microtorch_full_cfna(args):
-    from cfna.microtorch.cfna_model import MicroModelConfig
-    from cfna.training.sharded_sft import ShardedSFTConfig, run_sharded_sft
+def run_engine_full_nueronce(args):
+    from nueronce.engine.nueronce_model import NueronceConfig
+    from nueronce.training.sharded_sft import ShardedSFTConfig, run_sharded_sft
 
     if not args.train_dir or not args.validation or not args.test:
-        raise SystemExit("--backend microtorch --model full-cfna requires --train-dir, "
+        raise SystemExit("--backend engine --model full-nueronce requires --train-dir, "
                           "--validation, and --test")
 
     # Deliberately unchanged from the small demo config (~112K params) — this
     # run tests whether more data helps *this* architecture, not a bigger one.
-    model_cfg = MicroModelConfig(
+    model_cfg = NueronceConfig(
         byte_embed_dim=16, d_local=24, d_model=32, p_max=16, physical_blocks=1,
         logical_depth=2, n_heads=4, unit_window=12, decoder_window=16,
         decoder_layers=1, d_state=8, channel_dim=8, ret_byte_dim=8,
@@ -180,8 +180,8 @@ def _load_jsonl(path: Path):
 
 
 def _record_to_training_bytes(rec: dict):
-    from cfna.prompting import format_training_example
-    from cfna.training.dialogue_data import encode_messages
+    from nueronce.prompting import format_training_example
+    from nueronce.training.dialogue_data import encode_messages
 
     if "messages" in rec:
         return encode_messages(rec["messages"], system=rec.get("system_message", ""))
@@ -289,7 +289,7 @@ def _save_torch_checkpoint(path: Path, model, opt, scheduler, meta: dict):
         "scheduler": scheduler.state_dict() if scheduler is not None else None,
         "meta": meta,
         "step": meta.get("global_step", 0),
-        "prompt_format_version": "cfna.prompting.v1",
+        "prompt_format_version": "nueronce.prompting.v1",
         "torch_rng_state": torch.get_rng_state(),
         "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
         "python_random_state": random.getstate(),
@@ -321,19 +321,19 @@ def _load_torch_training_checkpoint(path: Path, model, opt, scheduler):
     return payload.get("meta", {})
 
 
-def run_torch_full_cfna(args):
+def run_torch_full_nueronce(args):
     import numpy as np
     import torch
 
-    from cfna.chat import load_checkpoint
+    from nueronce.chat import load_checkpoint
 
     if not args.train_dir or not args.validation or not args.test:
-        raise SystemExit("--backend torch --model full-cfna requires --train-dir, --validation, and --test")
+        raise SystemExit("--backend torch --model full-nueronce requires --train-dir, --validation, and --test")
     ckpt_path = Path(args.ckpt)
     if not ckpt_path.exists():
         raise SystemExit(f"requested checkpoint does not exist: {ckpt_path}")
     model, source_ckpt = load_checkpoint(str(ckpt_path))
-    print(f"loaded PyTorch CFNAModel checkpoint {ckpt_path} ({model.num_params():,} params)")
+    print(f"loaded PyTorch NUERONCEModel checkpoint {ckpt_path} ({model.num_params():,} params)")
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -370,7 +370,7 @@ def run_torch_full_cfna(args):
         "starting_checkpoint": str(ckpt_path),
         "starting_checkpoint_sha256": _sha256_path(ckpt_path),
         "dataset_manifest_hash": _manifest_hash(args.train_dir),
-        "prompt_format_version": "cfna.prompting.v1",
+        "prompt_format_version": "nueronce.prompting.v1",
         "source_checkpoint_step": source_ckpt.get("step"),
     }
     if args.resume and latest_path.exists():
@@ -501,22 +501,22 @@ def run_torch_full_cfna(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backend", choices=["torch", "microtorch"], default="torch")
-    ap.add_argument("--model", choices=["small", "full-cfna"], default="small")
+    ap.add_argument("--backend", choices=["torch", "engine"], default="torch")
+    ap.add_argument("--model", choices=["small", "full-nueronce"], default="small")
 
-    # small-scale (torch or microtorch) args
-    ap.add_argument("--ckpt", type=str, default="checkpoints/cfna_chat.pt")
-    ap.add_argument("--out", type=str, default="checkpoints/cfna_chat_sft.pt")
+    # small-scale (torch or engine) args
+    ap.add_argument("--ckpt", type=str, default="checkpoints/nueronce_chat.pt")
+    ap.add_argument("--out", type=str, default="checkpoints/nueronce_chat_sft.pt")
     ap.add_argument("--steps", type=int, default=400)
     ap.add_argument("--val-frac", type=float, default=0.2)
 
-    # large-scale (microtorch full-cfna) args
+    # large-scale (engine full-nueronce) args
     ap.add_argument("--train-dir", type=str, default=None, help="directory of shard_NN.jsonl files")
     ap.add_argument("--validation", type=str, default=None)
     ap.add_argument("--test", type=str, default=None)
     ap.add_argument("--num-shards", type=int, default=10)
     ap.add_argument("--examples-per-shard", type=int, default=10_000)
-    ap.add_argument("--save-dir", type=str, default="checkpoints/micro_cfna_sft_100k")
+    ap.add_argument("--save-dir", type=str, default="checkpoints/micro_nueronce_sft_100k")
     ap.add_argument("--metrics-dir", type=str, default="metrics")
     ap.add_argument("--max-len", type=int, default=288)
     ap.add_argument("--lr-decay-factor", type=float, default=0.7)
@@ -545,15 +545,15 @@ def main():
 
     if args.backend == "torch" and args.model == "small":
         run_torch_small(args)
-    elif args.backend == "torch" and args.model == "full-cfna":
-        run_torch_full_cfna(args)
-    elif args.backend == "microtorch" and args.model == "small":
-        run_microtorch_small(args)
-    elif args.backend == "microtorch" and args.model == "full-cfna":
-        run_microtorch_full_cfna(args)
+    elif args.backend == "torch" and args.model == "full-nueronce":
+        run_torch_full_nueronce(args)
+    elif args.backend == "engine" and args.model == "small":
+        run_engine_small(args)
+    elif args.backend == "engine" and args.model == "full-nueronce":
+        run_engine_full_nueronce(args)
     else:
         raise SystemExit(f"unsupported combination: --backend {args.backend} --model {args.model} "
-                          f"(supported: torch small/full-cfna, microtorch small/full-cfna)")
+                          f"(supported: torch small/full-nueronce, engine small/full-nueronce)")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,22 @@
+{
+  "model": "Nueronce Engine NUERONCE base_35m",
+  "parameters": 34368049,
+  "pass_index": 6,
+  "start_step": 90,
+  "end_step": 100,
+  "completed_steps": 10,
+  "pretraining_steps": 8,
+  "sft_steps": 2,
+  "pretraining_target_bytes": 4088,
+  "sft_target_bytes": 128,
+  "all_gradient_tensors_finite": true,
+  "checkpoint_bytes": 138244673,
+  "checkpoint_sha256": "fd0cf8f8d2c58fc5253370fcd2095815926ad35a599d4a1e450cd4ab83011693",
+  "canonical_state_sha256": "7a17f438df3d7719946364d1ee624f89582706bfb84d015a3a551bbb46d211fe",
+  "optimizer_step": 100,
+  "learning_rate": 1e-05,
+  "baseline_average_bpb": 4.901383986519662,
+  "final_average_bpb": 4.859176462965313,
+  "average_bpb_change": -0.04220752355434865,
+  "final_accuracy": 0.1759621656881931
+}

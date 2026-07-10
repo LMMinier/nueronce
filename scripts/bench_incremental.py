@@ -14,8 +14,8 @@ import time
 
 import numpy as np
 
-from cfna.microtorch.cfna_model import MicroCFNAModel, MicroModelConfig
-from cfna.microtorch.incremental import IncrementalGenerator
+from nueronce.engine.nueronce_model import NueronceModel, NueronceConfig
+from nueronce.engine.incremental import IncrementalGenerator
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
     args = ap.parse_args()
 
     np.random.seed(args.seed)
-    model = MicroCFNAModel(MicroModelConfig())  # default mid config
+    model = NueronceModel(NueronceConfig())  # default mid config
     rng = np.random.default_rng(args.seed)
     prompt = bytes(int(b) for b in rng.integers(97, 122, size=args.prompt_len))
 
@@ -42,7 +42,7 @@ def main():
 
     assert fast == dense, "outputs diverged — do NOT ship"
     n = args.max_new
-    print(f"config: default MicroModelConfig ({model.num_params():,} params) | "
+    print(f"config: default NueronceConfig ({model.num_params():,} params) | "
           f"prompt {args.prompt_len}B | {n} new bytes | max_ctx {args.max_ctx}")
     print(f"dense      : {t_dense:7.2f}s  ({n / t_dense:6.2f} bytes/s)")
     print(f"incremental: {t_inc:7.2f}s  ({n / t_inc:6.2f} bytes/s)")

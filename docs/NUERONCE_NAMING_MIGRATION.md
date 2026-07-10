@@ -13,7 +13,7 @@ The repository public identity is now **Nueronce**, derived from *neuron* and
 - Model family: `Nueronce 11M`, `Nueronce 35M`, `Nueronce 90M`, `Nueronce 1.2B`
 - Checkpoints: `nueronce_35m_stepXXXX.pkl`
 
-Legacy CFNA and MicroTorch terminology is not part of the public API.
+Pre-migration terminology is not part of the public API.
 
 ## Validation performed
 

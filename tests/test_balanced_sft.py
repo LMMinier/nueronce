@@ -4,7 +4,7 @@ import json
 import subprocess
 import sys
 
-from cfna.training.balanced_sft import balanced_records, category_counts
+from nueronce.training.balanced_sft import balanced_records, category_counts
 
 
 def test_balanced_records_equalize_category_budget():

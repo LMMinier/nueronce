@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from cfna.provenance import (ApparentAuthority, Authenticity, FinalTrust, Issuer,
+from nueronce.provenance import (ApparentAuthority, Authenticity, FinalTrust, Issuer,
                              KeyRegistry, SignedDocument, compute_final_trust,
                              content_hash, verify_document)
 

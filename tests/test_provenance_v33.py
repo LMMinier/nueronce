@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from cfna.provenance_v33 import (
+from nueronce.provenance_v33 import (
     ABLATIONS,
     SYSTEMS,
     dev_cases_json,

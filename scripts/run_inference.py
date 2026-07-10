@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Official CFNA inference entry point.
+"""Official NUERONCE inference entry point.
 
 Model-only mode runs the byte model directly with the canonical prompt.
 Retrieval mode runs the cognitive pipeline: retrieval -> reasoning -> plan ->
@@ -15,9 +15,9 @@ import json
 from pathlib import Path
 from typing import List
 
-from cfna.chat import load_checkpoint
-from cfna.coherent_inference import deterministic_answer, surface_failure_reason
-from cfna.prompting import STOP_SEQUENCES, extract_assistant_continuation, format_inference_prompt
+from nueronce.chat import load_checkpoint
+from nueronce.coherent_inference import deterministic_answer, surface_failure_reason
+from nueronce.prompting import STOP_SEQUENCES, extract_assistant_continuation, format_inference_prompt
 
 
 def _load_model(path: str):
@@ -29,7 +29,7 @@ def _load_model(path: str):
 
 def _model_only(model, prompt: str, args) -> dict:
     rendered = format_inference_prompt(
-        system_message="You are CFNA. Answer briefly and do not invent unsupported facts.",
+        system_message="You are NUERONCE. Answer briefly and do not invent unsupported facts.",
         user_request=prompt,
         trusted_evidence="",
         response_plan="Answer the user request directly and cautiously.",
@@ -68,7 +68,7 @@ def _model_only(model, prompt: str, args) -> dict:
 
 
 def _pipeline(model, prompt: str, evidence: List[str], args) -> dict:
-    from cfna import data, pipeline
+    from nueronce import data, pipeline
 
     corpus = evidence or [s.strip() for s in data.CORPUS.split(".") if s.strip()]
     answer, report, trace = pipeline.respond(
@@ -138,7 +138,7 @@ def _run_one(model, prompt: str, args, evidence: List[str]) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--checkpoint", default="checkpoints/cfna_chat.pt")
+    ap.add_argument("--checkpoint", default="checkpoints/nueronce_chat.pt")
     ap.add_argument("--prompt", default="")
     ap.add_argument("--interactive", action="store_true")
     ap.add_argument("--model-only", action="store_true")

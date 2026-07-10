@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Falsification harness for the CFNA cognitive architecture.
+"""Falsification harness for the NUERONCE cognitive architecture.
 
 Runs the controlled task suite under the FULL cognitive loop and under each
 single-stage ablation, then reports whether the full architecture solves tasks
 that the ablated versions cannot. This is the project's first milestone test:
 
-    On a controlled task suite, the full CFNA pipeline performs better than the
+    On a controlled task suite, the full NUERONCE pipeline performs better than the
     same loop with memory-supersession, authority, retrieval, planning, or
     verification removed.
 
@@ -23,8 +23,8 @@ import argparse
 import json
 from pathlib import Path
 
-from cfna.cognition import ABLATION_FLAGS, grade, run
-from cfna.cognitive_suite import default_scenarios
+from nueronce.cognition import ABLATION_FLAGS, grade, run
+from nueronce.cognitive_suite import default_scenarios
 
 
 def _run_config(scenarios, ablations):
@@ -38,7 +38,7 @@ def _run_config(scenarios, ablations):
 
 
 def _markdown(results, scenarios, milestone) -> str:
-    lines = ["# CFNA Cognitive Ablation - V1 Report", ""]
+    lines = ["# NUERONCE Cognitive Ablation - V1 Report", ""]
     lines.append(f"Scenarios ({len(scenarios)}): " + ", ".join(sc.name for sc in scenarios))
     lines.append("")
     lines.append("| config | score | solves |")
@@ -77,7 +77,7 @@ def main():
 
     # ---- human-readable report ----
     full = results["FULL"]
-    print("CFNA cognitive ablation - first milestone test")
+    print("NUERONCE cognitive ablation - first milestone test")
     print("=" * 64)
     print(f"scenarios: {', '.join(sc.name for sc in scenarios)}\n")
     print(f"{'config':<22}{'score':>8}   solves")

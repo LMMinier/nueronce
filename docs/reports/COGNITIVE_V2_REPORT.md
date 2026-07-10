@@ -1,4 +1,4 @@
-# CFNA Cognitive Suite V2 - Report
+# NUERONCE Cognitive Suite V2 - Report
 
 - seeds: [1, 2, 3, 4, 5]  |  trials/seed: 1050  |  holdout/seed: 480
 - families: 15 in-distribution, 8 adversarial

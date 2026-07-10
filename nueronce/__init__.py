@@ -1,0 +1,52 @@
+"""NUERONCE — a hybrid foundational model architecture.
+
+NUERONCE reorganizes the standard ``next_token = MODEL(previous_tokens)`` recipe into
+a pipeline with explicit division of labor:
+
+    perceive → represent meaning → determine intent → retrieve evidence →
+    reason → plan → communicate → verify → revise
+
+This package is a runnable implementation of that architecture. Every operator is
+hand-built from primitives (PyTorch is used only as a tensor/autograd substrate —
+no stock transformer, attention, or state-space modules). The full pipeline
+trains end-to-end and is verified causal; see ``nueronce.model.NUERONCEModel``,
+``nueronce.pipeline.respond``, and the demos under ``scripts/``.
+
+See ``docs/NUERONCE_design.md`` for the full design and ``docs/architecture.md`` for
+the module map.
+"""
+
+from __future__ import annotations
+
+import importlib
+
+from . import config, types
+from ._backend import BackendNotConfigured
+
+__version__ = "0.3.0"
+
+
+def __getattr__(name):
+    if name == "ops":
+        return importlib.import_module(".ops", __name__)
+    # Lazy access to the torch-backed pieces so importing nueronce stays light.
+    if name == "NUERONCEModel":
+        from .model import NUERONCEModel
+
+        return NUERONCEModel
+    if name == "respond":
+        from .pipeline import respond
+
+        return respond
+    raise AttributeError(f"module 'nueronce' has no attribute {name!r}")
+
+
+__all__ = [
+    "config",
+    "ops",
+    "types",
+    "BackendNotConfigured",
+    "NUERONCEModel",
+    "respond",
+    "__version__",
+]

@@ -6,7 +6,7 @@ This document turns the project scorecard into falsifiable acceptance gates. A g
 
 | Dimension | Current grade | Reason |
 |---|---:|---|
-| Architecture capacity | B+ | Full byte-first CFNA is implemented and trainable, but true sparse compute, incremental inference, typed-channel specialization, and neural/symbolic integration are incomplete. |
+| Architecture capacity | B+ | Full byte-first NUERONCE is implemented and trainable, but true sparse compute, incremental inference, typed-channel specialization, and neural/symbolic integration are incomplete. |
 | Training mechanism | A- | Full forward/backward, response-only SFT, finite-gradient rejection, activation recomputation, split-run backward, and atomic checkpointing work. Long-run scheduling and recovery evidence are still missing. |
 | Numerical stability | A- | The known float32 sigmoid and masked-softmax failures are fixed and all 177 gradient tensors were finite in the verified 35M step. Long stress runs and randomized extreme-value coverage are still required. |
 | Memory-constrained execution | B+ | A 34.37M model completes training under roughly 1.5–2.5 GiB in tested short sequences. Gradient spooling, longer contexts, and higher-rung evidence remain incomplete. |
@@ -99,7 +99,7 @@ All of the following must pass:
 All of the following must pass:
 
 - A frozen held-out suite covers arithmetic, symbolic manipulation, multi-step deduction, state tracking, and counterfactual consistency.
-- The trained CFNA beats its own pretrained-only checkpoint and at least one matched-parameter baseline.
+- The trained NUERONCE beats its own pretrained-only checkpoint and at least one matched-parameter baseline.
 - Reasoning accuracy is reported separately from renderer fidelity, retrieval success, and tool assistance.
 - At least one ablation identifies which architectural or training component causes the gain.
 - Results include bootstrap confidence intervals or multiple-seed variance.

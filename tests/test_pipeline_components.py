@@ -7,14 +7,14 @@ torch = pytest.importorskip("torch")
 
 import numpy as np
 
-from cfna import data, impl, pipeline
-from cfna.core import CFNACore
-from cfna.embeddings import CognitiveEmbeddingCompiler
-from cfna.memory import TypedRecurrentMemoryCell
-from cfna.model import CFNAModel, ModelConfig
-from cfna.perception import ByteCharPerception, dynamic_patching, encode_information_units
-from cfna.routers import RelationRouters
-from cfna.workspace import GlobalWorkspace
+from nueronce import data, impl, pipeline
+from nueronce.core import NUERONCECore
+from nueronce.embeddings import CognitiveEmbeddingCompiler
+from nueronce.memory import TypedRecurrentMemoryCell
+from nueronce.model import NUERONCEModel, ModelConfig
+from nueronce.perception import ByteCharPerception, dynamic_patching, encode_information_units
+from nueronce.routers import RelationRouters
+from nueronce.workspace import GlobalWorkspace
 
 
 def _tiny():
@@ -45,8 +45,8 @@ def test_typed_memory_step_and_sequence():
 
 
 def test_hybrid_core_runs_over_modes():
-    from cfna.config import CoreConfig
-    core = CFNACore(CoreConfig(d_model=64, physical_blocks=2, local_window=8,
+    from nueronce.config import CoreConfig
+    core = NUERONCECore(CoreConfig(d_model=64, physical_blocks=2, local_window=8,
                                sparse_global_topk=8))
     x = torch.randn(2, 12, 64)
     y = core.run(x, mode="FAST")
@@ -71,7 +71,7 @@ def test_embeddings_and_routers_real():
 
 def test_workspace_iterates_and_extracts():
     ws = GlobalWorkspace(d_model=64)
-    from cfna.types import TaskState
+    from nueronce.types import TaskState
     task = TaskState("q", "q", "answer", 0.5, 0.5, 0.3)
     ws.initialize(task, [], core_state=np.ones(64, dtype=np.float32))
     c0 = [s.confidence for s in ws.slots]
@@ -93,7 +93,7 @@ def test_retrieval_surfaces_relevant_doc():
 
 def test_pipeline_end_to_end_runs():
     torch.manual_seed(0)
-    m = CFNAModel(_tiny())
+    m = NUERONCEModel(_tiny())
     corpus = [s.strip() for s in data.CORPUS.split(".") if s.strip()]
     text, report, trace = pipeline.respond(m, "what does the verifier check?", corpus,
                                            mode="FAST", max_rounds=1)

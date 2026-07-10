@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from cfna.cognition_v2 import Query, Trial, policy
-from cfna.contract import EvidenceItem, content_hash
-from cfna.impl import default_verifier_hooks
-from cfna.ingestion import IngestionCrawler, PolicyGate
-from cfna.evidence import source_to_memory as _candidate_to_memory
-from cfna.provenance import Authenticity, Issuer, KeyRegistry
-from cfna.provenance_v32 import FAMILIES, run
-from cfna.types import MemoryRecord
-from cfna.verification import IndependentVerifier
+from nueronce.cognition_v2 import Query, Trial, policy
+from nueronce.contract import EvidenceItem, content_hash
+from nueronce.impl import default_verifier_hooks
+from nueronce.ingestion import IngestionCrawler, PolicyGate
+from nueronce.evidence import source_to_memory as _candidate_to_memory
+from nueronce.provenance import Authenticity, Issuer, KeyRegistry
+from nueronce.provenance_v32 import FAMILIES, run
+from nueronce.types import MemoryRecord
+from nueronce.verification import IndependentVerifier
 
 
 class _Raw:
