@@ -1,10 +1,10 @@
 """Decomposed CPU-first training runtime for MicroTorch CFNA.
 
 The runtime separates model structure, execution planning, tensor residency,
-optimizer state and evaluation. Current CFNA models use ``CompatibilityTape``
-for one global backward; blockwise optimizer state is loaded, updated and
-released independently. The interfaces are ready for exact block-local
-recomputation without changing the trainer API.
+optimizer state and evaluation. Heavy single-output CFNA stages are now
+activation checkpoints: their forward internals are discarded and rebuilt
+locally when the output gradient reaches that stage. Optimizer state remains
+block-paged so logical depth no longer implies whole-model graph residency.
 """
 from __future__ import annotations
 
@@ -55,13 +55,17 @@ class ExecutionPlan:
             "perception", "unit_embed", "memory", "core", "decoder",
             "ret_byte_embed", "ret_proj", "boundary_proj",
         ]
+        checkpointed = {"unit_embed", "memory", "core", "decoder", "ret_proj", "boundary_proj"}
         blocks = []
         for name in names:
             module = getattr(model, name, None)
             if module is not None:
-                policy = Residency.KEEP if name in {"perception", "decoder"} else Residency.RECOMPUTE
+                policy = Residency.RECOMPUTE if name in checkpointed else Residency.KEEP
                 blocks.append(TrainableBlock(name, module, policy))
-        return cls(blocks, {"runtime": "cfna-decomposed-v1"})
+        return cls(blocks, {
+            "runtime": "cfna-decomposed-v2",
+            "tape": "activation-recompute/local-stage-backward",
+        })
 
     def validate(self, model) -> None:
         planned = {id(p) for b in self.blocks for p in b.parameters()}
@@ -74,16 +78,20 @@ class ExecutionPlan:
             )
 
 
-class CompatibilityTape:
-    """Current exact-gradient bridge while CFNA forward is being segmented."""
+class ActivationRecomputeTape:
+    """Seeds the outer graph; checkpoint nodes perform each local replay."""
 
-    mode = "global-backward/blockwise-update"
+    mode = "activation-recompute/local-stage-backward"
 
     def backward(self, loss: Tensor) -> None:
         loss.backward()
 
     def clear(self) -> None:
         gc.collect()
+
+
+# Backward-compatible import name for callers created during v1.
+CompatibilityTape = ActivationRecomputeTape
 
 
 class BlockStateManager:
@@ -112,7 +120,8 @@ class BlockStateManager:
 
     def manifest(self, plan: ExecutionPlan) -> None:
         payload = {
-            "version": 1,
+            "version": 2,
+            "metadata": plan.metadata,
             "blocks": [
                 {
                     "name": b.name,
@@ -177,9 +186,7 @@ class BlockStreamFactor:
                 for start in range(0, w.shape[0], self.tile_rows):
                     stop = min(start + self.tile_rows, w.shape[0])
                     update = gg[start:stop] / (
-                        np.sqrt(
-                            vrh[start:stop, None] * vch[None, :] / normalizer
-                        )
+                        np.sqrt(vrh[start:stop, None] * vch[None, :] / normalizer)
                         + self.eps
                     )
                     rms = float(np.sqrt(np.mean(update * update)))
@@ -214,11 +221,11 @@ class DecomposedTrainer:
         plan: ExecutionPlan,
         state_manager: BlockStateManager,
         optimizer: BlockStreamFactor,
-        tape: Optional[CompatibilityTape] = None,
+        tape: Optional[ActivationRecomputeTape] = None,
     ):
         self.model, self.plan = model, plan
         self.state_manager, self.optimizer = state_manager, optimizer
-        self.tape = tape or CompatibilityTape()
+        self.tape = tape or ActivationRecomputeTape()
         self.step_index = 0
         plan.validate(model)
         state_manager.manifest(plan)
@@ -250,3 +257,10 @@ class DecomposedTrainer:
             "step": float(self.step_index),
             "tape_mode": self.tape.mode,
         }
+
+
+__all__ = [
+    "Residency", "TrainableBlock", "ExecutionPlan", "ActivationRecomputeTape",
+    "CompatibilityTape", "BlockStateManager", "BlockStreamFactor",
+    "IndependentEvaluator", "DecomposedTrainer",
+]
