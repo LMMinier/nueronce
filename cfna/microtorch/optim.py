@@ -8,6 +8,33 @@ from .backend import get_dtype_policy, xp as np
 from .tensor import Tensor
 
 
+class NonFiniteGradientError(FloatingPointError):
+    """Raised before any parameter or optimizer state is mutated."""
+
+
+def validate_finite_gradients(params: Iterable[Tensor]) -> int:
+    """Validate all present gradients and return their count.
+
+    The pass happens before an optimizer changes parameters or moments, making
+    a rejected step safe to retry after lowering the learning rate or restoring
+    a checkpoint.
+    """
+    count = 0
+    for index, p in enumerate(params):
+        if p.grad is None:
+            continue
+        count += 1
+        finite = np.isfinite(p.grad)
+        if not bool(finite.all()):
+            nan_count = int(np.isnan(p.grad).sum())
+            inf_count = int(np.isinf(p.grad).sum())
+            raise NonFiniteGradientError(
+                f"parameter {index} shape={p.shape} has nonfinite gradient: "
+                f"nan={nan_count} inf={inf_count}"
+            )
+    return count
+
+
 class Optimizer:
     def __init__(self, params: Iterable[Tensor]):
         self.params: List[Tensor] = list(params)
@@ -30,6 +57,7 @@ class SGD(Optimizer):
         self.vel = [np.zeros_like(p.data) for p in self.params]
 
     def step(self):
+        validate_finite_gradients(self.params)
         for i, p in enumerate(self.params):
             if p.grad is None:
                 continue
@@ -50,8 +78,9 @@ class AdamW(Optimizer):
         self.t = 0
 
     def step(self):
-        self.t += 1
-        c1, c2 = 1 - self.b1 ** self.t, 1 - self.b2 ** self.t
+        validate_finite_gradients(self.params)
+        next_t = self.t + 1
+        c1, c2 = 1 - self.b1 ** next_t, 1 - self.b2 ** next_t
         for i, p in enumerate(self.params):
             if p.grad is None:
                 continue
@@ -63,6 +92,7 @@ class AdamW(Optimizer):
             self.v[i] *= self.b2
             self.v[i] += (1 - self.b2) * (g * g)
             p.data -= self.lr * (self.m[i] / c1) / (np.sqrt(self.v[i] / c2) + self.eps)
+        self.t = next_t
 
     def state_dict(self):
         return {"name": "adamw", "t": self.t, "lr": self.lr,
@@ -75,12 +105,7 @@ class AdamW(Optimizer):
 
 
 class StreamFactor(Optimizer):
-    """Factorized, tiled adaptive optimizer for constrained CPU/RAM training.
-
-    Matrix second moments are represented by row and column statistics rather
-    than one value per parameter. First moments are optional, and updates are
-    applied in row tiles so no full normalized-update tensor is materialized.
-    """
+    """Factorized, tiled adaptive optimizer for constrained CPU/RAM training."""
     def __init__(self, params, lr: float = 1e-3, betas=(0.9, 0.999),
                  eps: float = 1e-8, weight_decay: float = 0.0,
                  momentum: bool = True, tile_rows: int = 256,
@@ -131,9 +156,10 @@ class StreamFactor(Optimizer):
             w2[start:stop] -= self.lr * update
 
     def step(self):
-        self.t += 1
-        c1 = max(1 - self.b1 ** self.t, self.eps)
-        c2 = max(1 - self.b2 ** self.t, self.eps)
+        validate_finite_gradients(self.params)
+        next_t = self.t + 1
+        c1 = max(1 - self.b1 ** next_t, self.eps)
+        c2 = max(1 - self.b2 ** next_t, self.eps)
         for i, p in enumerate(self.params):
             if p.grad is None:
                 continue
@@ -158,6 +184,7 @@ class StreamFactor(Optimizer):
                 if rms > self.clip_threshold:
                     update *= self.clip_threshold / (rms + self.eps)
                 p.data -= self.lr * update
+        self.t = next_t
 
     def state_dict(self):
         packed_v = []
@@ -177,6 +204,7 @@ class StreamFactor(Optimizer):
 
 def clip_grad_norm_(params: Iterable[Tensor], max_norm: float) -> float:
     params = [p for p in params if p.grad is not None]
+    validate_finite_gradients(params)
     total = math.sqrt(sum(float(np.sum(p.grad ** 2)) for p in params))
     if total > max_norm:
         scale = max_norm / (total + 1e-6)
@@ -185,4 +213,5 @@ def clip_grad_norm_(params: Iterable[Tensor], max_norm: float) -> float:
     return total
 
 
-__all__ = ["Optimizer", "SGD", "AdamW", "StreamFactor", "clip_grad_norm_"]
+__all__ = ["Optimizer", "SGD", "AdamW", "StreamFactor", "NonFiniteGradientError",
+           "validate_finite_gradients", "clip_grad_norm_"]
