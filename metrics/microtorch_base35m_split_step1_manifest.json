@@ -1,0 +1,31 @@
+{
+  "model": "MicroTorch CFNA base_35m",
+  "parameters": 34368049,
+  "checkpoint_step": 1,
+  "training_objective": "response-only SFT",
+  "phase": "direct",
+  "checkpoint_bytes": 138202185,
+  "checkpoint_sha256": "ab93cc47faa9dc17f41f5c6be5c620c2bbb1b3dc040257c943557b16b26335c1",
+  "plan_status": "completed",
+  "plan_sha256": "b7fa6583049f911eb8fdd2169607f8bae7fc5a10ce29f075ba6b40f2239bc94e",
+  "result": {
+    "step": 1,
+    "phase": "direct",
+    "objective": "assistant_response_sft",
+    "record_id": "pa-00074",
+    "category": "direct_summary",
+    "loss": 6.321550369262695,
+    "grad_norm": 130.34668916470392,
+    "clip_scale": 0.007671848044138417,
+    "grad_tensors": 177,
+    "sequence_bytes": 9,
+    "supervised_target_bytes": 4,
+    "forward_s": 4.2262351512908936,
+    "backward_s": 15.997131109237671,
+    "update_s": 0.31793761253356934,
+    "save_s": 0.22857928276062012,
+    "elapsed_s": 21.947964668273926,
+    "peak_rss_kib": 1574344
+  },
+  "provenance_note": "The earlier step-3 sandbox checkpoint was not available in the active runtime or persistent Library. This manifest records a new split-run training line initialized from deterministic fresh weights, not a continuation of the unavailable step-3 checkpoint."
+}
