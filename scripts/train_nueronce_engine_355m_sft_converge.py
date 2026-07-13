@@ -16,7 +16,7 @@ import pickle
 import sys
 import time
 from pathlib import Path
-from typing import Iterable, List
+from typing import List
 
 import numpy as np
 
@@ -135,8 +135,9 @@ def main() -> None:
     ap.add_argument("--tile-rows", type=int, default=128)
     ap.add_argument("--no-momentum", action="store_true")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--steps-per-shard", type=int, default=100)
     ap.add_argument("--eval-every", type=int, default=100)
-    ap.add_argument("--checkpoint-every", type=int, default=25)
+    ap.add_argument("--checkpoint-every", type=int, default=100)
     ap.add_argument("--eval-batch", type=int, default=1)
     ap.add_argument("--val-examples", type=int, default=128)
     ap.add_argument("--test-examples", type=int, default=128)
@@ -150,6 +151,8 @@ def main() -> None:
         raise SystemExit("--max-steps must be positive")
     if args.eval_every <= 0:
         raise SystemExit("--eval-every must be positive")
+    if args.steps_per_shard <= 0:
+        raise SystemExit("--steps-per-shard must be positive")
 
     from nueronce.engine.optim import StreamFactor, clip_grad_norm_
     from nueronce.engine.scaling import base_355m_config, enable_training_dtype
@@ -162,8 +165,7 @@ def main() -> None:
     from nueronce.engine.nueronce_model import NueronceModel
     from nueronce.training.dialogue_data import PROMPT_FORMAT
 
-    train_dir = Path(args.train_dir)
-    shards = list_shards(train_dir)
+    shards = list_shards(Path(args.train_dir))
     val_records = load_jsonl(Path(args.validation))
     test_records = load_jsonl(Path(args.test))
     save_dir = Path(args.save_dir)
@@ -193,6 +195,7 @@ def main() -> None:
         "source_checkpoint_sha256": None,
         "seed": args.seed,
         "max_len": args.max_len,
+        "steps_per_shard": args.steps_per_shard,
     }
 
     if latest.exists():
@@ -245,84 +248,85 @@ def main() -> None:
 
     start_time = time.time()
     stop_reason = "max_steps"
+    cached_shard_index = -1
+    cached_records: List[dict] = []
+
     while int(meta["global_step"]) < args.max_steps:
         step = int(meta["global_step"])
-        shard_index = (step // max(1, len(shards))) % len(shards)
-        records = load_jsonl(shards[shard_index])
-        if not records:
-            raise RuntimeError(f"empty shard: {shards[shard_index]}")
+        shard_index = (step // args.steps_per_shard) % len(shards)
+        if shard_index != cached_shard_index:
+            cached_records = load_jsonl(shards[shard_index])
+            if not cached_records:
+                raise RuntimeError(f"empty shard: {shards[shard_index]}")
+            cached_shard_index = shard_index
+
         rng = np.random.default_rng(args.seed + 1_000_003 * step)
-        order = rng.permutation(len(records))
+        replace = len(cached_records) < args.batch
+        idx = rng.choice(len(cached_records), size=args.batch, replace=replace)
+        chunk = [cached_records[int(i)] for i in np.atleast_1d(idx)]
+        batch = make_batch(chunk, args.max_len)
+        model.zero_grad()
+        micro = max(1, int(np.ceil(len(chunk) / max(1, args.grad_accum_steps))))
+        total = 0.0
+        seen = 0
+        for start in range(0, len(chunk), micro):
+            stop = min(start + micro, len(chunk))
+            ids = batch["byte_ids"][start:stop]
+            mask = batch["target_mask"][start:stop]
+            if ids.shape[0] == 0:
+                continue
+            logits, _ = model.forward(ids)
+            loss = model.masked_token_loss(logits, ids, mask)
+            weight = ids.shape[0] / max(1, batch["byte_ids"].shape[0])
+            (loss * weight).backward()
+            total += loss.item() * ids.shape[0]
+            seen += ids.shape[0]
+        grad_norm = clip_grad_norm_(params, args.grad_clip)
+        opt.step()
+        meta["global_step"] = step + 1
+        meta["examples_seen"] = int(meta["examples_seen"]) + len(chunk)
 
-        for offset in range(0, len(order), args.batch):
-            if int(meta["global_step"]) >= args.max_steps:
-                break
-            idx = order[offset:offset + args.batch]
-            chunk = [records[int(i)] for i in idx]
-            batch = make_batch(chunk, args.max_len)
-            model.zero_grad()
-            micro = max(1, int(np.ceil(len(chunk) / max(1, args.grad_accum_steps))))
-            total = 0.0
-            seen = 0
-            for start in range(0, len(chunk), micro):
-                stop = min(start + micro, len(chunk))
-                ids = batch["byte_ids"][start:stop]
-                mask = batch["target_mask"][start:stop]
-                if ids.shape[0] == 0:
-                    continue
-                logits, _ = model.forward(ids)
-                loss = model.masked_token_loss(logits, ids, mask)
-                weight = ids.shape[0] / max(1, batch["byte_ids"].shape[0])
-                (loss * weight).backward()
-                total += loss.item() * ids.shape[0]
-                seen += ids.shape[0]
-            grad_norm = clip_grad_norm_(params, args.grad_clip)
-            opt.step()
-            meta["global_step"] = int(meta["global_step"]) + 1
-            meta["examples_seen"] = int(meta["examples_seen"]) + len(chunk)
+        current = int(meta["global_step"])
+        log({
+            "event": "train",
+            "step": current,
+            "shard": shard_index + 1,
+            "train_loss": total / max(1, seen),
+            "grad_norm": grad_norm,
+            "lr": opt.lr,
+            "examples_seen": meta["examples_seen"],
+            "position_mode": args.position_mode,
+            "elapsed_seconds": time.time() - start_time,
+        })
 
-            current = int(meta["global_step"])
+        if args.checkpoint_every > 0 and current % args.checkpoint_every == 0:
+            save(latest)
+
+        if current % args.eval_every == 0:
+            val = evaluate(model, val_records, max_len=args.max_len,
+                           batch_size=args.eval_batch, max_examples=args.val_examples)
+            improved = val["loss"] < float(meta["best_val_loss"]) - args.min_delta
+            if improved:
+                meta["best_val_loss"] = val["loss"]
+                meta["best_val_accuracy"] = val["byte_accuracy"]
+                meta["bad_evals"] = 0
+                save(best)
+            else:
+                meta["bad_evals"] = int(meta.get("bad_evals", 0)) + 1
+            save(latest)
             log({
-                "event": "train",
+                "event": "validation",
+                **val,
                 "step": current,
-                "train_loss": total / max(1, seen),
-                "grad_norm": grad_norm,
+                "is_best": improved,
+                "bad_evals": meta["bad_evals"],
+                "best_val_loss": meta["best_val_loss"],
+                "best_val_accuracy": meta["best_val_accuracy"],
                 "lr": opt.lr,
-                "examples_seen": meta["examples_seen"],
-                "position_mode": args.position_mode,
-                "elapsed_seconds": time.time() - start_time,
             })
-
-            if args.checkpoint_every > 0 and current % args.checkpoint_every == 0:
-                save(latest)
-
-            if current % args.eval_every == 0:
-                val = evaluate(model, val_records, max_len=args.max_len,
-                               batch_size=args.eval_batch, max_examples=args.val_examples)
-                improved = val["loss"] < float(meta["best_val_loss"]) - args.min_delta
-                if improved:
-                    meta["best_val_loss"] = val["loss"]
-                    meta["best_val_accuracy"] = val["byte_accuracy"]
-                    meta["bad_evals"] = 0
-                    save(best)
-                else:
-                    meta["bad_evals"] = int(meta.get("bad_evals", 0)) + 1
-                save(latest)
-                log({
-                    "event": "validation",
-                    **val,
-                    "step": current,
-                    "is_best": improved,
-                    "bad_evals": meta["bad_evals"],
-                    "best_val_loss": meta["best_val_loss"],
-                    "best_val_accuracy": meta["best_val_accuracy"],
-                    "lr": opt.lr,
-                })
-                if current >= args.min_steps and int(meta["bad_evals"]) >= args.patience:
-                    stop_reason = "validation_plateau"
-                    break
-        if stop_reason == "validation_plateau":
-            break
+            if current >= args.min_steps and int(meta["bad_evals"]) >= args.patience:
+                stop_reason = "validation_plateau"
+                break
 
     save(latest)
     chosen = best if best.exists() else latest
@@ -337,7 +341,7 @@ def main() -> None:
         "best_val_loss": float(meta["best_val_loss"]),
         "best_val_accuracy": float(meta["best_val_accuracy"]),
         "test": test,
-        "best_checkpoint": str(chosen),
+        "best_checkpoint": str(chosen.resolve()),
         "best_checkpoint_sha256": sha256_file(chosen),
         "position_mode": args.position_mode,
         "source_checkpoint_sha256": meta.get("source_checkpoint_sha256"),
