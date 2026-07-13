@@ -42,7 +42,10 @@ def phi_rotary(x: Tensor) -> Tensor:
     odd = x[:, :, :, 1 : 2 * pairs : 2]
     rot_even = even * cos - odd * sin
     rot_odd = even * sin + odd * cos
-    rotated = stack([rot_even, rot_odd], axis=-1).reshape(b, h, t, 2 * pairs)
+    # ``Tensor.stack`` does not normalize negative axes.  The input rank here
+    # is four, so axis=4 explicitly appends the pair lane and guarantees the
+    # output order [rot_even_0, rot_odd_0, rot_even_1, rot_odd_1, ...].
+    rotated = stack([rot_even, rot_odd], axis=4).reshape(b, h, t, 2 * pairs)
 
     if hd % 2:
         rotated = cat([rotated, x[:, :, :, -1:]], axis=-1)
