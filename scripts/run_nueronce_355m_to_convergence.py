@@ -40,6 +40,12 @@ def sha256_file(path: Path) -> str:
 
 
 def checkpoint_step(path: Path) -> int:
+    """Compatibility helper for tests and small checkpoints.
+
+    The live controller intentionally does not call this for 355M checkpoints;
+    progress is read from lightweight JSONL metrics to avoid loading gigabytes
+    of parameters merely to inspect metadata.
+    """
     if not path.exists():
         return 0
     with path.open("rb") as f:
@@ -64,6 +70,11 @@ def jsonl_records(path: Path, event: str | None = None) -> list[dict]:
             if event is None or rec.get("event") == event:
                 out.append(rec)
     return out
+
+
+def latest_metric_step(path: Path) -> int:
+    records = jsonl_records(path, "train")
+    return int(records[-1].get("step", 0)) if records else 0
 
 
 def run(cmd: Iterable[str], *, cwd: Path) -> None:
@@ -97,7 +108,7 @@ def main() -> None:
     ap.add_argument("--sft-max-len", type=int, default=128)
     ap.add_argument("--sft-lr", type=float, default=1e-5)
     ap.add_argument("--sft-eval-every", type=int, default=100)
-    ap.add_argument("--sft-checkpoint-every", type=int, default=25)
+    ap.add_argument("--sft-checkpoint-every", type=int, default=100)
     ap.add_argument("--sft-eval-batch", type=int, default=1)
     ap.add_argument("--sft-val-examples", type=int, default=128)
     ap.add_argument("--sft-test-examples", type=int, default=128)
@@ -114,6 +125,7 @@ def main() -> None:
     corpus = Path(args.corpus).resolve()
     if not corpus.exists():
         raise FileNotFoundError(corpus)
+    source_hash = sha256_file(source)
 
     workspace = Path(args.workspace).resolve()
     base_save = workspace / "base" / "checkpoints"
@@ -123,35 +135,46 @@ def main() -> None:
     state_path = workspace / "state.json"
     workspace.mkdir(parents=True, exist_ok=True)
 
-    state = {
-        "status": "starting",
-        "phase": "base",
-        "source_checkpoint": str(source),
-        "source_checkpoint_sha256": sha256_file(source),
-        "position_mode": args.position_mode,
-        "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    }
+    previous = {}
     if state_path.exists():
         try:
             previous = json.loads(state_path.read_text(encoding="utf-8"))
-            state.update(previous)
-            state["status"] = "resuming"
         except Exception:
-            pass
+            previous = {}
+    if previous.get("source_checkpoint_sha256") not in (None, source_hash):
+        raise SystemExit("workspace belongs to a different source checkpoint")
+    if previous.get("position_mode") not in (None, args.position_mode):
+        raise SystemExit("workspace belongs to a different position mode")
+    if previous.get("status") == "completed":
+        print(json.dumps(previous, indent=2), flush=True)
+        return
+
+    state = {
+        "status": "resuming" if previous else "starting",
+        "phase": previous.get("phase", "base"),
+        "source_checkpoint": str(source),
+        "source_checkpoint_sha256": source_hash,
+        "position_mode": args.position_mode,
+        "started_at": previous.get(
+            "started_at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        ),
+        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        **previous,
+    }
+    state["status"] = "resuming" if previous else "starting"
     atomic_json(state, state_path)
 
     latest_base = base_save / "latest.pkl"
     base_metrics_file = base_metrics / "base_metrics.jsonl"
     best_bpb = float(state.get("best_base_bpb", "inf"))
     bad_checks = int(state.get("base_bad_checks", 0))
+    current_step = max(int(state.get("base_step", 0)), latest_metric_step(base_metrics_file))
 
-    while checkpoint_step(latest_base) < args.base_max_steps:
-        current = checkpoint_step(latest_base)
+    while state.get("base_gate") != "passed" and current_step < args.base_max_steps:
         resume_args: list[str] = []
         if not latest_base.exists():
             resume_args = ["--resume-from", str(source)]
-        remaining = args.base_max_steps - current
+        remaining = args.base_max_steps - current_step
         chunk = min(args.base_chunk_steps, remaining)
         run([
             sys.executable,
@@ -171,12 +194,12 @@ def main() -> None:
             *resume_args,
         ], cwd=REPO_ROOT)
 
+        current_step = latest_metric_step(base_metrics_file)
         vals = jsonl_records(base_metrics_file, "validation")
         if not vals:
             raise RuntimeError("base trainer produced no validation record")
         latest_val = vals[-1]
         bpb = float(latest_val["heldout_bpb"])
-        step = int(latest_val["step"])
         if bpb < best_bpb - args.base_min_delta:
             best_bpb = bpb
             bad_checks = 0
@@ -185,18 +208,16 @@ def main() -> None:
         state.update({
             "status": "running",
             "phase": "base",
-            "base_step": step,
+            "base_step": current_step,
+            "latest_base_validation_step": int(latest_val["step"]),
             "latest_base_bpb": bpb,
             "best_base_bpb": best_bpb,
             "base_bad_checks": bad_checks,
             "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         })
-        atomic_json(state, state_path)
-
         if bpb <= args.base_target_bpb:
             state["base_gate"] = "passed"
-            break
-        if bad_checks >= args.base_patience:
+        elif bad_checks >= args.base_patience:
             state.update({
                 "status": "stopped",
                 "base_gate": "failed_plateau",
@@ -205,7 +226,10 @@ def main() -> None:
                     "conversational training was not started"
                 ),
             })
-            atomic_json(state, state_path)
+        atomic_json(state, state_path)
+        if state.get("base_gate") == "passed":
+            break
+        if state.get("base_gate") == "failed_plateau":
             raise SystemExit(2)
 
     if state.get("base_gate") != "passed":
@@ -221,6 +245,9 @@ def main() -> None:
             })
             atomic_json(state, state_path)
             raise SystemExit(3)
+
+    if not latest_base.exists():
+        raise FileNotFoundError("base gate passed but latest base checkpoint is missing")
 
     sft_data = Path(args.sft_data).resolve()
     train_dir = sft_data / "train_shards"
@@ -247,32 +274,33 @@ def main() -> None:
     })
     atomic_json(state, state_path)
 
-    run([
-        sys.executable,
-        "scripts/train_nueronce_engine_355m_sft_converge.py",
-        "--train-dir", str(train_dir),
-        "--validation", str(validation),
-        "--test", str(test),
-        "--init-checkpoint", str(latest_base),
-        "--save-dir", str(sft_save),
-        "--metrics-dir", str(sft_metrics),
-        "--position-mode", args.position_mode,
-        "--batch", str(args.sft_batch),
-        "--max-len", str(args.sft_max_len),
-        "--lr", str(args.sft_lr),
-        "--seed", str(args.seed),
-        "--eval-every", str(args.sft_eval_every),
-        "--checkpoint-every", str(args.sft_checkpoint_every),
-        "--eval-batch", str(args.sft_eval_batch),
-        "--val-examples", str(args.sft_val_examples),
-        "--test-examples", str(args.sft_test_examples),
-        "--min-steps", str(args.sft_min_steps),
-        "--max-steps", str(args.sft_max_steps),
-        "--patience", str(args.sft_patience),
-        "--min-delta", str(args.sft_min_delta),
-    ], cwd=REPO_ROOT)
-
     summary_path = sft_metrics / "conversation_summary.json"
+    if not summary_path.exists():
+        run([
+            sys.executable,
+            "scripts/train_nueronce_engine_355m_sft_converge.py",
+            "--train-dir", str(train_dir),
+            "--validation", str(validation),
+            "--test", str(test),
+            "--init-checkpoint", str(latest_base),
+            "--save-dir", str(sft_save),
+            "--metrics-dir", str(sft_metrics),
+            "--position-mode", args.position_mode,
+            "--batch", str(args.sft_batch),
+            "--max-len", str(args.sft_max_len),
+            "--lr", str(args.sft_lr),
+            "--seed", str(args.seed),
+            "--eval-every", str(args.sft_eval_every),
+            "--checkpoint-every", str(args.sft_checkpoint_every),
+            "--eval-batch", str(args.sft_eval_batch),
+            "--val-examples", str(args.sft_val_examples),
+            "--test-examples", str(args.sft_test_examples),
+            "--min-steps", str(args.sft_min_steps),
+            "--max-steps", str(args.sft_max_steps),
+            "--patience", str(args.sft_patience),
+            "--min-delta", str(args.sft_min_delta),
+        ], cwd=REPO_ROOT)
+
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
     best_checkpoint = Path(summary["best_checkpoint"])
     state.update({
@@ -285,13 +313,14 @@ def main() -> None:
 
     if not args.skip_chat_probe:
         probe_out = sft_metrics / "chat_probe.json"
-        run([
-            sys.executable,
-            "scripts/probe_nueronce_engine_chat.py",
-            "--checkpoint", str(best_checkpoint),
-            "--out", str(probe_out),
-            "--temperature", "0",
-        ], cwd=REPO_ROOT)
+        if not probe_out.exists():
+            run([
+                sys.executable,
+                "scripts/probe_nueronce_engine_chat.py",
+                "--checkpoint", str(best_checkpoint),
+                "--out", str(probe_out),
+                "--temperature", "0",
+            ], cwd=REPO_ROOT)
         state["chat_probe"] = json.loads(probe_out.read_text(encoding="utf-8"))
 
     state.update({
