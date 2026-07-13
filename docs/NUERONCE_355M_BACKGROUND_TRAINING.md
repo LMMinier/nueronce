@@ -19,9 +19,15 @@ detached local process instead.
 The default position mode is the opt-in `phi_rope` RFT attention ablation. Use
 `--position-mode baseline` for the original attention geometry.
 
-## Start on Windows, Linux, or macOS
+## Start on Windows
 
-Run from the repository root after placing the verified checkpoint and corpus:
+Run this as one line in PowerShell from the repository root:
+
+```powershell
+python scripts/nueronce_355m_job.py start -- --source-checkpoint checkpoints/nueronce_engine_355m_protocol_step270/source_step270.pkl --corpus corpus --position-mode phi_rope --build-sft-if-missing --base-target-bpb 1.8 --base-max-steps 50000 --sft-min-steps 1000 --sft-max-steps 50000
+```
+
+## Start on Linux, macOS, or a Colab shell
 
 ```bash
 python scripts/nueronce_355m_job.py start -- \
