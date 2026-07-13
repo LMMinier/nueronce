@@ -1,0 +1,46 @@
+name: NUERONCE 355M controller tests
+
+on:
+  push:
+    branches:
+      - claude/new-session-tkjr3b
+    paths:
+      - "scripts/train_nueronce_engine_355m_sft_converge.py"
+      - "scripts/run_nueronce_355m_to_convergence.py"
+      - "scripts/nueronce_355m_job.py"
+      - "scripts/probe_nueronce_engine_chat.py"
+      - "tests/test_355m_convergence_control.py"
+      - ".github/workflows/nueronce-355m-controller-tests.yml"
+  pull_request:
+    paths:
+      - "scripts/train_nueronce_engine_355m_sft_converge.py"
+      - "scripts/run_nueronce_355m_to_convergence.py"
+      - "scripts/nueronce_355m_job.py"
+      - "scripts/probe_nueronce_engine_chat.py"
+      - "tests/test_355m_convergence_control.py"
+      - ".github/workflows/nueronce-355m-controller-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  controller:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install tests
+        run: python -m pip install -e ".[dev]"
+      - name: Compile controller scripts
+        run: >-
+          python -m py_compile
+          scripts/train_nueronce_engine_355m_sft_converge.py
+          scripts/run_nueronce_355m_to_convergence.py
+          scripts/nueronce_355m_job.py
+          scripts/probe_nueronce_engine_chat.py
+      - name: Run controller unit tests
+        run: python -m pytest -q tests/test_355m_convergence_control.py
