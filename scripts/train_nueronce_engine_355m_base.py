@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Resumable 355M NUERONCE base pretraining with an optional Phi-RoPE ablation.
+"""Resumable 355M NUERONCE base pretraining.
 
-Unlike ``train_nueronce_engine_355m.py`` (response-only conversation SFT), this
-launcher performs ordinary next-byte base pretraining on the built corpus.
-The ``--position-mode phi_rope`` path changes only self-attention Q/K geometry;
-it adds no parameters and can load the same baseline checkpoint.
+This launcher performs ordinary next-byte base pretraining on the built corpus
+using the canonical NUERONCE architecture.
 """
 from __future__ import annotations
 
@@ -104,7 +102,6 @@ def main() -> None:
     ap.add_argument("--save-dir", default="checkpoints/nueronce_engine_355m_base")
     ap.add_argument("--metrics-dir", default="metrics/nueronce_engine_355m_base")
     ap.add_argument("--resume-from", default="")
-    ap.add_argument("--position-mode", choices=["baseline", "phi_rope"], default="baseline")
     ap.add_argument("--seq", type=int, default=16)
     ap.add_argument("--batch", type=int, default=1)
     ap.add_argument("--lr", type=float, default=1e-5)
@@ -123,9 +120,6 @@ def main() -> None:
     from nueronce.engine.scaling import base_355m_config, enable_training_dtype
 
     enable_training_dtype("float32")
-    if args.position_mode == "phi_rope":
-        from nueronce.engine.rft_attention import install_phi_rotary_attention
-        install_phi_rotary_attention()
 
     from nueronce.engine.nueronce_model import NueronceModel
 
@@ -166,8 +160,8 @@ def main() -> None:
         print("starting fresh; no resume checkpoint found")
 
     print(
-        f"model={model.num_params():,} params position_mode={args.position_mode} "
-        f"seq={args.seq} batch={args.batch} lr={args.lr:g}"
+        f"model={model.num_params():,} params seq={args.seq} "
+        f"batch={args.batch} lr={args.lr:g}"
     )
     if model.num_params() != 352_993_825:
         raise SystemExit(f"unexpected parameter count: {model.num_params():,}")
@@ -192,7 +186,6 @@ def main() -> None:
                 "stage": "byte_base_pretraining",
                 "global_step": global_step,
                 "optimizer_step": opt.t,
-                "position_mode": args.position_mode,
                 "source_checkpoint_sha256": source_sha256,
                 "dtype": "float32",
                 "preset": "base_355m",
@@ -223,7 +216,6 @@ def main() -> None:
             "boundary_loss": stats["boundary"],
             "grad_norm": grad_norm,
             "lr": opt.lr,
-            "position_mode": args.position_mode,
             "elapsed_seconds": time.time() - t0,
         })
 
@@ -234,7 +226,6 @@ def main() -> None:
                 "step": global_step,
                 "heldout_loss": held["loss"],
                 "heldout_bpb": held["bpb"],
-                "position_mode": args.position_mode,
                 "elapsed_seconds": time.time() - t0,
             })
 

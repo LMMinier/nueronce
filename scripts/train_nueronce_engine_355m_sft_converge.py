@@ -126,7 +126,6 @@ def main() -> None:
     ap.add_argument("--init-checkpoint", default="")
     ap.add_argument("--save-dir", default="checkpoints/nueronce_355m_conversation")
     ap.add_argument("--metrics-dir", default="metrics/nueronce_355m_conversation")
-    ap.add_argument("--position-mode", choices=["baseline", "phi_rope"], default="phi_rope")
     ap.add_argument("--batch", type=int, default=1)
     ap.add_argument("--max-len", type=int, default=128)
     ap.add_argument("--lr", type=float, default=1e-5)
@@ -158,9 +157,6 @@ def main() -> None:
     from nueronce.engine.scaling import base_355m_config, enable_training_dtype
 
     enable_training_dtype("float32")
-    if args.position_mode == "phi_rope":
-        from nueronce.engine.rft_attention import install_phi_rotary_attention
-        install_phi_rotary_attention()
 
     from nueronce.engine.nueronce_model import NueronceModel
     from nueronce.training.dialogue_data import PROMPT_FORMAT
@@ -180,8 +176,13 @@ def main() -> None:
     cfg = base_355m_config()
     model = NueronceModel(cfg)
     params = list(model.parameters())
-    opt = StreamFactor(params, lr=args.lr, weight_decay=0.01,
-                       tile_rows=args.tile_rows, momentum=not args.no_momentum)
+    opt = StreamFactor(
+        params,
+        lr=args.lr,
+        weight_decay=0.01,
+        tile_rows=args.tile_rows,
+        momentum=not args.no_momentum,
+    )
 
     meta = {
         "stage": "response_only_conversation_sft",
@@ -190,7 +191,6 @@ def main() -> None:
         "best_val_loss": float("inf"),
         "best_val_accuracy": 0.0,
         "bad_evals": 0,
-        "position_mode": args.position_mode,
         "prompt_format": PROMPT_FORMAT,
         "source_checkpoint_sha256": None,
         "seed": args.seed,
@@ -239,8 +239,13 @@ def main() -> None:
         atomic_pickle(payload, path)
 
     if int(meta["global_step"]) == 0:
-        pre = evaluate(model, val_records, max_len=args.max_len,
-                       batch_size=args.eval_batch, max_examples=args.val_examples)
+        pre = evaluate(
+            model,
+            val_records,
+            max_len=args.max_len,
+            batch_size=args.eval_batch,
+            max_examples=args.val_examples,
+        )
         meta["best_val_loss"] = pre["loss"]
         meta["best_val_accuracy"] = pre["byte_accuracy"]
         save(best)
@@ -295,7 +300,6 @@ def main() -> None:
             "grad_norm": grad_norm,
             "lr": opt.lr,
             "examples_seen": meta["examples_seen"],
-            "position_mode": args.position_mode,
             "elapsed_seconds": time.time() - start_time,
         })
 
@@ -303,8 +307,13 @@ def main() -> None:
             save(latest)
 
         if current % args.eval_every == 0:
-            val = evaluate(model, val_records, max_len=args.max_len,
-                           batch_size=args.eval_batch, max_examples=args.val_examples)
+            val = evaluate(
+                model,
+                val_records,
+                max_len=args.max_len,
+                batch_size=args.eval_batch,
+                max_examples=args.val_examples,
+            )
             improved = val["loss"] < float(meta["best_val_loss"]) - args.min_delta
             if improved:
                 meta["best_val_loss"] = val["loss"]
@@ -318,7 +327,7 @@ def main() -> None:
                 "event": "validation",
                 **val,
                 "step": current,
-                "is_best": improved,
+                "improved": improved,
                 "bad_evals": meta["bad_evals"],
                 "best_val_loss": meta["best_val_loss"],
                 "best_val_accuracy": meta["best_val_accuracy"],
@@ -332,8 +341,13 @@ def main() -> None:
     chosen = best if best.exists() else latest
     payload = load_pickle(chosen)
     copy_params(payload, model)
-    test = evaluate(model, test_records, max_len=args.max_len,
-                    batch_size=args.eval_batch, max_examples=args.test_examples)
+    test = evaluate(
+        model,
+        test_records,
+        max_len=args.max_len,
+        batch_size=args.eval_batch,
+        max_examples=args.test_examples,
+    )
     summary = {
         "event": "final",
         "stop_reason": stop_reason,
@@ -343,7 +357,6 @@ def main() -> None:
         "test": test,
         "best_checkpoint": str(chosen.resolve()),
         "best_checkpoint_sha256": sha256_file(chosen),
-        "position_mode": args.position_mode,
         "source_checkpoint_sha256": meta.get("source_checkpoint_sha256"),
     }
     (metrics_dir / "conversation_summary.json").write_text(

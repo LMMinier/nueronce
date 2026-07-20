@@ -20,7 +20,6 @@ def main() -> None:
     ap.add_argument("--corpus", default="corpus")
     ap.add_argument("--workspace", default="runs/nueronce_355m_frontier_from_scratch")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--position-mode", choices=["baseline", "phi_rope"], default="phi_rope")
     ap.add_argument("--smoke-only", action="store_true")
     args = ap.parse_args()
 
@@ -30,11 +29,10 @@ def main() -> None:
 
     smoke = [
         sys.executable,
-        "scripts/train_nueronce_engine_355m_base_rft.py",
+        "scripts/train_nueronce_engine_355m_base.py",
         "--corpus", args.corpus,
         "--save-dir", str(save_dir),
         "--metrics-dir", str(metrics_dir),
-        "--position-mode", args.position_mode,
         "--seq", "16",
         "--batch", "1",
         "--lr", "1e-5",
@@ -51,11 +49,10 @@ def main() -> None:
 
     warmup = [
         sys.executable,
-        "scripts/train_nueronce_engine_355m_base_rft.py",
+        "scripts/train_nueronce_engine_355m_base.py",
         "--corpus", args.corpus,
         "--save-dir", str(save_dir),
         "--metrics-dir", str(metrics_dir),
-        "--position-mode", args.position_mode,
         "--seq", "16",
         "--batch", "1",
         "--lr", "1e-5",

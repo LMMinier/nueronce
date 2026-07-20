@@ -88,7 +88,6 @@ def main() -> None:
     ap.add_argument("--corpus", default="corpus")
     ap.add_argument("--source-checkpoint", required=True)
     ap.add_argument("--workspace", default="runs/nueronce_355m_convergence")
-    ap.add_argument("--position-mode", choices=["baseline", "phi_rope"], default="phi_rope")
     ap.add_argument("--seed", type=int, default=42)
 
     ap.add_argument("--base-target-bpb", type=float, default=1.8)
@@ -143,8 +142,6 @@ def main() -> None:
             previous = {}
     if previous.get("source_checkpoint_sha256") not in (None, source_hash):
         raise SystemExit("workspace belongs to a different source checkpoint")
-    if previous.get("position_mode") not in (None, args.position_mode):
-        raise SystemExit("workspace belongs to a different position mode")
     if previous.get("status") == "completed":
         print(json.dumps(previous, indent=2), flush=True)
         return
@@ -154,7 +151,6 @@ def main() -> None:
         "phase": previous.get("phase", "base"),
         "source_checkpoint": str(source),
         "source_checkpoint_sha256": source_hash,
-        "position_mode": args.position_mode,
         "started_at": previous.get(
             "started_at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         ),
@@ -162,6 +158,7 @@ def main() -> None:
         **previous,
     }
     state["status"] = "resuming" if previous else "starting"
+    state.pop("position_mode", None)
     atomic_json(state, state_path)
 
     latest_base = base_save / "latest.pkl"
@@ -178,11 +175,10 @@ def main() -> None:
         chunk = min(args.base_chunk_steps, remaining)
         run([
             sys.executable,
-            "scripts/train_nueronce_engine_355m_base_rft.py",
+            "scripts/train_nueronce_engine_355m_base.py",
             "--corpus", str(corpus),
             "--save-dir", str(base_save),
             "--metrics-dir", str(base_metrics),
-            "--position-mode", args.position_mode,
             "--seq", str(args.base_seq),
             "--batch", str(args.base_batch),
             "--lr", str(args.base_lr),
@@ -285,7 +281,6 @@ def main() -> None:
             "--init-checkpoint", str(latest_base),
             "--save-dir", str(sft_save),
             "--metrics-dir", str(sft_metrics),
-            "--position-mode", args.position_mode,
             "--batch", str(args.sft_batch),
             "--max-len", str(args.sft_max_len),
             "--lr", str(args.sft_lr),

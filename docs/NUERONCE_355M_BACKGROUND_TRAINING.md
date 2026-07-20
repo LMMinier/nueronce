@@ -16,15 +16,14 @@ detached local process instead.
 8. evaluates the selected checkpoint and runs a six-prompt deterministic chat probe;
 9. writes a restart-safe `state.json`, checkpoints, metrics, PID metadata, and log.
 
-The default position mode is the opt-in `phi_rope` RFT attention ablation. Use
-`--position-mode baseline` for the original attention geometry.
+The workflow uses the canonical NUERONCE attention and model configuration.
 
 ## Start on Windows
 
 Run this as one line in PowerShell from the repository root:
 
 ```powershell
-python scripts/nueronce_355m_job.py start -- --source-checkpoint checkpoints/nueronce_engine_355m_protocol_step270/source_step270.pkl --corpus corpus --position-mode phi_rope --build-sft-if-missing --base-target-bpb 1.8 --base-max-steps 50000 --sft-min-steps 1000 --sft-max-steps 50000
+python scripts/nueronce_355m_job.py start -- --source-checkpoint checkpoints/nueronce_engine_355m_protocol_step270/source_step270.pkl --corpus corpus --build-sft-if-missing --base-target-bpb 1.8 --base-max-steps 50000 --sft-min-steps 1000 --sft-max-steps 50000
 ```
 
 ## Start on Linux, macOS, or a Colab shell
@@ -33,7 +32,6 @@ python scripts/nueronce_355m_job.py start -- --source-checkpoint checkpoints/nue
 python scripts/nueronce_355m_job.py start -- \
   --source-checkpoint checkpoints/nueronce_engine_355m_protocol_step270/source_step270.pkl \
   --corpus corpus \
-  --position-mode phi_rope \
   --build-sft-if-missing \
   --base-target-bpb 1.8 \
   --base-max-steps 50000 \

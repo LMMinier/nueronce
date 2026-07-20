@@ -36,10 +36,6 @@ def main() -> None:
     checkpoint = Path(args.checkpoint)
     with checkpoint.open("rb") as f:
         payload = pickle.load(f)
-    position_mode = (payload.get("meta") or {}).get("position_mode", "baseline")
-    if position_mode == "phi_rope":
-        from nueronce.engine.rft_attention import install_phi_rotary_attention
-        install_phi_rotary_attention()
 
     from nueronce.engine.chat import MicroConversation
     from nueronce.engine.nueronce_model import NueronceConfig, NueronceModel
@@ -76,7 +72,6 @@ def main() -> None:
     summary = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "checkpoint": str(checkpoint),
-        "position_mode": position_mode,
         "prompt_format": prompt_format,
         "temperature": args.temperature,
         "pass_nonempty": sum(int(r["nonempty"]) for r in results),
