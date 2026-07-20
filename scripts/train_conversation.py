@@ -12,7 +12,9 @@ Two loss modes:
 
 Checkpoints are ``nueronce.chat.load_checkpoint``-compatible and stamp
 ``meta.prompt_format`` per docs/FORMAT.md. ``best.pt`` is best-by-val (never
-last-step); ``latest.pt`` is for resume.
+last-step); ``latest.pt`` is for resume. ``latest.pt`` can be saved more often
+than validation via ``--checkpoint-every`` so short, interruptible runs still
+make durable progress.
 
 Usage (desktop GPU / Colab):
     python scripts/build_conversation_sft.py --out-dir data/conversation_sft
@@ -35,7 +37,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from nueronce.model import NUERONCEModel, CONFIG_PRESETS, ModelConfig
+from nueronce.model import NUERONCEModel, CONFIG_PRESETS
 from nueronce.training.dialogue_data import PROMPT_FORMAT
 from nueronce.training.mixed_sft import build_batches, load_jsonl
 
@@ -43,14 +45,15 @@ LN2 = math.log(2.0)
 
 
 def to_torch(batch, device):
-    return (torch.from_numpy(batch["byte_ids"]).to(device),
-            torch.from_numpy(batch["target_mask"]).to(device))
+    return (
+        torch.from_numpy(batch["byte_ids"]).to(device),
+        torch.from_numpy(batch["target_mask"]).to(device),
+    )
 
 
 @torch.no_grad()
 def evaluate(model, val_batches, device):
-    """Masked val loss (bits/byte over target bytes) + teacher-forced byte
-    accuracy on target bytes — the checkpoint-health metric from FORMAT.md."""
+    """Masked validation BPB and teacher-forced byte accuracy on target bytes."""
     model.eval()
     losses, correct, total = [], 0, 0
     for batch in val_batches:
@@ -74,12 +77,14 @@ def main():
     ap.add_argument("--resume", action="store_true", help="continue from <out-dir>/latest.pt")
     ap.add_argument("--loss", default="response", choices=["response", "full"])
     ap.add_argument("--minutes", type=float, default=60.0)
-    ap.add_argument("--max-steps", type=int, default=0, help="0 = time budget only")
+    ap.add_argument("--max-steps", type=int, default=0, help="absolute total step; 0 = time budget only")
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--max-len", type=int, default=320)
     ap.add_argument("--lr", type=float, default=5e-4)
     ap.add_argument("--weight-decay", type=float, default=0.01)
     ap.add_argument("--val-every", type=int, default=200)
+    ap.add_argument("--checkpoint-every", type=int, default=10,
+                    help="atomically save latest.pt every N optimizer steps; 0 disables periodic saves")
     ap.add_argument("--val-batches", type=int, default=16)
     ap.add_argument("--device", default="auto")
     ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
@@ -87,6 +92,11 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--metrics-out", default="metrics/conversation_train.jsonl")
     args = ap.parse_args()
+
+    if args.val_every <= 0:
+        raise SystemExit("--val-every must be positive")
+    if args.checkpoint_every < 0:
+        raise SystemExit("--checkpoint-every must be zero or positive")
 
     device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
     amp = bool(args.amp and device == "cuda")
@@ -98,10 +108,22 @@ def main():
     if not shards:
         raise SystemExit(f"no train shards under {args.data}/train — run scripts/build_conversation_sft.py first")
     train_records = load_jsonl(shards)
-    val_records = load_jsonl([Path(args.data) / "val.jsonl"]) if (Path(args.data) / "val.jsonl").exists() \
+    val_records = (
+        load_jsonl([Path(args.data) / "val.jsonl"])
+        if (Path(args.data) / "val.jsonl").exists()
         else load_jsonl([Path(args.data) / "validation.jsonl"])
-    val_batches = list(build_batches(val_records, batch_size=args.batch, max_len=args.max_len,
-                                     seed=1, loss="response"))[: args.val_batches]
+    )
+    val_batches = list(
+        build_batches(
+            val_records,
+            batch_size=args.batch,
+            max_len=args.max_len,
+            seed=1,
+            loss="response",
+        )
+    )[: args.val_batches]
+    if not val_batches:
+        raise SystemExit("validation set produced no batches; check --data and --max-len")
 
     cfg = CONFIG_PRESETS[args.preset]()
     model = NUERONCEModel(cfg)
@@ -115,8 +137,11 @@ def main():
 
     if args.init_from and not args.resume:
         ck = torch.load(args.init_from, map_location="cpu", weights_only=False)
+        if ck.get("config") != vars(cfg):
+            raise SystemExit("init checkpoint config mismatch — wrong --preset or checkpoint")
         model.load_state_dict(ck["state_dict"])
-        print(f"warm-started weights from {args.init_from} (step {ck.get('step', '?')})")
+        step = int(ck.get("step", 0))
+        print(f"warm-started weights from {args.init_from} (step {step}); optimizer reset")
     if args.resume and (out_dir / "latest.pt").exists():
         ck = torch.load(out_dir / "latest.pt", map_location="cpu", weights_only=False)
         if ck.get("config") != vars(cfg):
@@ -124,7 +149,7 @@ def main():
         model.load_state_dict(ck["state_dict"])
         opt.load_state_dict(ck["optimizer"])
         for group in opt.param_groups:
-            group["lr"] = args.lr  # CLI lr wins on resume (convergence ladder)
+            group["lr"] = args.lr
         step, epoch = int(ck.get("step", 0)), int(ck.get("epoch", 0))
         history = ck.get("history", [])
         best_val = min((h["val_loss"] for h in history if "val_loss" in h), default=float("inf"))
@@ -132,19 +157,30 @@ def main():
 
     model.to(device)
     n_params = model.num_params()
-    print(f"{args.preset}: {n_params:,} params | device {device}{' +amp' if amp else ''} | "
-          f"loss={args.loss} | {len(train_records):,} train records | "
-          f"{len(val_batches)} val batches | budget {args.minutes} min")
+    if n_params != 11_131_477 and args.preset == "chat_11m":
+        raise SystemExit(f"chat_11m parameter mismatch: expected 11,131,477, got {n_params:,}")
+    print(
+        f"{args.preset}: {n_params:,} params | device {device}{' +amp' if amp else ''} | "
+        f"loss={args.loss} | {len(train_records):,} train records | "
+        f"{len(val_batches)} val batches | budget {args.minutes} min | "
+        f"checkpoint every {args.checkpoint_every or 'final-only'} steps"
+    )
 
     def save(path, extra=None):
         payload = {
-            "state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
+            "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
             "optimizer": opt.state_dict(),
-            "config": vars(cfg), "step": step, "epoch": epoch, "history": history,
+            "config": vars(cfg),
+            "step": step,
+            "epoch": epoch,
+            "history": history,
             "meta": {
-                "prompt_format": PROMPT_FORMAT, "preset": args.preset,
-                "loss_mode": args.loss, "n_params": n_params,
-                "data": str(args.data), **(extra or {}),
+                "prompt_format": PROMPT_FORMAT,
+                "preset": args.preset,
+                "loss_mode": args.loss,
+                "n_params": n_params,
+                "data": str(args.data),
+                **(extra or {}),
             },
         }
         tmp = Path(str(path) + ".tmp")
@@ -157,8 +193,13 @@ def main():
     done = False
     while not done:
         epoch += 1
-        for batch in build_batches(train_records, batch_size=args.batch, max_len=args.max_len,
-                                   seed=args.seed + epoch, loss=args.loss):
+        for batch in build_batches(
+            train_records,
+            batch_size=args.batch,
+            max_len=args.max_len,
+            seed=args.seed + epoch,
+            loss=args.loss,
+        ):
             byte_ids, mask = to_torch(batch, device)
             model.train()
             with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
@@ -172,30 +213,54 @@ def main():
             scaler.update()
             step += 1
 
+            if args.checkpoint_every and step % args.checkpoint_every == 0:
+                save(out_dir / "latest.pt", extra={"checkpoint_reason": "periodic"})
+                print(f"checkpointed latest.pt at step {step}", flush=True)
+
             if step % args.val_every == 0:
                 val_loss, val_acc = evaluate(model, val_batches, device)
                 mins = (time.time() - t0) / 60
-                rec = {"step": step, "epoch": epoch, "minutes": round(mins, 2),
-                       "train_loss": float(loss.item()), "val_loss": val_loss,
-                       "val_bpb": val_loss / LN2, "val_byte_acc": val_acc}
+                rec = {
+                    "step": step,
+                    "epoch": epoch,
+                    "minutes": round(mins, 2),
+                    "train_loss": float(loss.item()),
+                    "val_loss": val_loss,
+                    "val_bpb": val_loss / LN2,
+                    "val_byte_acc": val_acc,
+                }
                 history.append(rec)
                 with metrics_path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(rec) + "\n")
-                print(f"step {step:6d} | ep {epoch} | {mins:6.1f}m | train {rec['train_loss']:.4f} | "
-                      f"val {val_loss:.4f} ({rec['val_bpb']:.3f} bpb) | acc {val_acc:.3f}", flush=True)
-                save(out_dir / "latest.pt")
+                print(
+                    f"step {step:6d} | ep {epoch} | {mins:6.1f}m | train {rec['train_loss']:.4f} | "
+                    f"val {val_loss:.4f} ({rec['val_bpb']:.3f} bpb) | acc {val_acc:.3f}",
+                    flush=True,
+                )
+                save(out_dir / "latest.pt", extra={"checkpoint_reason": "validation"})
                 if val_loss < best_val:
                     best_val = val_loss
-                    save(out_dir / "best.pt", extra={"best_val_loss": best_val, "best_val_acc": val_acc})
+                    save(
+                        out_dir / "best.pt",
+                        extra={
+                            "best_val_loss": best_val,
+                            "best_val_bpb": best_val / LN2,
+                            "best_val_acc": val_acc,
+                        },
+                    )
+                    print(f"new best.pt at step {step}: {best_val / LN2:.4f} BPB", flush=True)
 
             if (time.time() - t0) >= args.minutes * 60 or (args.max_steps and step >= args.max_steps):
                 done = True
                 break
 
-    save(out_dir / "latest.pt")
+    save(out_dir / "latest.pt", extra={"checkpoint_reason": "final"})
     val_loss, val_acc = evaluate(model, val_batches, device)
-    print(f"\nfinished: {step} steps / {epoch} epochs | final val {val_loss:.4f} "
-          f"(acc {val_acc:.3f}) | best val {best_val:.4f} -> {out_dir}/best.pt")
+    print(
+        f"\nfinished: {step} steps / {epoch} epochs | final val {val_loss:.4f} "
+        f"({val_loss / LN2:.3f} bpb, acc {val_acc:.3f}) | "
+        f"best val {best_val:.4f} -> {out_dir}/best.pt"
+    )
 
 
 if __name__ == "__main__":
