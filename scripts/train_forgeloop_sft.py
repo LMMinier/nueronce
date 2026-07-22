@@ -121,8 +121,8 @@ def main() -> None:
     best_path = out.with_name(out.stem + "_best.pt")
     scaler = torch.amp.GradScaler("cuda", enabled=amp_enabled)
 
-    def payload() -> dict:
-        return {
+    def payload(*, interrupted: bool = False, interruption_reason: str | None = None) -> dict:
+        checkpoint = {
             "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
             "optimizer": optimizer.state_dict(),
             "config": vars(model.cfg),
@@ -134,52 +134,91 @@ def main() -> None:
             "best_val_loss": best_val,
             "bad_evals": bad_evals,
             "rng_state": rng.bit_generator.state,
+            "python_rng_state": random.getstate(),
+            "numpy_rng_state": np.random.get_state(),
+            "torch_rng_state": torch.get_rng_state().cpu(),
+            "training_args": vars(args).copy(),
+            "interrupted": interrupted,
+            "interruption_reason": interruption_reason,
+            "save_timestamp": time.time(),
+            "last_completed_step": step,
         }
+        if device.type == "cuda":
+            checkpoint["cuda_rng_state"] = torch.cuda.get_rng_state_all()
+        return checkpoint
 
     print(json.dumps({"event": "start", "device": str(device), "resume": resume,
                       "optimizer_restored": bool(resume and source_checkpoint.get("optimizer")),
                       "step": step, "best_val_loss": best_val, "train_examples": len(train_rows),
                       "val_examples": len(val_rows), "params": model.num_params()}), flush=True)
 
-    while step < args.max_steps and bad_evals < args.patience:
-        step_started = time.perf_counter()
-        indices = rng.integers(0, len(train_rows), size=args.batch)
-        batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
-        model.train()
-        optimizer.zero_grad(set_to_none=True)
-        context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
-        with context:
-            logits, _ = model(batch["byte_ids"])
-            loss = model.masked_token_loss(logits, batch["byte_ids"], batch["target_mask"])
-        scaler.scale(loss).backward()
-        scaler.unscale_(optimizer)
-        grad_norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0))
-        scaler.step(optimizer)
-        scaler.update()
-        step += 1
-        step_seconds = time.perf_counter() - step_started
+    try:
+        while step < args.max_steps and bad_evals < args.patience:
+            step_started = time.perf_counter()
+            indices = rng.integers(0, len(train_rows), size=args.batch)
+            batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
+            model.train()
+            optimizer.zero_grad(set_to_none=True)
+            context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
+            with context:
+                logits, _ = model(batch["byte_ids"])
+                loss = model.masked_token_loss(logits, batch["byte_ids"], batch["target_mask"])
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            grad_norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0))
+            scaler.step(optimizer)
+            scaler.update()
+            step += 1
+            step_seconds = time.perf_counter() - step_started
 
-        if step % args.eval_every == 0:
-            val_loss = evaluate(model, val_rows, device, args.system, args.max_len,
-                                amp_enabled, args.eval_examples)
-            improved = val_loss < best_val - args.min_delta
-            if improved:
-                best_val, bad_evals = val_loss, 0
-            else:
-                bad_evals += 1
-            record = {"sft_step": step, "train_loss": float(loss.detach()), "val_loss": val_loss,
-                      "grad_norm": grad_norm, "best_val_loss": best_val,
-                      "bad_evals": bad_evals, "improved": improved, "time": time.time(),
-                      "step_seconds": step_seconds,
-                      "sequence_bytes": int(batch["byte_ids"].numel()),
-                      "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds)}
-            history.append(record)
-            print(json.dumps(record), flush=True)
-            atomic_save(payload(), out)
-            if improved:
-                atomic_save(payload(), best_path)
-        elif step % args.checkpoint_every == 0:
-            atomic_save(payload(), out)
+            if step % args.eval_every == 0:
+                val_loss = evaluate(model, val_rows, device, args.system, args.max_len,
+                                    amp_enabled, args.eval_examples)
+                improved = val_loss < best_val - args.min_delta
+                if improved:
+                    best_val, bad_evals = val_loss, 0
+                else:
+                    bad_evals += 1
+                record = {"sft_step": step, "train_loss": float(loss.detach()), "val_loss": val_loss,
+                          "grad_norm": grad_norm, "best_val_loss": best_val,
+                          "bad_evals": bad_evals, "improved": improved, "time": time.time(),
+                          "step_seconds": step_seconds,
+                          "sequence_bytes": int(batch["byte_ids"].numel()),
+                          "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds)}
+                history.append(record)
+                print(json.dumps(record), flush=True)
+                atomic_save(payload(), out)
+                if improved:
+                    atomic_save(payload(), best_path)
+            elif step % args.checkpoint_every == 0:
+                atomic_save(payload(), out)
+
+    except KeyboardInterrupt:
+        event = {
+            "event": "interrupted",
+            "step": step,
+            "best_val_loss": best_val,
+            "interrupted": True,
+            "reason": "user_requested",
+            "save_timestamp": time.time(),
+            "last_completed_step": step,
+        }
+        print(json.dumps(event), flush=True)
+        try:
+            atomic_save(payload(interrupted=True, interruption_reason="user_requested"), out)
+        except Exception as exc:
+            print(json.dumps({
+                "event": "interrupted_checkpoint_failed",
+                "step": step,
+                "error": str(exc),
+            }), flush=True)
+            raise
+        print(json.dumps({
+            "event": "interrupted_checkpoint_saved",
+            "path": str(out),
+            "step": step,
+        }), flush=True)
+        return
 
     atomic_save(payload(), out)
     print(json.dumps({"event": "converged" if bad_evals >= args.patience else "max_steps",
