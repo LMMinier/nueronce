@@ -1,0 +1,135 @@
+{
+  "decoding": {
+    "temperature": 0.0,
+    "max_new": 64,
+    "max_ctx": 320
+  },
+  "results": [
+    {
+      "model": "base",
+      "category": "arithmetic",
+      "prompt": "What is 17 + 25? Answer with only the number.",
+      "reply": "The first two components of the second two seconds of the secon",
+      "pass": false,
+      "seconds": 4.102,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "logic",
+      "prompt": "All robins are birds. No birds are machines. Can any robin be a machine? Answer yes or no and give one short reason.",
+      "reply": "The robins of the robins are considered because the robins of t",
+      "pass": false,
+      "seconds": 4.622,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "sequence",
+      "prompt": "Continue the sequence: 2, 4, 8, 16, __. Answer with only the number.",
+      "reply": "The sequence of the sequence is a sequence of the sequence of t",
+      "pass": false,
+      "seconds": 4.343,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "knowledge",
+      "prompt": "What is the capital of France? Answer with only the city.",
+      "reply": "The france of the france is a string of the france of the franc",
+      "pass": false,
+      "seconds": 4.092,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "instruction",
+      "prompt": "Return exactly this text and nothing else: BLUE-7",
+      "reply": "The first text is the state of the state of the state of the st",
+      "pass": false,
+      "seconds": 4.623,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "coding",
+      "prompt": "In Python, write a function add(a, b) that returns their sum. Output only code.",
+      "reply": "The function is a substring that constructs a substring that al",
+      "pass": false,
+      "seconds": 3.692,
+      "error": null
+    },
+    {
+      "model": "base",
+      "category": "forgeloop",
+      "prompt": "A unit test fails after changing a parser. Give the next three ForgeLoop stages, one per line.",
+      "reply": "The following process also contains a property that contains a",
+      "pass": false,
+      "seconds": 3.9,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "arithmetic",
+      "prompt": "What is 17 + 25? Answer with only the number.",
+      "reply": "",
+      "pass": false,
+      "seconds": 1.299,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "logic",
+      "prompt": "All robins are birds. No birds are machines. Can any robin be a machine? Answer yes or no and give one short reason.",
+      "reply": "I am may menay mbore>",
+      "pass": false,
+      "seconds": 4.858,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "sequence",
+      "prompt": "Continue the sequence: 2, 4, 8, 16, __. Answer with only the number.",
+      "reply": "Thend|> I can cold the mexample tend thais are tharight the mate",
+      "pass": false,
+      "seconds": 12.262,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "knowledge",
+      "prompt": "What is the capital of France? Answer with only the city.",
+      "reply": "",
+      "pass": false,
+      "seconds": 0.353,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "instruction",
+      "prompt": "Return exactly this text and nothing else: BLUE-7",
+      "reply": "",
+      "pass": false,
+      "seconds": 0.377,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "coding",
+      "prompt": "In Python, write a function add(a, b) that returns their sum. Output only code.",
+      "reply": "You can can stat sk to you can at bout at t to thtnome and a sta",
+      "pass": false,
+      "seconds": 12.978,
+      "error": null
+    },
+    {
+      "model": "forgeloop_sft",
+      "category": "forgeloop",
+      "prompt": "A unit test fails after changing a parser. Give the next three ForgeLoop stages, one per line.",
+      "reply": "I can sis and and take yond the stat the ste starie to assist th",
+      "pass": false,
+      "seconds": 11.691,
+      "error": null
+    }
+  ]
+}

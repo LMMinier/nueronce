@@ -1,0 +1,28 @@
+{
+  "backend": "nueronce-engine-numpy",
+  "torch_used": false,
+  "source_checkpoint": "checkpoints/engine/cfna_forgeloop_sft_best.pkl",
+  "parameter_count": 11131309,
+  "activation_checkpointing": true,
+  "optimizer": "StreamFactor",
+  "optimizer_momentum": false,
+  "new_steps": 100,
+  "starting_engine_sft_step": 2,
+  "ending_engine_sft_step": 102,
+  "max_len": 384,
+  "learning_rate": 0.00005,
+  "wall_seconds": 297.7,
+  "mean_wall_seconds_per_step_including_validation_and_checkpointing": 2.977,
+  "validation": [
+    {"step": 25, "loss": 1.6494480923058226},
+    {"step": 50, "loss": 1.6387557651542186},
+    {"step": 75, "loss": 1.6374134413276036},
+    {"step": 100, "loss": 1.6380576824773865}
+  ],
+  "best_validation_loss": 1.6374134413276036,
+  "post_run_probe": {
+    "arithmetic": "<|end|>",
+    "forgeloop": "<|end|>"
+  },
+  "finding": "The engine trains stably and validation improves modestly, but 384-byte windows often crop away the long system and user context. Loss improvement did not produce usable generation."
+}

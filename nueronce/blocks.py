@@ -17,7 +17,7 @@ Everything is causal so the composed model is a valid autoregressive LM.
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import torch
 import torch.nn.functional as F
@@ -180,14 +180,55 @@ class HybridCoreStack(nn.Module):
     def __init__(self, d_model: int, physical_blocks: int = 2, **block_kw):
         super().__init__()
         self.blocks = nn.ModuleList([HybridBlock(d_model, **block_kw) for _ in range(physical_blocks)])
+        self.last_reasoning_stats: Dict[str, object] = {}
 
     def forward(self, x: Tensor, logical_depth: int, key_padding: Optional[Tensor] = None,
                 retrieval_ctx: Optional[Tensor] = None, retrieval_mask: Optional[Tensor] = None,
-                importance: Optional[Tensor] = None) -> Tensor:
+                importance: Optional[Tensor] = None, *, reasoning_mode: str = "fixed",
+                min_depth: int = 1, halt_epsilon: float = 0.0,
+                damping: float = 1.0, collect_states: bool = False):
+        """Apply a weight-tied core, optionally as convergent deliberation.
+
+        ``equilibrium`` mode damps successive residual updates by 1/sqrt(depth)
+        and can stop once the relative latent update is small. It adds no model
+        parameters and keeps activation memory independent of inference depth.
+        """
+        if reasoning_mode not in {"fixed", "equilibrium"}:
+            raise ValueError(f"unknown reasoning_mode: {reasoning_mode}")
+        deltas: List[float] = []
+        states: List[Tensor] = []
+        halted = False
         for t in range(logical_depth):
             block = self.blocks[t % len(self.blocks)]
-            x = block(x, key_padding, retrieval_ctx, retrieval_mask, importance)
-        return x
+            proposed = block(x, key_padding, retrieval_ctx, retrieval_mask, importance)
+            if reasoning_mode == "equilibrium":
+                scale = min(1.0, float(damping) / ((t + 1) ** 0.5))
+                next_x = x + (proposed - x) * scale
+            else:
+                next_x = proposed
+
+            with torch.no_grad():
+                change = next_x - x
+                if key_padding is not None:
+                    active = key_padding[..., None].to(dtype=change.dtype)
+                    change = change * active
+                    state = next_x * active
+                else:
+                    state = next_x
+                rel = (change.float().pow(2).mean().sqrt()
+                       / state.float().pow(2).mean().sqrt().clamp_min(1e-8))
+                deltas.append(float(rel))
+            x = next_x
+            if collect_states:
+                states.append(x)
+            if halt_epsilon > 0 and t + 1 >= min_depth and deltas[-1] <= halt_epsilon:
+                halted = True
+                break
+        self.last_reasoning_stats = {
+            "mode": reasoning_mode, "steps": len(deltas), "halted": halted,
+            "relative_updates": deltas,
+        }
+        return (x, states) if collect_states else x
 
 
 # --------------------------------------------------------------------------- #

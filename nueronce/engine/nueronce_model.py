@@ -36,6 +36,7 @@ from .nueronce_blocks import (
 )
 from .nn import Embedding, Linear, Module
 from .tensor import Tensor, cat, no_grad
+from .reasoning import AddressableExecutionRegister
 
 LN2 = 0.6931471805599453
 
@@ -63,6 +64,12 @@ class NueronceConfig:
     boundary_loss_weight: float = 0.3
     trainable_segmentation: bool = True
     activation_checkpointing: bool = False
+    reasoning_mode: str = "fixed"
+    reasoning_min_depth: int = 1
+    reasoning_halt_epsilon: float = 0.0
+    reasoning_damping: float = 1.0
+    execution_depth: int = 0
+    execution_residual_scale: float = 1.0
 
 
 def _softmax_np(v: np.ndarray) -> np.ndarray:
@@ -86,6 +93,9 @@ class NueronceModel(Module):
         self.ret_byte_embed = Embedding(256, c.ret_byte_dim)
         self.ret_proj = Linear(c.d_local + c.ret_byte_dim, c.d_model)
         self.boundary_proj = Linear(1, c.d_model)
+        execution_depth = getattr(c, "execution_depth", 0)
+        self.executor = (AddressableExecutionRegister(c.d_model)
+                         if execution_depth > 0 else None)
         self._syntax = segment.syntax_table()
 
     def encode_retrieval(self, neighbor_ids: np.ndarray, neighbor_mask: Optional[np.ndarray] = None):
@@ -137,18 +147,37 @@ class NueronceModel(Module):
             if ret_ctx is None:
                 g = checkpoint(
                     lambda x: self.core(x, c.logical_depth, key_padding=unit_mask,
-                                        retrieval_ctx=None, retrieval_mask=None),
+                                        retrieval_ctx=None, retrieval_mask=None,
+                                        reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
+                                        min_depth=getattr(c, "reasoning_min_depth", 1),
+                                        halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
+                                        damping=getattr(c, "reasoning_damping", 1.0)),
                     units, parameters=self.core.parameters(), name="core",
                 )
             else:
                 g = checkpoint(
                     lambda x, r: self.core(x, c.logical_depth, key_padding=unit_mask,
-                                           retrieval_ctx=r, retrieval_mask=core_ret_mask),
+                                           retrieval_ctx=r, retrieval_mask=core_ret_mask,
+                                           reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
+                                           min_depth=getattr(c, "reasoning_min_depth", 1),
+                                           halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
+                                           damping=getattr(c, "reasoning_damping", 1.0)),
                     units, ret_ctx, parameters=self.core.parameters(), name="core",
                 )
         else:
             g = self.core(units, c.logical_depth, key_padding=unit_mask,
-                          retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask)
+                          retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask,
+                          reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
+                          min_depth=getattr(c, "reasoning_min_depth", 1),
+                          halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
+                          damping=getattr(c, "reasoning_damping", 1.0))
+        execution_depth = getattr(c, "execution_depth", 0)
+        executor = getattr(self, "executor", None)
+        if executor is not None and execution_depth > 0:
+            causal = np.tril(np.ones((c.p_max, c.p_max), dtype=bool))
+            exec_mask = causal[None, :, :] & np.asarray(unit_mask)[:, None, :].astype(bool)
+            executed, _ = executor(g, units, units, execution_depth, memory_mask=exec_mask)
+            g = g + getattr(c, "execution_residual_scale", 1.0) * (executed - g)
         cross_mask = segment.byte_to_unit_mask(seg_ids, unit_mask, c.p_max)
         return g, cross_mask, boundary_logits, seg_ids, unit_mask
 

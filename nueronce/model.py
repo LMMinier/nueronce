@@ -34,6 +34,7 @@ from .blocks import (
     UnitEmbedder,
 )
 from .nn import Linear
+from .reasoning import AddressableExecutionRegister
 from .segment import (
     boundary_targets,
     byte_to_unit_mask,
@@ -106,6 +107,12 @@ class ModelConfig:
     max_patch: int = 24
     boundary_loss_weight: float = 0.3
     trainable_segmentation: bool = True   # let LM loss reach the boundary head
+    reasoning_mode: str = "fixed"
+    reasoning_min_depth: int = 1
+    reasoning_halt_epsilon: float = 0.0
+    reasoning_damping: float = 1.0
+    execution_depth: int = 0
+    execution_residual_scale: float = 1.0
 
 
 class NUERONCEModel(nn.Module):
@@ -130,6 +137,9 @@ class NUERONCEModel(nn.Module):
         # next-byte loss flows gradient into the boundary head (the discrete
         # segmentation structure stays straight-through / detached).
         self.boundary_proj = Linear(1, c.d_model)
+        execution_depth = getattr(c, "execution_depth", 0)
+        self.executor = (AddressableExecutionRegister(c.d_model)
+                         if execution_depth > 0 else None)
         self.register_buffer("_syntax", syntax_table(), persistent=False)
 
     # ------------------------------------------------------------------ #
@@ -184,7 +194,19 @@ class NUERONCEModel(nn.Module):
         if ret_ctx is not None:                            # units may attend all retrieved ctx
             core_ret_mask = ret_mask[:, None, :].expand(-1, c.p_max, -1)
         g = self.core(units, c.logical_depth, key_padding=unit_mask,
-                      retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask)
+                      retrieval_ctx=ret_ctx, retrieval_mask=core_ret_mask,
+                      reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
+                      min_depth=getattr(c, "reasoning_min_depth", 1),
+                      halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
+                      damping=getattr(c, "reasoning_damping", 1.0))
+        execution_depth = getattr(c, "execution_depth", 0)
+        if self.executor is not None and execution_depth > 0:
+            causal = torch.ones(c.p_max, c.p_max, dtype=torch.bool,
+                                device=units.device).tril()
+            exec_mask = causal[None, :, :] & unit_mask[:, None, :].bool()
+            executed, _ = self.executor(g, units, units, execution_depth,
+                                        memory_mask=exec_mask)
+            g = g + getattr(c, "execution_residual_scale", 1.0) * (executed - g)
         cross_mask = byte_to_unit_mask(seg_ids, unit_mask, c.p_max)
         return g, cross_mask, boundary_logits, seg_ids, unit_mask
 

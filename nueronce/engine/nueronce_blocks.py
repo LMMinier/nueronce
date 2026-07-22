@@ -178,14 +178,44 @@ class HybridCoreStack(Module):
 
     def __init__(self, d_model: int, physical_blocks: int = 2, **block_kw):
         self.blocks: List[HybridBlock] = [HybridBlock(d_model, **block_kw) for _ in range(physical_blocks)]
+        self.last_reasoning_stats = {}
 
     def forward(self, x: Tensor, logical_depth: int, key_padding: Optional[np.ndarray] = None,
                 retrieval_ctx: Optional[Tensor] = None, retrieval_mask: Optional[np.ndarray] = None,
-                importance: Optional[Tensor] = None) -> Tensor:
+                importance: Optional[Tensor] = None, *, reasoning_mode: str = "fixed",
+                min_depth: int = 1, halt_epsilon: float = 0.0,
+                damping: float = 1.0, collect_states: bool = False):
+        if reasoning_mode not in {"fixed", "equilibrium"}:
+            raise ValueError(f"unknown reasoning_mode: {reasoning_mode}")
+        deltas = []
+        states = []
+        halted = False
         for t in range(logical_depth):
             block = self.blocks[t % len(self.blocks)]
-            x = block(x, key_padding, retrieval_ctx, retrieval_mask, importance)
-        return x
+            proposed = block(x, key_padding, retrieval_ctx, retrieval_mask, importance)
+            scale = (min(1.0, float(damping) / ((t + 1) ** 0.5))
+                     if reasoning_mode == "equilibrium" else 1.0)
+            next_x = x + (proposed - x) * scale if scale != 1.0 else proposed
+            change = next_x.data - x.data
+            state = next_x.data
+            if key_padding is not None:
+                active = np.asarray(key_padding)[..., None]
+                change = change * active
+                state = state * active
+            rel = float(np.sqrt(np.mean(change * change))
+                        / max(1e-8, float(np.sqrt(np.mean(state * state)))))
+            deltas.append(rel)
+            x = next_x
+            if collect_states:
+                states.append(x)
+            if halt_epsilon > 0 and t + 1 >= min_depth and rel <= halt_epsilon:
+                halted = True
+                break
+        self.last_reasoning_stats = {
+            "mode": reasoning_mode, "steps": len(deltas), "halted": halted,
+            "relative_updates": deltas,
+        }
+        return (x, states) if collect_states else x
 
 
 # --------------------------------------------------------------------------- #
