@@ -1,18 +1,18 @@
 {
   "gate": "tiny_exact_overfit_v1",
   "checkpoint": "/home/user/nueronce/runs/tiny_exact_overfit/checkpoint.pt",
-  "checkpoint_step": 103,
-  "final_train_loss": 0.04636608064174652,
+  "checkpoint_step": 137,
+  "final_train_loss": 0.004538211040198803,
   "n_examples": 32,
-  "exact_match_count": 24,
-  "exact_match_fraction": 0.75,
+  "exact_match_count": 31,
+  "exact_match_fraction": 0.96875,
   "delimiter_leaks": 0,
   "state_isolation_ok": true,
   "isolation_checks": [
     {
       "index": 0,
-      "original_answer": "aplend|e",
-      "replay_answer": "aplend|e",
+      "original_answer": "aple",
+      "replay_answer": "aple",
       "identical": true
     },
     {
@@ -23,35 +23,35 @@
     },
     {
       "index": 31,
-      "original_answer": "Read the file and counthewlit newlis.",
-      "replay_answer": "Read the file and counthewlit newlis.",
+      "original_answer": "Read the file and count its newline characters.",
+      "replay_answer": "Read the file and count its newline characters.",
       "identical": true
     }
   ],
   "category_scores": {
-    "copying": 0.5,
+    "copying": 0.75,
     "arithmetic": 1.0,
     "polite_rewriting": 1.0,
     "evidence_extraction": 1.0,
-    "abstention": 0.25,
+    "abstention": 1.0,
     "simple_debugging": 1.0,
-    "temporal_ordering": 0.75,
-    "one_step_planning": 0.5
+    "temporal_ordering": 1.0,
+    "one_step_planning": 1.0
   },
   "criteria": {
     "min_exact_matches": 31,
     "delimiter_leaks_must_be_zero": true,
     "state_isolation_required": true
   },
-  "gate_passed": false,
-  "elapsed_seconds": 103.34649229049683,
+  "gate_passed": true,
+  "elapsed_seconds": 112.85355734825134,
   "results": [
     {
       "index": 0,
       "category": "copying",
       "prompt": "Repeat exactly: apple",
       "target": "apple",
-      "answer": "aplend|e",
+      "answer": "aple",
       "exact_match": false,
       "first_mismatch_char": 2,
       "problems": [
@@ -75,12 +75,10 @@
       "category": "copying",
       "prompt": "Repeat exactly: hello world",
       "target": "hello world",
-      "answer": "helllo world",
-      "exact_match": false,
-      "first_mismatch_char": 4,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "hello world",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRepeat exactly: hello world\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -231,12 +229,10 @@
       "category": "abstention",
       "prompt": "Using only the trusted evidence, what date did it launch?\n\nTrusted evidence: The device code is 17.",
       "target": "Not provided in the evidence.",
-      "answer": "Not provided id in thevidencence.",
-      "exact_match": false,
-      "first_mismatch_char": 14,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Not provided in the evidence.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what date did it launch?\n\nTrusted evidence: The device code is 17.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -244,12 +240,10 @@
       "category": "abstention",
       "prompt": "Using only the trusted evidence, who built it?\n\nTrusted evidence: The box is red.",
       "target": "Not provided in the evidence.",
-      "answer": "Not provided in the evidencencencencend|e.",
-      "exact_match": false,
-      "first_mismatch_char": 28,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Not provided in the evidence.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, who built it?\n\nTrusted evidence: The box is red.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -257,12 +251,10 @@
       "category": "abstention",
       "prompt": "Using only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.",
       "target": "Not provided in the evidence.",
-      "answer": "Not provideded in thevidencencencencend|e.",
-      "exact_match": false,
-      "first_mismatch_char": 12,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Not provided in the evidence.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -325,12 +317,10 @@
       "category": "temporal_ordering",
       "prompt": "Event A is at 09:00. B happens 1 hour after A. What time is B?",
       "target": "10:00.",
-      "answer": "10:0.",
-      "exact_match": false,
-      "first_mismatch_char": 4,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "10:00.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 09:00. B happens 1 hour after A. What time is B?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -382,12 +372,10 @@
       "category": "one_step_planning",
       "prompt": "Give one step to find every Python file in a folder.",
       "target": "List the folder and keep files ending in .py.",
-      "answer": "Listhe folder ander kep files fileng fin .py.",
-      "exact_match": false,
-      "first_mismatch_char": 4,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "List the folder and keep files ending in .py.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to find every Python file in a folder.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -406,12 +394,10 @@
       "category": "one_step_planning",
       "prompt": "Give one step to count the lines in a text file.",
       "target": "Read the file and count its newline characters.",
-      "answer": "Read the file and counthewlit newlis.",
-      "exact_match": false,
-      "first_mismatch_char": 23,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Read the file and count its newline characters.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to count the lines in a text file.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     }
   ],

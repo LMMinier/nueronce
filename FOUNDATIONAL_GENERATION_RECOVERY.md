@@ -1,5 +1,16 @@
 # NUERONCE Foundational Generation Recovery
 
+> **GATE PASSED 2026-07-23 (later the same day): 31/32 on the real chat_11m.**
+> Round 1 at loss 0.046 scored 24/32 with every miss a byte-stutter on a known
+> answer — and the miss rate matched the compounding arithmetic (98.72%
+> measured TF accuracy predicts 81% exact vs 75% observed). Resumed to loss
+> 0.0045: **31/32 exact, 0 delimiter leaks, state isolation clean —
+> `gate_passed: true`** (`runs/tiny_exact_overfit/eval_report.json`). The
+> train→serialize→mask→generate pipeline is proven mechanically sound on the
+> real 11M architecture. Per the advancement rules below, broad training is
+> now unblocked; the constraint that remains is training scale (H7), and the
+> checkpoint-selection metric must stay on free-run-predictive numbers.
+>
 > **STATUS 2026-07-23 — investigation closed, verdicts in.** The loss sweep
 > answered the core question: 0.844 nats/byte response loss ≈ ~85% per-byte
 > argmax accuracy, and 0.85^30 ≈ 0.8% exact reproduction of a 30-byte answer
