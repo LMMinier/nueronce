@@ -1,6 +1,18 @@
 # NUERONCE Foundational Generation Recovery
 
-## Cloud-session status (this pass)
+> **STATUS 2026-07-23 — investigation closed, verdicts in.** The loss sweep
+> answered the core question: 0.844 nats/byte response loss ≈ ~85% per-byte
+> argmax accuracy, and 0.85^30 ≈ 0.8% exact reproduction of a 30-byte answer
+> — the 0/8 gate score is the *expected value* of that loss level, not a
+> generation bug. H1–H4 cleared, H5 (preset drift) found and fixed, H6
+> confirmed as consequence, H7 (insufficient training) confirmed as primary
+> cause. Full verdicts, secondary findings, and the 5-step fix ladder:
+> `docs/RESULTS.md` (2026-07-23 entry). Measurement tool:
+> `scripts/eval_loss_generation_curve.py`. Checkpoint selection must move to
+> response-byte/first-8-bytes metrics with target ≤ 0.05 before any gate
+> attempt.
+
+## Cloud-session status (earlier pass)
 
 Implemented, from the cloud side (no GPU here, so nothing below claims the
 sealed gate now passes -- that verdict can only come from running the real

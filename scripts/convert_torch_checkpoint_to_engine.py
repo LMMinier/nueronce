@@ -33,7 +33,12 @@ def main() -> None:
     args = parser.parse_args()
 
     source = torch.load(args.source, map_location="cpu", weights_only=False)
-    config = NueronceConfig(**source["config"], activation_checkpointing=True)
+    # Torch checkpoints may now carry activation_checkpointing themselves
+    # (ModelConfig mirrors the engine config field-for-field); the engine
+    # conversion always wants it on, so override rather than duplicate.
+    source_config = {k: v for k, v in source["config"].items()
+                     if k != "activation_checkpointing"}
+    config = NueronceConfig(**source_config, activation_checkpointing=True)
     model = NueronceModel(config)
     report = load_torch_state_dict(model, source["state_dict"])
     optimizer = StreamFactor(model.parameters(), lr=args.lr, weight_decay=0.01,
