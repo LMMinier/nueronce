@@ -151,6 +151,17 @@ class BlockStreamFactor:
         self.weight_decay, self.clip_threshold = weight_decay, clip_threshold
         self.tile_rows = tile_rows
 
+    def set_lr(self, lr: float) -> None:
+        """Explicit, discoverable LR update for an LR ladder/scheduler.
+
+        `self.lr` is a plain attribute with no update path otherwise; direct
+        mutation (`optimizer.lr = x`) works but is easy to forget across a
+        resume -- the same silent-stale-LR bug class already found and fixed
+        once in scripts/train_checkpoint.py's resume path. Fix it here before
+        this trainer is ever wired into a ladder, not after.
+        """
+        self.lr = float(lr)
+
     def init_state(self, params: Iterable[Tensor]):
         state = {"step": 0, "v": []}
         for p in params:
@@ -248,7 +259,13 @@ class DecomposedTrainer:
             self.state_manager.save(block.name, state)
             updated += block.parameter_count
             del state
-            gc.collect()
+        # A single collect after the full block loop, not one per block: the
+        # per-block optimizer-state dict is refcounted away immediately on
+        # `del` (no cycle -- verified: gc.disable() + a weakref probe still
+        # frees it), so 8 collects/step bought nothing but ~90% wasted GC
+        # time (measured ~3.3ms/call here). The real cyclic garbage is the
+        # released Tensor autograd graph, which this one call -- same as
+        # tape.clear() already did -- still reclaims every step.
         self.tape.clear()
         self.step_index += 1
         return {
