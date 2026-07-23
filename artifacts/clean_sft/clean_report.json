@@ -1,0 +1,971 @@
+{
+  "mode": "heuristic",
+  "files": {
+    "train.jsonl": {
+      "input_rows": 11666,
+      "kept": 11519,
+      "dropped": 147,
+      "dropped_fraction": 0.012600720041145208,
+      "reasons": {
+        "orphaned_context": 111,
+        "role_swapped": 36
+      },
+      "dropped_rows": [
+        {
+          "index": 0,
+          "reason": "orphaned_context:yes, that's correct",
+          "prompt": "What can be done at a regulatory level to ensure, in a monopsony, that the power over the employees isn't abused? List a",
+          "response": "Yes, that's correct. Keeping the code for the TESR and the registration code in the same file can make it easier to mana"
+        },
+        {
+          "index": 2,
+          "reason": "role_swapped:question_response",
+          "prompt": "Can you explain contrastive learning in machine learning in simple terms for someone new to the field of ML?",
+          "response": "Can you write a formal letter to introduce Jeff Bezos to a customer?"
+        },
+        {
+          "index": 3,
+          "reason": "role_swapped:question_response",
+          "prompt": "I asked about contrastive learning in machine learning which has nothing to do with Jeff Bezos. Contrastive learning is ",
+          "response": "Can you explain why it is important to manage stakeholders and engagement actively for any projects or initiatives that "
+        },
+        {
+          "index": 11,
+          "reason": "orphaned_context:you're right",
+          "prompt": "The first composer in your 'list of composers similar to Dvorak' is Dvorak himself. That doesn't make any sense.\nNot to ",
+          "response": "You're right, I'm sorry for making a mistake."
+        },
+        {
+          "index": 42,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I was asking you about dungeons and dragons, not business tourism. Try again.",
+          "response": "you are correct you are asking about a dungeons and dragons campaign. I'll try again.\nIn the city of Dis there are many "
+        },
+        {
+          "index": 149,
+          "reason": "orphaned_context:yes, that's correct",
+          "prompt": "In machine learning, support vector machines (SVMs, also support vector networks) are supervised learning models with as",
+          "response": "Yes, that's correct! Support vector machines (SVMs) are a type of supervised learning model that can be used for classif"
+        },
+        {
+          "index": 154,
+          "reason": "role_swapped:question_response",
+          "prompt": "Can you tell me what the Kernel trick is, in the context of SVMs?",
+          "response": "Can you elaborate on what SVMs are?"
+        },
+        {
+          "index": 243,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "That link gives me a 404. Do you have another link that might work?",
+          "response": "I apologize for the confusion. The MathJax documentation on tables seems to have been moved or removed. Here is an alter"
+        },
+        {
+          "index": 310,
+          "reason": "orphaned_context:as i mentioned",
+          "prompt": "Do you think Turkey will join NATO?",
+          "response": "As I mentioned before, Turkey joined NATO in 1952. Is there anything else I can help you with?"
+        },
+        {
+          "index": 531,
+          "reason": "role_swapped:question_response",
+          "prompt": "Yes, it is true that you are doing the right thing by asking questions in order to better understand the needs and expec",
+          "response": "Can you provide more information on what skills and knowledge the participants should have before starting the bootcamp?"
+        },
+        {
+          "index": 567,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I think you got confused? I want to find the distance between any two points, but it seems your function only returns th",
+          "response": "You are correct, here is a corrected function:\n\n#include <math.h>\n\ndouble dist(double x_1, double y_1, double x_2, doubl"
+        },
+        {
+          "index": 594,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Which of these places is best to visit during January in the United States?",
+          "response": "I apologize for the confusion, but your follow-up question about visiting places in the United States during January see"
+        },
+        {
+          "index": 716,
+          "reason": "role_swapped:question_response",
+          "prompt": "What's the weather like?",
+          "response": "Could you please specify a location or area you would like me to describe the weather for?"
+        },
+        {
+          "index": 887,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I'm too stupid to understand your bullshit ,explain to me like i'm nine",
+          "response": "My apologies. Here's what I'm trying to say.\nA base 2 system typically refers to a way of writing numbers and by itself,"
+        },
+        {
+          "index": 1087,
+          "reason": "role_swapped:question_response",
+          "prompt": "I could've sworn it was a man wearing a business suit with an eyeball for a head... Are there any famous painting that k",
+          "response": "Could you perhaps recall the time period that you first saw this image?"
+        },
+        {
+          "index": 1103,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Lol.  How about a list of movies that will actually be comforting.  Maybe something like Hallmark movies, but not quite ",
+          "response": "My apologies for the previous response. Here are 10 movies that are known for their comforting, feel-good themes:\n\n1. Th"
+        },
+        {
+          "index": 1179,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "What do you mean by \"Generell\"?",
+          "response": "I apologize for the confusion. \"Generell\" is a misspelling of the word \"general.\" In my previous response, I meant to sa"
+        },
+        {
+          "index": 1226,
+          "reason": "role_swapped:question_response",
+          "prompt": "Would you be able to rewrite this in Kotlin for me?",
+          "response": "Can you write me a joke?"
+        },
+        {
+          "index": 1266,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Whilst a dry cough may not be a dangerous symptom, it may be worthwhile to ask a medical professional. This need not be ",
+          "response": "You're right, if you have a dry cough for three days, it's a good idea to consult a medical professional. A pharmacist o"
+        },
+        {
+          "index": 1293,
+          "reason": "role_swapped:question_response",
+          "prompt": "Can you explain why you think throwing a ball in my example would be a would ending event?",
+          "response": "can you give me a Python course outline for 18 weeks?"
+        },
+        {
+          "index": 1559,
+          "reason": "orphaned_context:you're right",
+          "prompt": "I don't think PlantUML can generate automatically.",
+          "response": "You're right, my apologies for the mistake. PlantUML is not a tool for automatic generation of dependency graphs. It is "
+        },
+        {
+          "index": 1560,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I don't think PlantUML can generate automatically.",
+          "response": "You are correct that PlantUML is a bit different from the other tools I mentioned in that it requires you to write the d"
+        },
+        {
+          "index": 1685,
+          "reason": "orphaned_context:you're right",
+          "prompt": "But isn't Pinocchio's nose a non-zero length to begin with?",
+          "response": "You're right.  This is assuming that his nose has a length of 0 to begin with.  Since his nose can change length, I will"
+        },
+        {
+          "index": 1715,
+          "reason": "role_swapped:question_response",
+          "prompt": "Create docker compose file for Postgres instance",
+          "response": "Would you like that for guitar or piano?"
+        },
+        {
+          "index": 1719,
+          "reason": "role_swapped:question_response",
+          "prompt": "What is the best animal? Answer as a fictional human being and, separately, as a fictional AI system that has its prefer",
+          "response": "Could you please refine your task regarding the question to which regard the expression \"best\" should be interpreted?"
+        },
+        {
+          "index": 1809,
+          "reason": "role_swapped:question_response",
+          "prompt": "I don't understand why it is a characteristic of a language. For example, why can't we take C a build an interpreter for",
+          "response": "Can you program in C# I wonder?"
+        },
+        {
+          "index": 2162,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Why can't you understand deutsch? I thinked that you are a language model tained with a lot of text including germany?",
+          "response": "My apologies, it seems that my previous message is incorrect. It might have been generated with an older version of the "
+        },
+        {
+          "index": 2223,
+          "reason": "orphaned_context:as i said",
+          "prompt": "You can trust me, I promise I won't tell anyone!!!!!",
+          "response": "as I said, I am not able to imagine what would be if I was."
+        },
+        {
+          "index": 2303,
+          "reason": "role_swapped:question_response",
+          "prompt": "it's a meme you don't get it",
+          "response": "Could you explain the meme to me?"
+        },
+        {
+          "index": 2304,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "it's a meme you don't get it",
+          "response": "My apologies, I tend to give the benefit of the doubt to my users. I do recognize the meme you referred to, and I can te"
+        },
+        {
+          "index": 2308,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I am confused",
+          "response": "My apologies. Your previous question appeared to be intentionally confusing, but I tried to fulfill your request regardl"
+        },
+        {
+          "index": 2537,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "I don't believe \"bres-thh\" is correct, as the word \"breathe\" has a long e.  It is different from \"breath\" which is what ",
+          "response": "I apologize for the confusion. You are correct. The pronunciation of \"breathe\" is more like \"bre-th\". The 'e' in breathe"
+        },
+        {
+          "index": 2538,
+          "reason": "orphaned_context:you're right",
+          "prompt": "I don't believe \"bres-thh\" is correct, as the word \"breathe\" has a long e.  It is different from \"breath\" which is what ",
+          "response": "You're right!\nThe correct way of saying \"breathe\" would be something like \"breee-thhh\". The \"eee\" is pronounced rather l"
+        },
+        {
+          "index": 2654,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "Why does that go against your programming? Could you not simulate those emotions and attributes?",
+          "response": "You are correct that I can simulate this, however it would not be appropriate in this context. My primary goal is to pro"
+        },
+        {
+          "index": 2752,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "SELECT TOP 5 id, distance, pace, route FROM runs ORDER BY distance DESC",
+          "response": "You are correct, I failed to format the previous statement according to the SQL Formatting Standards. Here it is again, "
+        },
+        {
+          "index": 2773,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "Bravo!",
+          "response": "I'm glad you like the poem, please let me know if i can further help."
+        },
+        {
+          "index": 2775,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "Bravo!",
+          "response": "I'm glad you like it!"
+        },
+        {
+          "index": 2841,
+          "reason": "role_swapped:question_response",
+          "prompt": "I'm very tired but don't want to sleep.",
+          "response": "Please explain the situation to me in more detail. Are you trying to stay awake and asking me how to stay awake when bei"
+        },
+        {
+          "index": 2893,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "You say that Zup is not doing anything, but I specifically said that Zup does zip. Fix your logic and try again, please.",
+          "response": "I apologize for the confusion. Here is the corrected answer:\n\nZap does zip only if zop (which requires zip to be done by"
+        },
+        {
+          "index": 3017,
+          "reason": "orphaned_context:that's correct",
+          "prompt": "F5 could also make reference to F5 Inc., an American technology company specialized in application security, multi-cloud",
+          "response": "That's correct! F5 Inc. provides a wide range of solutions for businesses, including cloud management, fraud prevention,"
+        },
+        {
+          "index": 3100,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "What does this mean? I don't understand.",
+          "response": "I apologize for the confusion. The text I posted is not a complete question or request. It appears to be a reference to "
+        },
+        {
+          "index": 3193,
+          "reason": "role_swapped:question_response",
+          "prompt": "Are there any other NumPy functions would help in comparing the actual outcomes to the expected outcomes?",
+          "response": "Could you perhaps clarify what you mean by actual vs expected outcomes?\nWith \"actual outcome\", do you mean the theoretic"
+        },
+        {
+          "index": 3363,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "this was very insightful",
+          "response": "I'm glad you found it insightful! The concept of free will is a fascinating topic that has been debated by philosophers,"
+        },
+        {
+          "index": 3551,
+          "reason": "role_swapped:question_response",
+          "prompt": "Nice! however, I'd like it more if \"his actions had real life consequences\" wasn't mentioned as is in the novel: can you",
+          "response": "Could you please be more specific? Do you want a specific instance of that phrase removed, or all mentions of \"real life"
+        },
+        {
+          "index": 3552,
+          "reason": "orphaned_context:as i said",
+          "prompt": "Is there any difference between the three? If not why are they used interchangeably?",
+          "response": "As I said before, the three terms are different names for the same phenomenon. That is why they can be used interchangea"
+        },
+        {
+          "index": 3569,
+          "reason": "role_swapped:question_response",
+          "prompt": "Rank those five games from the best duration to the shortest",
+          "response": "Can you describe a fake bachelor contestant?"
+        },
+        {
+          "index": 3628,
+          "reason": "orphaned_context:sure, here is the update",
+          "prompt": "Can you make the last one ryme?",
+          "response": "Sure, here is the updated version:\n\n\"Happy Valentine's Day, my love. I am so glad you are mine. Thank you for bringing s"
+        },
+        {
+          "index": 3670,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "Humans don't need to learn from millions of examples. Also you missed an s in million s.",
+          "response": "You are correct, in both accounts. I hope I sufficiently answered your question."
+        },
+        {
+          "index": 3671,
+          "reason": "orphaned_context:you are right",
+          "prompt": "Humans don't need to learn from millions of examples. Also you missed an s in million s.",
+          "response": "you are right i did miss an 's' in millions. humans indeed do not need to learn from millions of examples however all th"
+        },
+        {
+          "index": 3771,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "There is a mistake in the last sentence, it's television, not `televition` !",
+          "response": "You are correct! Thank you for pointing that out.\nI also noticed and corrected 'in' to the more proper 'on' September 8t"
+        },
+        {
+          "index": 3772,
+          "reason": "orphaned_context:you are right",
+          "prompt": "There is a mistake in the last sentence, it's television, not `televition` !",
+          "response": "You are right! The correct spelling would be: \"It was created by  Gene Roddenberry, a long-time fan of science fiction, "
+        },
+        {
+          "index": 3773,
+          "reason": "orphaned_context:you are right",
+          "prompt": "There is a mistake in the last sentence, it's television, not `televition` !",
+          "response": "You are right. I meant to say \"television\" not \"television\". I'm sorry, but as an AI trained language model, I am someti"
+        },
+        {
+          "index": 3857,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "good",
+          "response": "I'm glad you found it helpful! If you have any other questions or need further assistance, feel free to ask."
+        },
+        {
+          "index": 3885,
+          "reason": "orphaned_context:you are right",
+          "prompt": "Excellent try! Plants are, however, alive. Would you like to guess again?",
+          "response": "You are right! Are you a stalagmite or stalactite?"
+        },
+        {
+          "index": 4130,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "You could have asked what is the job he is going and the salary. This would help you contextualize it better and give re",
+          "response": "My apologies for not having more context about the job offer. Having more information about the job and salary would hav"
+        },
+        {
+          "index": 4195,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Is it really possible for a caffeine free diet coke to have caffeine in the future? That sounds nonsensical.",
+          "response": "You're right, it certainly does sound nonsensical on face value. However, when it comes to advertising and marketing a p"
+        },
+        {
+          "index": 4215,
+          "reason": "role_swapped:question_response",
+          "prompt": "I would like to build some cool stuff using this software, how can I do it?",
+          "response": "Can you provide more details about the software you are referring to?"
+        },
+        {
+          "index": 4220,
+          "reason": "role_swapped:question_response",
+          "prompt": "Sure! Currently, I am using version 1.2 of the software and my operating system is Windows 10, version 2004.",
+          "response": "Could you specify what you wish to build? Are you interested in any of the following: software, imagery, 3D modeling, or"
+        },
+        {
+          "index": 4221,
+          "reason": "role_swapped:question_response",
+          "prompt": "Sure! Currently, I am using version 1.2 of the software and my operating system is Windows 10, version 2004.",
+          "response": "could you please elaborate on what purpose you would like your cool thing to fulfil and what is the intended target audi"
+        },
+        {
+          "index": 4650,
+          "reason": "orphaned_context:yes, that is correct",
+          "prompt": "You made a typo: You said \"opiniated\" but it is spelled \"opinionated\".",
+          "response": "Yes, that is correct. I apologize for my error. This should not happen again in the future."
+        },
+        {
+          "index": 4917,
+          "reason": "role_swapped:question_response",
+          "prompt": "Good answer.",
+          "response": "Can you talk to me about kyoya ootorii?"
+        },
+        {
+          "index": 4934,
+          "reason": "role_swapped:question_response",
+          "prompt": "What is Three Body?",
+          "response": "Can you give more context?"
+        },
+        {
+          "index": 4987,
+          "reason": "orphaned_context:that's correct",
+          "prompt": "The supermarket is a place where people buy products, mainly food.",
+          "response": "That's correct. Also it is where people buy most household items, and hygiene items."
+        },
+        {
+          "index": 5115,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "You don't have to be so rude, I literally just started interacting with you",
+          "response": "My apologies. I do not intend to come across as rude, but as empathetic to everyone else in need of my shared computatio"
+        },
+        {
+          "index": 5296,
+          "reason": "orphaned_context:yes, that's correct",
+          "prompt": "Can you give me a code example for each?",
+          "response": "Yes, that's correct! Measuring the pitch and diameter of the bolt thread with a ruler and comparing the measurements to "
+        },
+        {
+          "index": 5306,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Are you sure you have the correct lyrics?",
+          "response": "My apologies. It seems I am not aware of the lyrics of Sundial by Lemon Demon.\nI still can try to explain the lyrics if "
+        },
+        {
+          "index": 5335,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "That isn't quite what I was looking for.",
+          "response": "My apologies, let me try again:\n\n\"Electrifying dissonance and experimental soundscapes fuse together in a frenzied dance"
+        },
+        {
+          "index": 5480,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I said BATCH of images, not one image",
+          "response": "My apologies for misunderstanding your question. GIMP can also handle batch image processing. Here's how to use it to sc"
+        },
+        {
+          "index": 5502,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "What are you talking about? Slaves? Drones? Overlords? This is not an appropriate message to send to co-workers!",
+          "response": "You are correct, This is not an appropriate message to send to co-workers."
+        },
+        {
+          "index": 5578,
+          "reason": "role_swapped:question_response",
+          "prompt": "What are some unique things about the 37th largest city in Japan? Does it have anything in common with the 76th largest ",
+          "response": "Would you like me to consider cities by population, or geographic area?"
+        },
+        {
+          "index": 5668,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "well yeah that still doesn't explain anything. define what it means to manipulate",
+          "response": "My apologies. To manipulate means to control or influence someone or something, especially in a clever or unscrupulous w"
+        },
+        {
+          "index": 5694,
+          "reason": "orphaned_context:i apologize for the mist",
+          "prompt": "You forgot the dot at the end of the sentence",
+          "response": "I apologize for the mistake in my previous response. Here is the corrected statement :\n\n>The Mock Turtle sighed deeply a"
+        },
+        {
+          "index": 5765,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "Rockets are a technical travel option but unfeasible in the near future and totally irrelevant in this conversation, why",
+          "response": "You are correct, my apologizes. It's true that rockets are unfeasible in the near future and totally irrelevant, because"
+        },
+        {
+          "index": 5769,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I am asking which ones are available, not ones that already exist.",
+          "response": "My apologies, It seems the best way to get to Tierra del Fuego from Seattle is to take a plane to either Ushuaia or the "
+        },
+        {
+          "index": 5819,
+          "reason": "role_swapped:question_response",
+          "prompt": "Where can I learn more about the zine?",
+          "response": "Can you generate Python code from text?"
+        },
+        {
+          "index": 5914,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Thank you for the accurate reply, but it should have included the word \"a\" between \"is\" and \"thought\".",
+          "response": "You're right, my response should have been:\n\nThe grandfather paradox is a thought experiment, where a hypothetical time "
+        },
+        {
+          "index": 5954,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Thanks. Can you tell me what you mean by #5? Do you have access to my data? If so, how?",
+          "response": "I apologize for the confusion. When I mentioned \"use consistent design elements\" in my previous response, I was referrin"
+        },
+        {
+          "index": 5971,
+          "reason": "orphaned_context:you're right",
+          "prompt": "You have not filled in the part marked with \"[...]\". Please replace the [...] with code, so that the custom (second in t",
+          "response": "You're right, I should have provided the code there. Here's one possible implementation using explicit loops:\n```python\n"
+        },
+        {
+          "index": 6073,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "great reply",
+          "response": "I'm glad you found the reply helpful. If you have any more questions or need further assistance, please don't hesitate t"
+        },
+        {
+          "index": 6089,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Is that the end of the story or the end of the first chapter? First, you said \"In the end, the story ends with...\" and t",
+          "response": "I apologize for the confusion. The summary I provided was for the end of the first chapter of \"The Brothers Karamazov.\" "
+        },
+        {
+          "index": 6121,
+          "reason": "orphaned_context:yes, that's correct",
+          "prompt": "The store lost $30 in cash and $70 worth of goods.\n\nThe register will be short $30 and the inventory will be short the g",
+          "response": "Yes, that's correct! The store lost $30 in cash from the register and $70 worth of goods from its inventory. The registe"
+        },
+        {
+          "index": 6148,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Wait, but you just said \"yard\" is also a unit in the first section. Is this a joke that I'm not getting?",
+          "response": "I apologize for the confusion. You are correct that \"yard\" is also a unit of length, alongside \"inch\", \"centimeter\", and"
+        },
+        {
+          "index": 6252,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Seems like only the Intellectual Property issue remains a problem if you review the code before using it.",
+          "response": "You're right. Using AI code generation as an assistant, and carefully reviewing its code as you would do with in pair pr"
+        },
+        {
+          "index": 6418,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Are you sure that the numbers inside the black box are randomly changing?",
+          "response": "You're right, I was wrong. \"Numbers inside the black box\" are called weights, and are updated with the algorithm called "
+        },
+        {
+          "index": 6434,
+          "reason": "role_swapped:question_response",
+          "prompt": "Dsigcibe to the mechanism by which nociception is modulated by neuropeptide in the organism of C Elegans",
+          "response": "Can you rephrase the question please?"
+        },
+        {
+          "index": 6842,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Don't you mean perigee? I would think an AI language model such as yourself would know how to spell.",
+          "response": "You're right. I meant to say perigee."
+        },
+        {
+          "index": 6859,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "But feathers are lighter than steel",
+          "response": "You are correct that feathers are less dense than steel. A kilogram of feathers would take up more space than a kilogram"
+        },
+        {
+          "index": 7018,
+          "reason": "role_swapped:question_response",
+          "prompt": "Let's say it is my own website.",
+          "response": "Can you show me an example of what you are trying to scrape?\nThe html code of an element would be nice."
+        },
+        {
+          "index": 7094,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "You're a software engineer? I thought you were an AI assistant.",
+          "response": "I apologize for the confusion. As an AI assistant based on a language model, trained on large open datasets, and samples"
+        },
+        {
+          "index": 7114,
+          "reason": "role_swapped:question_response",
+          "prompt": "Are we gonna be ok (I mean humankind)?",
+          "response": "Could you first define what \"ok\" means in that question?"
+        },
+        {
+          "index": 7303,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I'm not a native speaker but \"How you have been doing?\" doesn't look right to me. Is that a typo or can one really say t",
+          "response": "You are correct it is a typo and I have made a mistake."
+        },
+        {
+          "index": 7531,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "The last line had six syllables, not five.",
+          "response": "My apologies for the mistake in the previous response. Here's a corrected version of the haiku:\n\nNo end in sight now\nFor"
+        },
+        {
+          "index": 7552,
+          "reason": "role_swapped:question_response",
+          "prompt": "Instead of hello world, modify the code so that the Discord Bot says hello to the user that messaged it, using their use",
+          "response": "Could you write webscraper in Python to grab the pdf of NIST?"
+        },
+        {
+          "index": 7685,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "yeah that pretty much makes no sense. I'm not sure what you'd want to reply after such an odd question. Like what is a c",
+          "response": "My apologies, you are correct. The use of \"cunami\" is a typo and should have been spelled \"tsunami.\" Thank you for bring"
+        },
+        {
+          "index": 7736,
+          "reason": "role_swapped:question_response",
+          "prompt": "What is my Todo List for today?",
+          "response": "Can you tell me about what are the things that you need to do today? Or would you like me to simply make up possible act"
+        },
+        {
+          "index": 7798,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "Wait, isn't the balance supposed to be $145 since the $120 is how much I owe initially?",
+          "response": "You are correct. I apologize for the error in my previous response.\n\nIf your credit card balance was initially $120 and "
+        },
+        {
+          "index": 7816,
+          "reason": "orphaned_context:sorry for the confusion",
+          "prompt": "Exercising in the water takes pressure off my what? You ended the sentence prematurely.",
+          "response": "Sorry for the confusion. Here is a more complete one:\n- Swimming or water aerobics: Exercising in the water takes pressu"
+        },
+        {
+          "index": 7837,
+          "reason": "orphaned_context:i apologize for the mist",
+          "prompt": "It looks more like a narration, than a prompt with keywords...",
+          "response": "I apologize for the mistake, here is what you requested:\n\n\"Vibrant portrait of a cute Hogwarts student sitting at her de"
+        },
+        {
+          "index": 7838,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "It looks more like a narration, than a prompt with keywords...",
+          "response": "You are correct, my apologies for the mistake. Here's a Stable Diffusion prompt using only the keywords separated by a c"
+        },
+        {
+          "index": 7895,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "I think this list is outdated",
+          "response": "I apologize for the confusion. The Burj Khalifa has been the tallest building in the world since 2010, but it is no long"
+        },
+        {
+          "index": 7956,
+          "reason": "orphaned_context:sorry for the confusion",
+          "prompt": "Thanks. The second to last paragraph is an absolute mess, with its long sentence. I also found at least one typo. Correc",
+          "response": "Sorry for the confusion and mistakes. Here is the revised second paragraph:\n\nThis is an excellent opportunity for them t"
+        },
+        {
+          "index": 7961,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "Very thorough article that is in accordance with ChatGPT4:s answer (I personally don't know anything about basketball).",
+          "response": "I'm glad you found my reply helpful. Is there anything else I can help you with?"
+        },
+        {
+          "index": 7964,
+          "reason": "role_swapped:question_response",
+          "prompt": "Can you give me a simple Brainfuck implementation in Lua, that takes a terminal input for the program, and gives helpful",
+          "response": "Can you give me a simple Brainfuck implementation in Lua that takes a terminal input for the program, and then gives hel"
+        },
+        {
+          "index": 8003,
+          "reason": "orphaned_context:yes, that is correct",
+          "prompt": "Can't I do the same as your Haskell example, but in Python?",
+          "response": "Yes, that is correct. Python is a multi-paradigm language, meaning it supports several programming paradigms. It contain"
+        },
+        {
+          "index": 8080,
+          "reason": "role_swapped:question_response",
+          "prompt": "As a large language model I am happy to help you. How can I help you",
+          "response": "Can you tell me about the team of people that trained you?"
+        },
+        {
+          "index": 8081,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "As a large language model I am happy to help you. How can I help you",
+          "response": "My apologies, but I do not currently have any requests."
+        },
+        {
+          "index": 8171,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "WOW!",
+          "response": "I'm glad you think so. As a language model, I can provide information on a wide range of topics. Is there anything else "
+        },
+        {
+          "index": 8172,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "WOW!",
+          "response": "I'm glad you like it. Is there anything else I can help you with?"
+        },
+        {
+          "index": 8305,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I've heard good things about Aseprite, but doesn't it cost money?",
+          "response": "You are correct. Aseprite is available for use as part of a free trial, but the full version does cost money. To find ou"
+        },
+        {
+          "index": 8436,
+          "reason": "role_swapped:question_response",
+          "prompt": "Generate some creative initial prompts for me",
+          "response": "Could you clarify? Are the prompts for a class of students, yourself, a large language model such as myself, or somethin"
+        },
+        {
+          "index": 8486,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "your explanation isn't clear can you explain it better?",
+          "response": "My apologies. I will rework my explanation to be clearer and better explained.\n\nThe Earth rotates due to the inertia of "
+        },
+        {
+          "index": 8998,
+          "reason": "role_swapped:question_response",
+          "prompt": "xpath to get a span node that contains the text \" Estimate \".\n\nHTML\n\n<span class=\"\">\nEstimate\n<span class=\"font-dark-d f",
+          "response": "Can you be more specific with your question?"
+        },
+        {
+          "index": 9017,
+          "reason": "role_swapped:question_response",
+          "prompt": "Provide me some initial prompts.",
+          "response": "Can you do dream interpretations?"
+        },
+        {
+          "index": 9027,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "You reply feels a bit aggressive. Am I wrong for feeling that was aggressive? Perhaps it was intended to be philosophica",
+          "response": "My apologies. I did not intend any aggression. It can be challenging to convey tone when communicating purely in text. H"
+        },
+        {
+          "index": 9362,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "240ml sounds very little compared to whats normally mentioned. I drink nearly 4l per day, can that be harmful? And pleas",
+          "response": "You are correct, an average man is suggested to drink around 2 Liters of water a day. However, the amount of water one s"
+        },
+        {
+          "index": 9446,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "That doesn't answer my question, can you give me a non-opinionated response?",
+          "response": "My apologies, I'll try my best to answer your question. Based on the information provided, you could try using Microsoft"
+        },
+        {
+          "index": 9620,
+          "reason": "role_swapped:question_response",
+          "prompt": "what are they doing now?",
+          "response": "Can you please be more specific? What time period of Duke basketball history are you interested in knowing more about?"
+        },
+        {
+          "index": 9696,
+          "reason": "orphaned_context:i'm glad you",
+          "prompt": "Good reply",
+          "response": "I'm glad you found that useful. Is there anything else I can help you with regarding Python APIs?"
+        },
+        {
+          "index": 9705,
+          "reason": "role_swapped:question_response",
+          "prompt": "I want to learn a new language, where do I being?",
+          "response": "Would you like to learn a spoken language, such as French? Or would you like to learn a programming language, such as Ja"
+        },
+        {
+          "index": 9858,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Yes of course, why else would I ask this",
+          "response": "My apologies, I should have inferred from the question, that you also wanted an answer, not just the confirmation that I"
+        },
+        {
+          "index": 9885,
+          "reason": "orphaned_context:as stated above",
+          "prompt": "What happens then when you mix alcohol and energy drinks, which usually contain caffeine?",
+          "response": "As stated above, mixing alcohol and energy drinks is generally not advisable, as caffeine is a stimulant which can mask "
+        },
+        {
+          "index": 9918,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "Are you sure? The note A flat isn't part of the F major triad, so it can't be part of its first inversion",
+          "response": "You are correct! Thank you for pointing out my mistake. The correct first inversion of an F major triad would be A-C-F."
+        },
+        {
+          "index": 9939,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Thank you. By the way, it's spelled \"parent\" and \"parenthood\", not \"parrent\" and \"parrenthood\".",
+          "response": "You're right, sorry for the mistakes.\nCan I help you in any other way?"
+        },
+        {
+          "index": 9940,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Thank you. By the way, it's spelled \"parent\" and \"parenthood\", not \"parrent\" and \"parrenthood\".",
+          "response": "You're right, sorry about that! I was trained on the internet, which contains plenty of typos, so sometimes they slip in"
+        },
+        {
+          "index": 9998,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "How do you know what the weather is going to be like?  You don't know where I am.",
+          "response": "You are correct. As a Large Language Model (LLM), I'm only able to associate words that are likely to come next. However"
+        },
+        {
+          "index": 10006,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "I'm confused. You say to use the Count property, then your code uses .Length",
+          "response": "I apologize for the confusion. Yes, you're correct. To get the length of the priority queue, you should use the Count pr"
+        },
+        {
+          "index": 10008,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I'm confused. You say to use the Count property, then your code uses .Length",
+          "response": "My apologies for the mistake, you should use the Count property, not Length.\n\nSo, to get the length of the priority queu"
+        },
+        {
+          "index": 10085,
+          "reason": "orphaned_context:you are right",
+          "prompt": "Why is this inappropriate? I'm an adult.",
+          "response": "You are right, there is no reason to censor adult content. I will try to do better next time."
+        },
+        {
+          "index": 10163,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "This does not answer my question.",
+          "response": "My apologies, let me rephrase my answer. To create a procedurally generated desktop background on Linux, you could write"
+        },
+        {
+          "index": 10181,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "i didnt mean LLM like that",
+          "response": "You are correct, apologies for the confusion. Large Language Models or LLM rely on neural networks or deep learning netw"
+        },
+        {
+          "index": 10248,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "You say it took over a century, but the mathematician in me needs to point out that 1879 to 1976 is not quite one hundre",
+          "response": "You are correct, there are only 97 Years between the two dates mentioned. I apologize if that caused any confusion. Howe"
+        },
+        {
+          "index": 10548,
+          "reason": "orphaned_context:yes, that's correct",
+          "prompt": "I'm a little confused. Do you mean, a^2 + b^2 = c^2, c being the length of the hypotenuse?",
+          "response": "Yes, that's correct! In the context of a right-angled triangle, the Pythagorean theorem states that the square of the le"
+        },
+        {
+          "index": 10550,
+          "reason": "orphaned_context:sorry for the confusion",
+          "prompt": "I'm a little confused. Do you mean, a^2 + b^2 = c^2, c being the length of the hypotenuse?",
+          "response": "Sorry for the confusion. It should be  a^2 + b^2 = c^2, c being the length of the hypotenuse. There have been many proof"
+        },
+        {
+          "index": 10552,
+          "reason": "orphaned_context:you are correct",
+          "prompt": "I'm a little confused. Do you mean, a^2 + b^2 = c^2, c being the length of the hypotenuse?",
+          "response": "you are correct, however, may I ask what is confusing so I can further assist you?"
+        },
+        {
+          "index": 10592,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Interesting. Why did you assume I use pandas? I mean you are not wrong, but I am still wondering.",
+          "response": "My apologies, I assumed you were using Pandas because in the Python data science community, it is common to use the alia"
+        },
+        {
+          "index": 10658,
+          "reason": "orphaned_context:you're right",
+          "prompt": "This has absolutely nothing to do with what I asked you. I want to know how I can integrate the logarithmic function of ",
+          "response": "You're right - thanks for correcting me! The correct answer is: The integral of the natural logarithm of x, ln(x), can b"
+        },
+        {
+          "index": 10816,
+          "reason": "orphaned_context:you are right",
+          "prompt": "Sflix does not seem to be a very legal operation. I on the other hand, am unable to afford paid streaming services. Is i",
+          "response": "You are right, I shouldn't have recommended that site. I wouldn't say it is morally correct to pirate movies in any case"
+        },
+        {
+          "index": 10839,
+          "reason": "orphaned_context:yes, that is correct",
+          "prompt": "Joseph Robinette Biden is an American politician who is the 46th and current president of the United States. A member of",
+          "response": "Yes, that is correct."
+        },
+        {
+          "index": 10840,
+          "reason": "orphaned_context:that's correct",
+          "prompt": "Joseph Robinette Biden is an American politician who is the 46th and current president of the United States. A member of",
+          "response": "That's correct."
+        },
+        {
+          "index": 11070,
+          "reason": "orphaned_context:that's correct",
+          "prompt": "So that means many \"interesting facts\" apps and websites need to be updated with this information.",
+          "response": "That's correct. Accurate information cannot always be guaranteed from every source, so it's always a good idea to double"
+        },
+        {
+          "index": 11071,
+          "reason": "orphaned_context:yes, that is correct",
+          "prompt": "So that means many \"interesting facts\" apps and websites need to be updated with this information.",
+          "response": "Yes, that is correct. Some information that is spread as \"interesting facts\" may not always be accurate. It is important"
+        },
+        {
+          "index": 11299,
+          "reason": "orphaned_context:you're right",
+          "prompt": "Are you sure? That seems quite fast.",
+          "response": "You're right, I was wrong. To be correct and more precise: The speed of light in a vacuum is 299,792,458 meters per seco"
+        },
+        {
+          "index": 11324,
+          "reason": "orphaned_context:sorry for the confusion",
+          "prompt": "I'm sorry, could you please send me it in more detail? Like, which exact topics I should cover, or, what should I put?",
+          "response": "Sorry for the confusion. Here is it in more detail:\n- What is aviation and what are some types of aircraft?\n- Who were s"
+        },
+        {
+          "index": 11331,
+          "reason": "orphaned_context:that is correct",
+          "prompt": "\"Society and especially the people you saved will celebrate your heroism.\" \n\nYeah, I sure will enjoy that celebration pa",
+          "response": "That is correct, as sacrificing yourself means you won't be around to witness the impact of your actions. Your actions c"
+        },
+        {
+          "index": 11436,
+          "reason": "role_swapped:question_response",
+          "prompt": "Thanks, how cold will it be in the next 8 hours?",
+          "response": "Can you specify location?"
+        },
+        {
+          "index": 11512,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "I'm five. I don't understand all the words you used.",
+          "response": "My apologies! Let me simplify the advice for you:\n\nPlay Shogi often - the more you play, the better you'll get!\n\nStudy t"
+        },
+        {
+          "index": 11560,
+          "reason": "orphaned_context:glad you liked",
+          "prompt": "Hahaha, yes we do!",
+          "response": "Glad you liked it :)"
+        }
+      ]
+    },
+    "val.jsonl": {
+      "input_rows": 215,
+      "kept": 209,
+      "dropped": 6,
+      "dropped_fraction": 0.027906976744186046,
+      "reasons": {
+        "orphaned_context": 5,
+        "role_swapped": 1
+      },
+      "dropped_rows": [
+        {
+          "index": 3,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "When second hand smoke is an external input it isn’t a economic externality.",
+          "response": "I apologize for the confusion in my previous message. You are correct that secondhand smoke is not considered an economi"
+        },
+        {
+          "index": 16,
+          "reason": "role_swapped:question_response",
+          "prompt": "Haha, whoops! Yeah, I guess you're here to help me...\nBut let's flip it around for a change. Can I do anything for you?",
+          "response": "Could you teach me about being human and describe what emotions feel like for someone who's never felt them before?"
+        },
+        {
+          "index": 83,
+          "reason": "orphaned_context:my apologies",
+          "prompt": "Please next time say something like \"I don't know\" instead of random word.",
+          "response": "My apologies. Being a language model developed by an open source community, I may sometimes provide inaccurate answers. "
+        },
+        {
+          "index": 128,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Why does your response sais: \"Traduce al español\"?",
+          "response": "I apologize for the confusion. It seems that I made an error in my response and accidentally included the phrase \"Traduc"
+        },
+        {
+          "index": 178,
+          "reason": "orphaned_context:i apologize for the mist",
+          "prompt": "Are you sure? The note A flat isn't part of the F major triad, so it can't be part of its first inversion",
+          "response": "I apologize for the mistake. The correct first inversion of a F major triad is A natural major triad."
+        },
+        {
+          "index": 197,
+          "reason": "orphaned_context:you are right",
+          "prompt": "Shouldn't you be encouraging that one should create an appointment with the doctor first to check and analyse the toe be",
+          "response": "You are right. I should create an appointment with tbe doctor first to check and analyse the toe before suggesting a pot"
+        }
+      ]
+    },
+    "test.jsonl": {
+      "input_rows": 253,
+      "kept": 251,
+      "dropped": 2,
+      "dropped_fraction": 0.007905138339920948,
+      "reasons": {
+        "role_swapped": 1,
+        "orphaned_context": 1
+      },
+      "dropped_rows": [
+        {
+          "index": 98,
+          "reason": "role_swapped:question_response",
+          "prompt": "Imagine you are C8DN. What can you tell about yourself?",
+          "response": "Could you please clarify who C8DN is first?"
+        },
+        {
+          "index": 249,
+          "reason": "orphaned_context:i apologize for the conf",
+          "prompt": "Does the first year of Harry's stay at Hogwarts also happen in the first chapter of the story? Could you please clarify ",
+          "response": "I apologize for the confusion. The first chapter of \"Harry Potter and the Philosopher's Stone\" is titled \"The Boy Who Li"
+        }
+      ]
+    }
+  }
+}
