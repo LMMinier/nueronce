@@ -64,6 +64,10 @@ def main() -> None:
                      help="use a much smaller architecture for a quick pipeline-plumbing "
                           "smoke test on CPU; NOT the real diagnostic -- the real gate uses "
                           "the actual chat_11m config (the default)")
+    ap.add_argument("--resume", action="store_true",
+                     help="continue training from an existing --out checkpoint instead of "
+                          "a fresh init (for walking the loss threshold down without "
+                          "repeating the earlier steps)")
     args = ap.parse_args()
 
     system = args.system
@@ -75,14 +79,26 @@ def main() -> None:
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    if args.fast_tooling_check:
-        cfg = ModelConfig(byte_embed_dim=24, d_local=32, d_model=48, p_max=24,
-                          physical_blocks=1, logical_depth=1, n_heads=2, unit_window=24,
-                          decoder_window=32, decoder_layers=1, d_state=8, channel_dim=12,
-                          ret_byte_dim=16, min_patch=3, max_patch=24, boundary_loss_weight=0.2)
+    out = Path(args.out)
+    prior_step = 0
+    if args.resume and out.exists():
+        prior = torch.load(out, map_location="cpu", weights_only=False)
+        cfg = ModelConfig(**prior["config"])
+        model = NUERONCEModel(cfg)
+        model.load_state_dict(prior["state_dict"])
+        prior_step = int(prior.get("sft_step", 0))
+        system = prior.get("sft_system", system)
+        print(json.dumps({"event": "resumed", "from_step": prior_step,
+                          "prior_loss": prior.get("final_loss")}), flush=True)
     else:
-        cfg = chat_config()
-    model = NUERONCEModel(cfg)
+        if args.fast_tooling_check:
+            cfg = ModelConfig(byte_embed_dim=24, d_local=32, d_model=48, p_max=24,
+                              physical_blocks=1, logical_depth=1, n_heads=2, unit_window=24,
+                              decoder_window=32, decoder_layers=1, d_state=8, channel_dim=12,
+                              ret_byte_dim=16, min_patch=3, max_patch=24, boundary_loss_weight=0.2)
+        else:
+            cfg = chat_config()
+        model = NUERONCEModel(cfg)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.0)
 
     pairs = list(TINY_EXAMPLES)
@@ -116,7 +132,7 @@ def main() -> None:
     payload = {
         "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
         "config": vars(model.cfg),
-        "sft_step": step,
+        "sft_step": prior_step + step,
         "sft_system": system,
         "final_loss": loss_value,
         "history": history,
