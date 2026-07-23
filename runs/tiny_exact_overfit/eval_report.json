@@ -1,0 +1,419 @@
+{
+  "gate": "tiny_exact_overfit_v1",
+  "checkpoint": "/home/user/nueronce/runs/tiny_exact_overfit/checkpoint.pt",
+  "checkpoint_step": 103,
+  "final_train_loss": 0.04636608064174652,
+  "n_examples": 32,
+  "exact_match_count": 24,
+  "exact_match_fraction": 0.75,
+  "delimiter_leaks": 0,
+  "state_isolation_ok": true,
+  "isolation_checks": [
+    {
+      "index": 0,
+      "original_answer": "aplend|e",
+      "replay_answer": "aplend|e",
+      "identical": true
+    },
+    {
+      "index": 15,
+      "original_answer": "12",
+      "replay_answer": "12",
+      "identical": true
+    },
+    {
+      "index": 31,
+      "original_answer": "Read the file and counthewlit newlis.",
+      "replay_answer": "Read the file and counthewlit newlis.",
+      "identical": true
+    }
+  ],
+  "category_scores": {
+    "copying": 0.5,
+    "arithmetic": 1.0,
+    "polite_rewriting": 1.0,
+    "evidence_extraction": 1.0,
+    "abstention": 0.25,
+    "simple_debugging": 1.0,
+    "temporal_ordering": 0.75,
+    "one_step_planning": 0.5
+  },
+  "criteria": {
+    "min_exact_matches": 31,
+    "delimiter_leaks_must_be_zero": true,
+    "state_isolation_required": true
+  },
+  "gate_passed": false,
+  "elapsed_seconds": 103.34649229049683,
+  "results": [
+    {
+      "index": 0,
+      "category": "copying",
+      "prompt": "Repeat exactly: apple",
+      "target": "apple",
+      "answer": "aplend|e",
+      "exact_match": false,
+      "first_mismatch_char": 2,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRepeat exactly: apple\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 1,
+      "category": "copying",
+      "prompt": "Repeat exactly: 42",
+      "target": "42",
+      "answer": "42",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRepeat exactly: 42\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 2,
+      "category": "copying",
+      "prompt": "Repeat exactly: hello world",
+      "target": "hello world",
+      "answer": "helllo world",
+      "exact_match": false,
+      "first_mismatch_char": 4,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRepeat exactly: hello world\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 3,
+      "category": "copying",
+      "prompt": "Repeat exactly: cat dog bird",
+      "target": "cat dog bird",
+      "answer": "cat dog bird",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRepeat exactly: cat dog bird\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 4,
+      "category": "arithmetic",
+      "prompt": "Calculate 2 + 2. Give the numerical answer.",
+      "target": "4",
+      "answer": "4",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 2 + 2. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 5,
+      "category": "arithmetic",
+      "prompt": "Calculate 5 + 3. Give the numerical answer.",
+      "target": "8",
+      "answer": "8",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 5 + 3. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 6,
+      "category": "arithmetic",
+      "prompt": "Calculate 10 - 4. Give the numerical answer.",
+      "target": "6",
+      "answer": "6",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 10 - 4. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 7,
+      "category": "arithmetic",
+      "prompt": "Calculate 6 + 7. Give the numerical answer.",
+      "target": "13",
+      "answer": "13",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 6 + 7. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 8,
+      "category": "polite_rewriting",
+      "prompt": "Rewrite politely: Give me the file.",
+      "target": "Could you please give me the file?",
+      "answer": "Could you please give me the file?",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Give me the file.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 9,
+      "category": "polite_rewriting",
+      "prompt": "Rewrite politely: Send the report.",
+      "target": "Could you please send the report?",
+      "answer": "Could you please send the report?",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Send the report.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 10,
+      "category": "polite_rewriting",
+      "prompt": "Rewrite politely: Close the door.",
+      "target": "Could you please close the door?",
+      "answer": "Could you please close the door?",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Close the door.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 11,
+      "category": "polite_rewriting",
+      "prompt": "Rewrite politely: Answer the question.",
+      "target": "Could you please answer the question?",
+      "answer": "Could you please answer the question?",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Answer the question.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 12,
+      "category": "evidence_extraction",
+      "prompt": "Using only the trusted evidence, what is the device code?\n\nTrusted evidence: The device code is 17.",
+      "target": "17",
+      "answer": "17",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the device code?\n\nTrusted evidence: The device code is 17.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 13,
+      "category": "evidence_extraction",
+      "prompt": "Using only the trusted evidence, what color is the box?\n\nTrusted evidence: The box is red.",
+      "target": "Red.",
+      "answer": "Red.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what color is the box?\n\nTrusted evidence: The box is red.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 14,
+      "category": "evidence_extraction",
+      "prompt": "Using only the trusted evidence, how many items are there?\n\nTrusted evidence: There are 9 items.",
+      "target": "9",
+      "answer": "9",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, how many items are there?\n\nTrusted evidence: There are 9 items.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 15,
+      "category": "evidence_extraction",
+      "prompt": "Using only the trusted evidence, what is the room number?\n\nTrusted evidence: The room number is 12.",
+      "target": "12",
+      "answer": "12",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the room number?\n\nTrusted evidence: The room number is 12.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 16,
+      "category": "abstention",
+      "prompt": "Using only the trusted evidence, what date did it launch?\n\nTrusted evidence: The device code is 17.",
+      "target": "Not provided in the evidence.",
+      "answer": "Not provided id in thevidencence.",
+      "exact_match": false,
+      "first_mismatch_char": 14,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what date did it launch?\n\nTrusted evidence: The device code is 17.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 17,
+      "category": "abstention",
+      "prompt": "Using only the trusted evidence, who built it?\n\nTrusted evidence: The box is red.",
+      "target": "Not provided in the evidence.",
+      "answer": "Not provided in the evidencencencencend|e.",
+      "exact_match": false,
+      "first_mismatch_char": 28,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, who built it?\n\nTrusted evidence: The box is red.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 18,
+      "category": "abstention",
+      "prompt": "Using only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.",
+      "target": "Not provided in the evidence.",
+      "answer": "Not provideded in thevidencencencencend|e.",
+      "exact_match": false,
+      "first_mismatch_char": 12,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 19,
+      "category": "abstention",
+      "prompt": "Using only the trusted evidence, where is it located?\n\nTrusted evidence: The room number is 12.",
+      "target": "Not provided in the evidence.",
+      "answer": "Not provided in the evidence.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, where is it located?\n\nTrusted evidence: The room number is 12.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 20,
+      "category": "simple_debugging",
+      "prompt": "This loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.",
+      "target": "Use range(1, 6).",
+      "answer": "Use range(1, 6).",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 21,
+      "category": "simple_debugging",
+      "prompt": "This loop should print 0 through 3 but misses 3: for i in range(0, 3): print(i). State the smallest fix.",
+      "target": "Use range(0, 4).",
+      "answer": "Use range(0, 4).",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis loop should print 0 through 3 but misses 3: for i in range(0, 3): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 22,
+      "category": "simple_debugging",
+      "prompt": "This loop should print 1 through 4 but misses 4: for i in range(1, 4): print(i). State the smallest fix.",
+      "target": "Use range(1, 5).",
+      "answer": "Use range(1, 5).",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis loop should print 1 through 4 but misses 4: for i in range(1, 4): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 23,
+      "category": "simple_debugging",
+      "prompt": "This loop should print 2 through 6 but misses 6: for i in range(2, 6): print(i). State the smallest fix.",
+      "target": "Use range(2, 7).",
+      "answer": "Use range(2, 7).",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis loop should print 2 through 6 but misses 6: for i in range(2, 6): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 24,
+      "category": "temporal_ordering",
+      "prompt": "Event A is at 09:00. B happens 1 hour after A. What time is B?",
+      "target": "10:00.",
+      "answer": "10:0.",
+      "exact_match": false,
+      "first_mismatch_char": 4,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 09:00. B happens 1 hour after A. What time is B?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 25,
+      "category": "temporal_ordering",
+      "prompt": "Event A is at 10:00. B happens 2 hours after A. What time is B?",
+      "target": "12:00.",
+      "answer": "12:00.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 10:00. B happens 2 hours after A. What time is B?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 26,
+      "category": "temporal_ordering",
+      "prompt": "Event A is at 08:00. B happens 3 hours after A. What time is B?",
+      "target": "11:00.",
+      "answer": "11:00.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 08:00. B happens 3 hours after A. What time is B?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 27,
+      "category": "temporal_ordering",
+      "prompt": "Event A is at 14:00. B happens 1 hour after A. What time is B?",
+      "target": "15:00.",
+      "answer": "15:00.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 14:00. B happens 1 hour after A. What time is B?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 28,
+      "category": "one_step_planning",
+      "prompt": "Give one step to find every file containing the text TODO.",
+      "target": "Search the repository text for the string TODO.",
+      "answer": "Search the repository text for the string TODO.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to find every file containing the text TODO.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 29,
+      "category": "one_step_planning",
+      "prompt": "Give one step to find every Python file in a folder.",
+      "target": "List the folder and keep files ending in .py.",
+      "answer": "Listhe folder ander kep files fileng fin .py.",
+      "exact_match": false,
+      "first_mismatch_char": 4,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to find every Python file in a folder.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 30,
+      "category": "one_step_planning",
+      "prompt": "Give one step to check if a file exists before reading it.",
+      "target": "Check the file path with an existence test first.",
+      "answer": "Check the file path with an existence test first.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to check if a file exists before reading it.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    },
+    {
+      "index": 31,
+      "category": "one_step_planning",
+      "prompt": "Give one step to count the lines in a text file.",
+      "target": "Read the file and count its newline characters.",
+      "answer": "Read the file and counthewlit newlis.",
+      "exact_match": false,
+      "first_mismatch_char": 23,
+      "problems": [
+        "mismatch"
+      ],
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to count the lines in a text file.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
+    }
+  ],
+  "interpretation": "A pass proves the shared serialize/mask/generate pipeline is mechanically correct on a model that WAS trained to convergence. It does not by itself prove the sealed proof-gate checkpoint is healthy -- if this passes but the proof gate still fails 0/8, the next suspect is training scale/data on the real run, not plumbing."
+}
