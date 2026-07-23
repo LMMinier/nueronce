@@ -96,7 +96,22 @@ class IncrementalGenerator:
         if c.trainable_segmentation:
             units = units + self.model.boundary_proj(mean_p)
         units = units + self.model.memory(units)
-        self._g = self.model.core(units, c.logical_depth, key_padding=unit_mask)
+        self._g = self.model.core(
+            units, c.logical_depth, key_padding=unit_mask,
+            reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
+            min_depth=getattr(c, "reasoning_min_depth", 1),
+            halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
+            damping=getattr(c, "reasoning_damping", 1.0),
+        )
+        execution_depth = getattr(c, "execution_depth", 0)
+        if self.model.executor is not None and execution_depth > 0:
+            causal = torch.ones(c.p_max, c.p_max, dtype=torch.bool,
+                                device=self.device).tril()
+            exec_mask = causal[None, :, :] & unit_mask[:, None, :].bool()
+            executed, _ = self.model.executor(self._g, units, units, execution_depth,
+                                              memory_mask=exec_mask)
+            scale = getattr(c, "execution_residual_scale", 1.0)
+            self._g = self._g + scale * (executed - self._g)
         self._unit_mask = unit_mask
         self._units_dirty = False
 
@@ -161,7 +176,17 @@ class IncrementalGenerator:
             out.append(idx)
             new.append(idx)
             tail = bytes(new)
-            if any(s and tail.endswith(s) for s in stops):
+            matched_stop = next(
+                (
+                    stop
+                    for stop in sorted(stops, key=len, reverse=True)
+                    if stop and tail.endswith(stop)
+                ),
+                None,
+            )
+            if matched_stop is not None:
+                del new[-len(matched_stop):]
+                del out[-len(matched_stop):]
                 break
             if len(self.ids) >= max_ctx:
                 self.prime(out[-max_ctx:])   # dense path slides here; re-prime

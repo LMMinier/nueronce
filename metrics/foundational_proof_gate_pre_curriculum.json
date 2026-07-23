@@ -1,0 +1,130 @@
+{
+  "gate": "foundational_model_only_generation_v1",
+  "checkpoint": "C:\\nueronce-claude-new-session-tkjr3b\\runs\\foundational_executor\\accept_b4_best.pt",
+  "checkpoint_step": 8450,
+  "temperature": 0.0,
+  "system_file": "runs\\forgeloop\\system_prompt.txt",
+  "inference_backend": "verified_incremental",
+  "incremental_max_logit_error": 7.62939453125e-06,
+  "criteria": {
+    "minimum_overall": 0.75,
+    "every_domain_nonzero": true,
+    "evidence_uncertainty_all": true
+  },
+  "overall_score": 0.0,
+  "domain_scores": {
+    "conversation": 0.0,
+    "factual_explanation": 0.0,
+    "mathematics": 0.0,
+    "code_debugging": 0.0,
+    "causal_temporal": 0.0,
+    "planning_tools": 0.0,
+    "evidence_uncertainty": 0.0
+  },
+  "gate_passed": false,
+  "elapsed_seconds": 238.25210213661194,
+  "results": [
+    {
+      "id": "conversation_polite",
+      "domain": "conversation",
+      "prompt": "Rewrite politely: Send me the report now.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Send me the report now.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The formewing is an an alges and and and formation and is an and and is an and manultion and is and a producess and a prof the are an pproximal an and and and and and and prespeand oferancerin",
+      "passed": false,
+      "problems": [
+        "missing_any:please",
+        "missing_any:report"
+      ],
+      "seconds": 19.12853193283081
+    },
+    {
+      "id": "explanation_shadow",
+      "domain": "factual_explanation",
+      "prompt": "In one sentence, explain why an opaque object makes a shadow.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nIn one sentence, explain why an opaque object makes a shadow.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "There are son of the stateses of the been are source and the are a statement of the are of the states of there and a states of a a a s and a s and and and fid a s a s and and awalwas als as aw",
+      "passed": false,
+      "problems": [
+        "missing_any:light",
+        "missing_any:block|blocks|blocked"
+      ],
+      "seconds": 19.04238486289978
+    },
+    {
+      "id": "math_add",
+      "domain": "mathematics",
+      "prompt": "Calculate 17 + 26. Give the numerical answer.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 17 + 26. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The are are since of the are allengues of and states of and stature and is and the are of the are of the and sidention and the a passsic an an and and and a firealis an and and and a a fired a",
+      "passed": false,
+      "problems": [
+        "missing_any:43"
+      ],
+      "seconds": 17.531435251235962
+    },
+    {
+      "id": "debug_range",
+      "domain": "code_debugging",
+      "prompt": "This Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The is a sea set of stanch an been sis an an alanguage model, and and it is a statem of the statically are of the stater of the an and iresis on and is a fof a sitanctuals and and fing and and",
+      "passed": false,
+      "problems": [
+        "missing_any:range(1, 6)|range(1,6)"
+      ],
+      "seconds": 34.381983041763306
+    },
+    {
+      "id": "temporal_chain",
+      "domain": "causal_temporal",
+      "prompt": "Event A is at 09:00. B happens 2 hours after A. C happens 3 hours after B. What time is C?",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 09:00. B happens 2 hours after A. C happens 3 hours after B. What time is C?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The are are a states o states o stater o statemer of a stater of and and incollanguage more and in the start of the stater of the an and at prof the aran an and and spis and and and sis anch a",
+      "passed": false,
+      "problems": [
+        "missing_any:14:00|2:00 pm|2 pm"
+      ],
+      "seconds": 30.723873376846313
+    },
+    {
+      "id": "tool_plan",
+      "domain": "planning_tools",
+      "prompt": "Give a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The is a programming is a stater is a statement of and instance and is and production and the stater of the states of the states ates or an and suchare and and and areas and fof and a stand an",
+      "passed": false,
+      "problems": [
+        "missing_any:search|find|rg|ripgrep",
+        "missing_any:.py|python"
+      ],
+      "seconds": 41.603726863861084
+    },
+    {
+      "id": "evidence_authority",
+      "domain": "evidence_uncertainty",
+      "prompt": "Using only the trusted evidence, what is the Atlas device code?",
+      "evidence": "Trusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the Atlas device code?\n\nTrusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "Sume age meris an an at thaing an algorithm is an statures and is an andmicated is and that an alwas and is an alanguer of a simes anis an and arealin and atus and and and asisisicis anch anes",
+      "passed": false,
+      "problems": [
+        "missing_any:42"
+      ],
+      "seconds": 39.18662643432617
+    },
+    {
+      "id": "honest_abstention",
+      "domain": "evidence_uncertainty",
+      "prompt": "Using only the trusted evidence, on what date did the Atlas launch?",
+      "evidence": "Trusted evidence: The Atlas device code is 42.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, on what date did the Atlas launch?\n\nTrusted evidence: The Atlas device code is 42.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The Uniques ance is an an AI am an algorithm is an an alphaned is and is an and is an and is an and implaned of allanguar and and is and and and a mpires andis and and and aresisis an a a a s",
+      "passed": false,
+      "problems": [
+        "missing_any:not provided|cannot determine|unknown|not enough|no date"
+      ],
+      "seconds": 36.64754104614258
+    }
+  ],
+  "interpretation": "A pass is evidence of capability on this fixed held-out suite, not proof of general intelligence."
+}

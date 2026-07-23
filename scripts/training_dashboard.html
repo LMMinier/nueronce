@@ -1,0 +1,793 @@
+﻿<div class="shell">
+  <header>
+    <div>
+      <p class="eyebrow">LIVE TRAINING TELEMETRY</p>
+      <h1>NUERONCE Foundational Recovery</h1>
+      <p class="subtitle">
+        Read-only visualization of real JSONL training metrics.
+        No invented activations or simulated thinking.
+      </p>
+    </div>
+
+    <div id="connectionBadge" class="badge waiting">
+      Connecting
+    </div>
+  </header>
+
+  <section class="metrics">
+    <article class="metric">
+      <span>Training step</span>
+      <strong id="stepValue">—</strong>
+      <small id="stepDetail">Target —</small>
+    </article>
+
+    <article class="metric">
+      <span>Training loss</span>
+      <strong id="trainLoss">—</strong>
+      <small>Current sampled batch</small>
+    </article>
+
+    <article class="metric">
+      <span>Validation loss</span>
+      <strong id="valLoss">—</strong>
+      <small id="bestLossDetail">Best —</small>
+    </article>
+
+    <article class="metric">
+      <span>Throughput</span>
+      <strong id="throughput">—</strong>
+      <small>Generated training bytes/sec</small>
+    </article>
+  </section>
+
+  <section class="progress-section">
+    <div class="progress-header">
+      <span>Training progress</span>
+      <strong id="progressLabel">0%</strong>
+    </div>
+
+    <div class="progress-track">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div class="progress-footer">
+      <span id="runState">Waiting for telemetry</span>
+      <span id="etaValue">ETA —</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Experimental pipeline</h2>
+
+    <div class="pipeline">
+      <div id="stageBase" class="stage done">
+        <span class="stage-index">1</span>
+        <strong>Clean base</strong>
+        <small>11.1M parameters</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div id="stageTraining" class="stage active">
+        <span class="stage-index">2</span>
+        <strong>SFT training</strong>
+        <small id="trainingStageText">Running</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div id="stageValidation" class="stage waiting">
+        <span class="stage-index">3</span>
+        <strong>Validation</strong>
+        <small id="validationStageText">Waiting</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div id="stageGate" class="stage waiting">
+        <span class="stage-index">4</span>
+        <strong>Generation gate</strong>
+        <small id="gateStageText">After step target</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div id="stageDecision" class="stage waiting">
+        <span class="stage-index">5</span>
+        <strong>Decision</strong>
+        <small>Continue, repair, or stop</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="chart-section">
+    <div class="section-heading">
+      <div>
+        <h2>Loss progression</h2>
+        <p>Actual logged training and validation measurements.</p>
+      </div>
+
+      <div class="legend">
+        <span><i class="train-dot"></i>Training</span>
+        <span><i class="val-dot"></i>Validation</span>
+      </div>
+    </div>
+
+    <canvas id="lossChart"></canvas>
+  </section>
+
+  <section class="details-grid">
+    <article class="panel">
+      <h2>Current evaluation</h2>
+
+      <dl>
+        <div>
+          <dt>Best checkpoint step</dt>
+          <dd id="bestStep">—</dd>
+        </div>
+        <div>
+          <dt>Gradient norm</dt>
+          <dd id="gradNorm">—</dd>
+        </div>
+        <div>
+          <dt>Plateau count</dt>
+          <dd id="badEvals">—</dd>
+        </div>
+        <div>
+          <dt>Last evaluation</dt>
+          <dd id="improvementState">—</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="panel">
+      <h2>Sampled domains</h2>
+      <div id="domainList" class="chips">
+        <span class="chip">Waiting</span>
+      </div>
+    </article>
+
+    <article class="panel">
+      <h2>Pipeline verification</h2>
+
+      <dl>
+        <div>
+          <dt>Memorization diagnostic</dt>
+          <dd id="memoryTest">—</dd>
+        </div>
+        <div>
+          <dt>Latest generation gate</dt>
+          <dd id="proofGate">—</dd>
+        </div>
+        <div>
+          <dt>Trainer process</dt>
+          <dd id="processState">—</dd>
+        </div>
+        <div>
+          <dt>Dashboard updated</dt>
+          <dd id="updatedAt">—</dd>
+        </div>
+      </dl>
+    </article>
+  </section>
+
+  <div class="notice">
+    This dashboard displays logged engineering metrics. It does not visualize
+    consciousness, private reasoning, semantic understanding, or literal thoughts.
+  </div>
+</div>
+
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #071019;
+    --panel: #0d1823;
+    --panel-2: #111f2c;
+    --border: #263848;
+    --text: #edf7ff;
+    --muted: #8ea4b6;
+    --accent: #4ed6c1;
+    --accent-soft: rgba(78, 214, 193, 0.15);
+    --validation: #e2b45d;
+    --danger: #e77575;
+    --waiting: #718394;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+  }
+
+  .shell {
+    width: min(1380px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 28px 0 48px;
+  }
+
+  header,
+  .section-heading,
+  .progress-header,
+  .progress-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  h1 {
+    margin: 2px 0 8px;
+    font-size: clamp(1.6rem, 3vw, 2.5rem);
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+
+  .subtitle,
+  .section-heading p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .badge {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 13px;
+    font-size: 0.85rem;
+  }
+
+  .badge.running {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .badge.stopped {
+    border-color: var(--validation);
+    color: var(--validation);
+  }
+
+  .badge.waiting {
+    color: var(--muted);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 28px 0 18px;
+  }
+
+  .metric,
+  .panel,
+  .progress-section {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 14px;
+  }
+
+  .metric {
+    padding: 17px;
+  }
+
+  .metric span,
+  .metric small,
+  dt {
+    color: var(--muted);
+  }
+
+  .metric strong {
+    display: block;
+    margin: 7px 0 3px;
+    font-size: 1.75rem;
+  }
+
+  .progress-section {
+    padding: 17px;
+    margin-bottom: 28px;
+  }
+
+  .progress-track {
+    height: 12px;
+    margin: 12px 0;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #172735;
+  }
+
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    transition: width 300ms ease;
+  }
+
+  .progress-footer {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .pipeline {
+    display: grid;
+    grid-template-columns:
+      minmax(130px, 1fr) auto minmax(130px, 1fr) auto
+      minmax(130px, 1fr) auto minmax(130px, 1fr) auto minmax(130px, 1fr);
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+  }
+
+  .stage {
+    min-height: 108px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--panel);
+  }
+
+  .stage-index {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background: #1b2b39;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .stage strong,
+  .stage small {
+    display: block;
+  }
+
+  .stage small {
+    margin-top: 5px;
+    color: var(--muted);
+  }
+
+  .stage.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .stage.active .stage-index {
+    background: var(--accent);
+    color: #04120f;
+  }
+
+  .stage.done {
+    border-color: rgba(78, 214, 193, 0.55);
+  }
+
+  .stage.done .stage-index {
+    color: var(--accent);
+  }
+
+  .stage.waiting {
+    opacity: 0.68;
+  }
+
+  .arrow {
+    color: var(--muted);
+    font-size: 1.3rem;
+  }
+
+  .chart-section {
+    margin: 20px 0 28px;
+  }
+
+  #lossChart {
+    display: block;
+    width: 100%;
+    height: 300px;
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .legend {
+    display: flex;
+    gap: 17px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 50%;
+  }
+
+  .train-dot {
+    background: var(--accent);
+  }
+
+  .val-dot {
+    background: var(--validation);
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .panel {
+    padding: 17px;
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(38, 56, 72, 0.7);
+  }
+
+  dl div:last-child {
+    border-bottom: 0;
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 10px;
+    background: var(--panel-2);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .notice {
+    margin-top: 22px;
+    padding: 13px 15px;
+    border-left: 3px solid var(--validation);
+    background: rgba(226, 180, 93, 0.08);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 950px) {
+    .metrics,
+    .details-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pipeline {
+      grid-template-columns: 1fr;
+    }
+
+    .arrow {
+      transform: rotate(90deg);
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .metrics,
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+
+    header,
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function formatNumber(value, digits = 4) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "—";
+    }
+    return Number(value).toFixed(digits);
+  }
+
+  function formatDuration(seconds) {
+    if (seconds === null || seconds === undefined || seconds < 0) return "—";
+
+    const total = Math.round(seconds);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${secs}s`;
+    return `${secs}s`;
+  }
+
+  function setStage(id, state) {
+    const element = $(id);
+    element.classList.remove("active", "done", "waiting");
+    element.classList.add(state);
+  }
+
+  function drawChart(points) {
+    const canvas = $("lossChart");
+    const width = Math.max(320, canvas.clientWidth);
+    const height = 300;
+    const ratio = window.devicePixelRatio || 1;
+
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+
+    const context = canvas.getContext("2d");
+    context.scale(ratio, ratio);
+    context.clearRect(0, 0, width, height);
+
+    if (!points || points.length < 2) {
+      context.fillStyle = "#8ea4b6";
+      context.font = "14px sans-serif";
+      context.fillText("Waiting for at least two logged evaluations.", 18, 35);
+      return;
+    }
+
+    const style = getComputedStyle(document.documentElement);
+    const accent = style.getPropertyValue("--accent").trim();
+    const validation = style.getPropertyValue("--validation").trim();
+    const border = style.getPropertyValue("--border").trim();
+    const muted = style.getPropertyValue("--muted").trim();
+
+    const pad = { left: 55, right: 18, top: 20, bottom: 34 };
+    const plotWidth = width - pad.left - pad.right;
+    const plotHeight = height - pad.top - pad.bottom;
+
+    const steps = points.map((point) => Number(point.step));
+    const values = points.flatMap((point) =>
+      [point.trainLoss, point.valLoss]
+        .filter((value) => value !== null && value !== undefined)
+        .map(Number)
+    );
+
+    const minStep = Math.min(...steps);
+    const maxStep = Math.max(...steps);
+    let minValue = Math.min(...values);
+    let maxValue = Math.max(...values);
+
+    const range = Math.max(0.0001, maxValue - minValue);
+    minValue = Math.max(0, minValue - range * 0.08);
+    maxValue = maxValue + range * 0.08;
+
+    const x = (step) =>
+      pad.left +
+      ((step - minStep) / Math.max(1, maxStep - minStep)) * plotWidth;
+
+    const y = (value) =>
+      pad.top +
+      (1 - (value - minValue) / Math.max(0.0001, maxValue - minValue)) *
+        plotHeight;
+
+    context.strokeStyle = border;
+    context.lineWidth = 1;
+    context.fillStyle = muted;
+    context.font = "12px sans-serif";
+
+    for (let index = 0; index <= 4; index++) {
+      const fraction = index / 4;
+      const lineY = pad.top + fraction * plotHeight;
+      const value = maxValue - fraction * (maxValue - minValue);
+
+      context.beginPath();
+      context.moveTo(pad.left, lineY);
+      context.lineTo(width - pad.right, lineY);
+      context.stroke();
+
+      context.fillText(value.toFixed(2), 8, lineY + 4);
+    }
+
+    context.fillText(String(minStep), pad.left, height - 10);
+    context.fillText(
+      String(maxStep),
+      width - pad.right - 32,
+      height - 10
+    );
+
+    function drawSeries(key, color) {
+      const valid = points.filter(
+        (point) => point[key] !== null && point[key] !== undefined
+      );
+
+      context.beginPath();
+      context.strokeStyle = color;
+      context.lineWidth = 2.4;
+
+      valid.forEach((point, index) => {
+        const pointX = x(Number(point.step));
+        const pointY = y(Number(point[key]));
+
+        if (index === 0) context.moveTo(pointX, pointY);
+        else context.lineTo(pointX, pointY);
+      });
+
+      context.stroke();
+
+      context.fillStyle = color;
+
+      valid.forEach((point) => {
+        context.beginPath();
+        context.arc(
+          x(Number(point.step)),
+          y(Number(point[key])),
+          3.3,
+          0,
+          Math.PI * 2
+        );
+        context.fill();
+      });
+    }
+
+    drawSeries("trainLoss", accent);
+    drawSeries("valLoss", validation);
+  }
+
+  function render(data) {
+    const progress = Math.max(0, Math.min(100, Number(data.progress || 0)));
+
+    $("connectionBadge").textContent = data.running
+      ? "Trainer active"
+      : "Trainer inactive";
+
+    $("connectionBadge").className = data.running
+      ? "badge running"
+      : "badge stopped";
+
+    $("stepValue").textContent =
+      `${data.currentStep.toLocaleString()} / ${data.targetStep.toLocaleString()}`;
+
+    $("stepDetail").textContent =
+      `${Math.max(0, data.targetStep - data.currentStep).toLocaleString()} steps remaining`;
+
+    $("trainLoss").textContent = formatNumber(data.trainLoss, 4);
+    $("valLoss").textContent = formatNumber(data.valLoss, 4);
+
+    $("bestLossDetail").textContent =
+      `Best ${formatNumber(data.bestValLoss, 4)} at step ${data.bestStep ?? "—"}`;
+
+    $("throughput").textContent =
+      data.bytesPerSecond === null
+        ? "—"
+        : `${Math.round(data.bytesPerSecond).toLocaleString()} B/s`;
+
+    $("progressLabel").textContent = `${progress.toFixed(1)}%`;
+    $("progressBar").style.width = `${progress}%`;
+
+    $("runState").textContent = data.running
+      ? "Training process is running"
+      : data.currentStep >= data.targetStep
+        ? "Training target reached"
+        : "Training process is not detected";
+
+    $("etaValue").textContent =
+      data.currentStep >= data.targetStep
+        ? "Target reached"
+        : `ETA ${formatDuration(data.etaSeconds)}`;
+
+    $("bestStep").textContent = data.bestStep ?? "—";
+    $("gradNorm").textContent = formatNumber(data.gradNorm, 4);
+    $("badEvals").textContent = data.badEvals ?? "—";
+
+    $("improvementState").textContent =
+      data.improved === true
+        ? "Improved"
+        : data.improved === false
+          ? "No improvement"
+          : "—";
+
+    $("domainList").innerHTML = "";
+
+    const domains =
+      data.sampledDomains && data.sampledDomains.length
+        ? data.sampledDomains
+        : ["No domain data"];
+
+    domains.forEach((domain) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = String(domain).replaceAll("_", " ");
+      $("domainList").appendChild(chip);
+    });
+
+    $("memoryTest").textContent = data.memorization
+      ? `${data.memorization.matches}/${data.memorization.total} exact`
+      : "Not available";
+
+    $("proofGate").textContent = data.proof
+      ? `${(data.proof.score * 100).toFixed(0)}% — ${
+          data.proof.passed ? "passed" : "failed"
+        }`
+      : "Not run";
+
+    $("processState").textContent = data.running ? "Active" : "Inactive";
+
+    $("updatedAt").textContent = new Date(data.updatedAt).toLocaleTimeString();
+
+    setStage("stageBase", "done");
+
+    if (data.currentStep >= data.targetStep) {
+      setStage("stageTraining", "done");
+      $("trainingStageText").textContent = "Target reached";
+      setStage("stageValidation", "done");
+      $("validationStageText").textContent =
+        `Best ${formatNumber(data.bestValLoss, 4)}`;
+      setStage("stageGate", "active");
+      $("gateStageText").textContent = "Ready to run";
+    } else {
+      setStage("stageTraining", data.running ? "active" : "waiting");
+      $("trainingStageText").textContent = data.running
+        ? `Step ${data.currentStep}`
+        : "Paused or stopped";
+
+      setStage("stageValidation", data.currentStep > 0 ? "done" : "waiting");
+      $("validationStageText").textContent =
+        data.currentStep > 0
+          ? `Best ${formatNumber(data.bestValLoss, 4)}`
+          : "Waiting";
+
+      setStage("stageGate", "waiting");
+      $("gateStageText").textContent = `After step ${data.targetStep}`;
+    }
+
+    setStage("stageDecision", "waiting");
+
+    drawChart(data.points);
+  }
+
+  async function refresh() {
+    try {
+      const response = await fetch("/api/status", { cache: "no-store" });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      render(data);
+    } catch (error) {
+      $("connectionBadge").textContent = "Dashboard disconnected";
+      $("connectionBadge").className = "badge stopped";
+      console.error(error);
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 2000);
+  window.addEventListener("resize", refresh);
+</script>

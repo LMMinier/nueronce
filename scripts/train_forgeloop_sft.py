@@ -34,6 +34,22 @@ def make_batch(rows: list[dict], device: torch.device, system: str, max_len: int
 def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
     model.eval()
     losses = []
+    if rows and all(row.get("domain") for row in rows):
+        grouped = {}
+        for row in rows:
+            grouped.setdefault(row["domain"], []).append(row)
+        selected = []
+        offset = 0
+        names = sorted(grouped)
+        while len(selected) < min(len(rows), max_examples):
+            added = False
+            for name in names:
+                if offset < len(grouped[name]) and len(selected) < max_examples:
+                    selected.append(grouped[name][offset]); added = True
+            if not added:
+                break
+            offset += 1
+        rows = selected
     context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
     for start in range(0, min(len(rows), max_examples), 4):
         batch = make_batch(rows[start:start + 4], device, system, max_len)
@@ -76,6 +92,8 @@ def main() -> None:
                         help="0 keeps PyTorch's detected CPU thread count")
     parser.add_argument("--reset-convergence", action="store_true",
                         help="reset best validation state when switching datasets/objectives")
+    parser.add_argument("--balanced-domain-sampling", action="store_true",
+                        help="sample capability domains uniformly, then examples within each domain")
     args = parser.parse_args()
     if args.system_file:
         args.system = Path(args.system_file).read_text(encoding="utf-8").strip()
@@ -91,6 +109,13 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     amp_enabled = device.type == "cuda"
     train_rows, val_rows = read_jsonl(args.train), read_jsonl(args.val)
+    domain_rows = {}
+    if args.balanced_domain_sampling:
+        for index, row in enumerate(train_rows):
+            domain_rows.setdefault(row.get("domain", "unlabeled"), []).append(index)
+        if len(domain_rows) < 2:
+            raise ValueError("balanced domain sampling needs at least two labeled domains")
+    domain_names = sorted(domain_rows)
     out = Path(args.out)
 
     resume = out.exists()
@@ -121,8 +146,8 @@ def main() -> None:
     best_path = out.with_name(out.stem + "_best.pt")
     scaler = torch.amp.GradScaler("cuda", enabled=amp_enabled)
 
-    def payload(*, interrupted: bool = False, interruption_reason: str | None = None) -> dict:
-        checkpoint = {
+    def payload() -> dict:
+        p = {
             "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
             "optimizer": optimizer.state_dict(),
             "config": vars(model.cfg),
@@ -134,28 +159,31 @@ def main() -> None:
             "best_val_loss": best_val,
             "bad_evals": bad_evals,
             "rng_state": rng.bit_generator.state,
-            "python_rng_state": random.getstate(),
-            "numpy_rng_state": np.random.get_state(),
             "torch_rng_state": torch.get_rng_state().cpu(),
-            "training_args": vars(args).copy(),
-            "interrupted": interrupted,
-            "interruption_reason": interruption_reason,
-            "save_timestamp": time.time(),
-            "last_completed_step": step,
+            "numpy_rng_state": np.random.get_state(),
         }
         if device.type == "cuda":
-            checkpoint["cuda_rng_state"] = torch.cuda.get_rng_state_all()
-        return checkpoint
+            p["cuda_rng_state"] = torch.cuda.get_rng_state().cpu()
+        return p
 
     print(json.dumps({"event": "start", "device": str(device), "resume": resume,
                       "optimizer_restored": bool(resume and source_checkpoint.get("optimizer")),
                       "step": step, "best_val_loss": best_val, "train_examples": len(train_rows),
-                      "val_examples": len(val_rows), "params": model.num_params()}), flush=True)
+                      "val_examples": len(val_rows), "params": model.num_params(),
+                      "balanced_domain_sampling": args.balanced_domain_sampling,
+                      "domains": domain_names}), flush=True)
 
     try:
         while step < args.max_steps and bad_evals < args.patience:
             step_started = time.perf_counter()
-            indices = rng.integers(0, len(train_rows), size=args.batch)
+            if args.balanced_domain_sampling:
+                selected_domains = [domain_names[int(rng.integers(0, len(domain_names)))]
+                                    for _ in range(args.batch)]
+                indices = [domain_rows[domain][int(rng.integers(0, len(domain_rows[domain])))]
+                           for domain in selected_domains]
+            else:
+                indices = rng.integers(0, len(train_rows), size=args.batch)
+                selected_domains = []
             batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
             model.train()
             optimizer.zero_grad(set_to_none=True)
@@ -184,7 +212,8 @@ def main() -> None:
                           "bad_evals": bad_evals, "improved": improved, "time": time.time(),
                           "step_seconds": step_seconds,
                           "sequence_bytes": int(batch["byte_ids"].numel()),
-                          "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds)}
+                          "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds),
+                          "sampled_domains": selected_domains}
                 history.append(record)
                 print(json.dumps(record), flush=True)
                 atomic_save(payload(), out)
@@ -194,30 +223,17 @@ def main() -> None:
                 atomic_save(payload(), out)
 
     except KeyboardInterrupt:
-        event = {
-            "event": "interrupted",
-            "step": step,
-            "best_val_loss": best_val,
-            "interrupted": True,
-            "reason": "user_requested",
-            "save_timestamp": time.time(),
-            "last_completed_step": step,
-        }
-        print(json.dumps(event), flush=True)
+        print(json.dumps({"event": "interrupted", "step": step, "best_val_loss": best_val,
+                          "interrupted": True, "reason": "user_requested",
+                          "save_timestamp": time.time(), "last_completed_step": step}), flush=True)
         try:
-            atomic_save(payload(interrupted=True, interruption_reason="user_requested"), out)
-        except Exception as exc:
-            print(json.dumps({
-                "event": "interrupted_checkpoint_failed",
-                "step": step,
-                "error": str(exc),
-            }), flush=True)
+            atomic_save(payload(), out)
+            print(json.dumps({"event": "interrupted_checkpoint_saved", "path": str(out),
+                              "step": step}), flush=True)
+        except Exception as e:
+            print(json.dumps({"event": "interrupted_checkpoint_failed", "error": str(e),
+                              "step": step}), flush=True)
             raise
-        print(json.dumps({
-            "event": "interrupted_checkpoint_saved",
-            "path": str(out),
-            "step": step,
-        }), flush=True)
         return
 
     atomic_save(payload(), out)

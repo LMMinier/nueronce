@@ -1,0 +1,480 @@
+{
+  "checkpoint": "runs\\foundational_recovery_v2_probe500\\step1500_best.pt",
+  "checkpoint_step": 1500,
+  "best_val_loss": 0.8440045122589384,
+  "total": 26,
+  "exact_matches": 3,
+  "normalized_matches": 3,
+  "exact_rate": 0.11538461538461539,
+  "normalized_rate": 0.11538461538461539,
+  "diagnostic_passed": false,
+  "domain_scores": {
+    "causal_temporal": {
+      "rows": 4,
+      "exact": 0,
+      "normalized": 0
+    },
+    "code_debugging": {
+      "rows": 2,
+      "exact": 0,
+      "normalized": 0
+    },
+    "conversation": {
+      "rows": 4,
+      "exact": 1,
+      "normalized": 1
+    },
+    "evidence_uncertainty": {
+      "rows": 4,
+      "exact": 0,
+      "normalized": 0
+    },
+    "factual_explanation": {
+      "rows": 4,
+      "exact": 1,
+      "normalized": 1
+    },
+    "mathematics": {
+      "rows": 4,
+      "exact": 0,
+      "normalized": 0
+    },
+    "planning_tools": {
+      "rows": 4,
+      "exact": 1,
+      "normalized": 1
+    }
+  },
+  "results": [
+    {
+      "index": 1,
+      "record_id": "syllogism-13",
+      "domain": "causal_temporal",
+      "prompt": "All apples are fruits. This apple is an example of apple. Is this apple a fruit?",
+      "expected": "Yes, since all apples are fruits, X is a fruits.",
+      "actual": "Yes, since all apppers an fruits, X is a fruits.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 48,
+      "generated_bytes": 48,
+      "first_divergence": {
+        "byte_index": 18,
+        "expected_byte": 108,
+        "actual_byte": 112
+      }
+    },
+    {
+      "index": 2,
+      "record_id": "syllogism-30",
+      "domain": "causal_temporal",
+      "prompt": "If all chairs are furniture, and X is a this chair, is X a furniture?",
+      "expected": "Yes, since all chairs are furniture, X is a furniture.",
+      "actual": "Yes, since all chaihih s propers.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 54,
+      "generated_bytes": 33,
+      "first_divergence": {
+        "byte_index": 19,
+        "expected_byte": 114,
+        "actual_byte": 104
+      }
+    },
+    {
+      "index": 3,
+      "record_id": "syllogism-26",
+      "domain": "causal_temporal",
+      "prompt": "If all teachers are professionals, and X is a this teacher, is X a professionals?",
+      "expected": "Yes, since all teachers are professionals, X is a professionals.",
+      "actual": "Yes, since all prosearssonals, X is a professlonaling.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 64,
+      "generated_bytes": 54,
+      "first_divergence": {
+        "byte_index": 15,
+        "expected_byte": 116,
+        "actual_byte": 112
+      }
+    },
+    {
+      "index": 4,
+      "record_id": "syllogism-12",
+      "domain": "causal_temporal",
+      "prompt": "If all apples are fruits, and X is a this apple, is X a fruits?",
+      "expected": "Yes, since all apples are fruits, X is a fruits.",
+      "actual": "Yes, sincell appseps apleps appes X is a fruits.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 48,
+      "generated_bytes": 48,
+      "first_divergence": {
+        "byte_index": 10,
+        "expected_byte": 32,
+        "actual_byte": 108
+      }
+    },
+    {
+      "index": 5,
+      "record_id": "pa-01236",
+      "domain": "code_debugging",
+      "prompt": "What is a loop in programming? Please answer without adding extra claims.\n\nResponse requirements:\nExplain the concept. Keep the answer without adding extra claims",
+      "expected": "A loop repeats a block of code while a condition or sequence requires it.",
+      "actual": "Loop a a soop wer a coperat the the lease t progress ample the the sue tolof.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 73,
+      "generated_bytes": 77,
+      "first_divergence": {
+        "byte_index": 0,
+        "expected_byte": 65,
+        "actual_byte": 76
+      }
+    },
+    {
+      "index": 6,
+      "record_id": "code-concept-450",
+      "domain": "code_debugging",
+      "prompt": "What is an if statement in programming?",
+      "expected": "An if statement runs a block of code only when a condition is true.",
+      "actual": "Statement is not eror operated to to the attimes an is ance ptions anis ancan.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 67,
+      "generated_bytes": 78,
+      "first_divergence": {
+        "byte_index": 0,
+        "expected_byte": 65,
+        "actual_byte": 83
+      }
+    },
+    {
+      "index": 7,
+      "record_id": "instr-vowels-978",
+      "domain": "conversation",
+      "prompt": "How many vowels are in the word translator?",
+      "expected": "The word translator has 3 vowels.",
+      "actual": "The word translator has 3 vowels.",
+      "exact_match": true,
+      "normalized_match": true,
+      "expected_bytes": 33,
+      "generated_bytes": 33,
+      "first_divergence": null
+    },
+    {
+      "index": 8,
+      "record_id": "capital-109",
+      "domain": "conversation",
+      "prompt": "Which city is the capital of Turkey?",
+      "expected": "The capital of Turkey is Ankara.",
+      "actual": "The capital of Turkey is Aseris.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 32,
+      "generated_bytes": 32,
+      "first_divergence": {
+        "byte_index": 26,
+        "expected_byte": 110,
+        "actual_byte": 115
+      }
+    },
+    {
+      "index": 9,
+      "record_id": "rewrite-question-18",
+      "domain": "conversation",
+      "prompt": "Turn this sentence into a question: I think this idea is pretty good.",
+      "expected": "I think this idea is pretty good?",
+      "actual": "I in silik thin is is a dea docanomain.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 33,
+      "generated_bytes": 39,
+      "first_divergence": {
+        "byte_index": 2,
+        "expected_byte": 116,
+        "actual_byte": 105
+      }
+    },
+    {
+      "index": 10,
+      "record_id": "instr-spell-300",
+      "domain": "conversation",
+      "prompt": "Spell the word airport.",
+      "expected": "a i r p o r t.",
+      "actual": "a i r p o r.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 14,
+      "generated_bytes": 12,
+      "first_divergence": {
+        "byte_index": 11,
+        "expected_byte": 32,
+        "actual_byte": 46
+      }
+    },
+    {
+      "index": 11,
+      "record_id": "uncertain-6",
+      "domain": "evidence_uncertainty",
+      "prompt": "What is the weather like in Paris right now?",
+      "expected": "I do not have access to live weather data for Paris.",
+      "actual": "I do not have not have n water ter the the data growth.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 52,
+      "generated_bytes": 55,
+      "first_divergence": {
+        "byte_index": 14,
+        "expected_byte": 97,
+        "actual_byte": 110
+      }
+    },
+    {
+      "index": 12,
+      "record_id": "pa-02519",
+      "domain": "evidence_uncertainty",
+      "prompt": "When is greenhouse bed 86 watered?\n\nTrusted evidence:\n[decisive:garden] The greenhouse watering schedule includes Tuesday for bed 86.\n[distractor:0] The cafe serves soup at noon.\n[distractor:1] The west elevator is under inspection.\n[distractor:2] The river path is closed after storms.\n\nResponse requirements:\nUse decisive evidence only.",
+      "expected": "Greenhouse bed 86 is watered on Tuesday.",
+      "actual": "Greenhouse bed 88 is watered on Friday.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 40,
+      "generated_bytes": 39,
+      "first_divergence": {
+        "byte_index": 16,
+        "expected_byte": 54,
+        "actual_byte": 56
+      }
+    },
+    {
+      "index": 13,
+      "record_id": "pa-03419",
+      "domain": "evidence_uncertainty",
+      "prompt": "When is greenhouse bed 236 watered?\n\nTrusted evidence:\n[decisive:garden] The greenhouse watering schedule includes Tuesday for bed 236.\n[distractor:0] The cafe serves soup at noon.\n[distractor:1] The west elevator is under inspection.\n[distractor:2] The river path is closed after storms.\n\nResponse requirements:\nUse decisive evidence only.",
+      "expected": "Greenhouse bed 236 is watered on Tuesday.",
+      "actual": "Greenhouse bed 236 is watered Webriterd case Almongo.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 41,
+      "generated_bytes": 53,
+      "first_divergence": {
+        "byte_index": 30,
+        "expected_byte": 111,
+        "actual_byte": 87
+      }
+    },
+    {
+      "index": 14,
+      "record_id": "pa-03899",
+      "domain": "evidence_uncertainty",
+      "prompt": "When is greenhouse bed 316 watered?\n\nTrusted evidence:\n[decisive:garden] The greenhouse watering schedule includes Tuesday for bed 316.\n[distractor:0] The cafe serves soup at noon.\n[distractor:1] The west elevator is under inspection.\n[distractor:2] The river path is closed after storms.\n\nResponse requirements:\nUse decisive evidence only.",
+      "expected": "Greenhouse bed 316 is watered on Tuesday.",
+      "actual": "Greenhouse bed 136 is watered Freed From isssing Acused 1.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 41,
+      "generated_bytes": 58,
+      "first_divergence": {
+        "byte_index": 15,
+        "expected_byte": 51,
+        "actual_byte": 49
+      }
+    },
+    {
+      "index": 15,
+      "record_id": "instr-first-269",
+      "domain": "factual_explanation",
+      "prompt": "What is the first letter of the word carpet?",
+      "expected": "The first letter of carpet is C.",
+      "actual": "The first letter of cart per is C.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 32,
+      "generated_bytes": 34,
+      "first_divergence": {
+        "byte_index": 23,
+        "expected_byte": 112,
+        "actual_byte": 116
+      }
+    },
+    {
+      "index": 16,
+      "record_id": "instr-first-360",
+      "domain": "factual_explanation",
+      "prompt": "What is the first letter of the word backpack?",
+      "expected": "The first letter of backpack is B.",
+      "actual": "The first letter of bake is B.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 34,
+      "generated_bytes": 30,
+      "first_divergence": {
+        "byte_index": 22,
+        "expected_byte": 99,
+        "actual_byte": 107
+      }
+    },
+    {
+      "index": 17,
+      "record_id": "multiturn3-76",
+      "domain": "factual_explanation",
+      "prompt": "Hello\nAssistant: Hello! How can I help you today?\nUser: What is two plus two?\nAssistant: Two plus two equals four.\nUser: And what is the capital of Italy?",
+      "expected": "The capital of Italy is Rome.",
+      "actual": "Fou a situl metring of a is a tere.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 29,
+      "generated_bytes": 35,
+      "first_divergence": {
+        "byte_index": 0,
+        "expected_byte": 84,
+        "actual_byte": 70
+      }
+    },
+    {
+      "index": 18,
+      "record_id": "instr-first-885",
+      "domain": "factual_explanation",
+      "prompt": "What is the first letter of the word plumber?",
+      "expected": "The first letter of plumber is P.",
+      "actual": "The first letter of plumber is P.",
+      "exact_match": true,
+      "normalized_match": true,
+      "expected_bytes": 33,
+      "generated_bytes": 33,
+      "first_divergence": null
+    },
+    {
+      "index": 19,
+      "record_id": "multiturn-27",
+      "domain": "mathematics",
+      "prompt": "Good morning\nAssistant: Good morning! How can I help you today?\nUser: Is 7 a prime number?",
+      "expected": "7 is a prime number.",
+      "actual": "You are welcoming to helplie ongts a hand ay?",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 20,
+      "generated_bytes": 45,
+      "first_divergence": {
+        "byte_index": 0,
+        "expected_byte": 55,
+        "actual_byte": 89
+      }
+    },
+    {
+      "index": 20,
+      "record_id": "multiturn3-99",
+      "domain": "mathematics",
+      "prompt": "Hi there\nAssistant: Hi! What can I do for you?\nUser: Is 7 a prime number?\nAssistant: 7 is a prime number.\nUser: What about five times five?",
+      "expected": "Five times five equals twenty five.",
+      "actual": "Five times equals twen five.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 35,
+      "generated_bytes": 28,
+      "first_divergence": {
+        "byte_index": 11,
+        "expected_byte": 102,
+        "actual_byte": 101
+      }
+    },
+    {
+      "index": 21,
+      "record_id": "prime-14150",
+      "domain": "mathematics",
+      "prompt": "Determine whether 150 is prime.",
+      "expected": "150 is not a prime number.",
+      "actual": "150 prime is errun.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 26,
+      "generated_bytes": 19,
+      "first_divergence": {
+        "byte_index": 4,
+        "expected_byte": 105,
+        "actual_byte": 112
+      }
+    },
+    {
+      "index": 22,
+      "record_id": "prime-14485",
+      "domain": "mathematics",
+      "prompt": "Determine whether 485 is prime.",
+      "expected": "485 is not a prime number.",
+      "actual": "484 is prime nothes pris number.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 26,
+      "generated_bytes": 32,
+      "first_divergence": {
+        "byte_index": 2,
+        "expected_byte": 53,
+        "actual_byte": 52
+      }
+    },
+    {
+      "index": 23,
+      "record_id": "pa-00852",
+      "domain": "planning_tools",
+      "prompt": "Explain why planning before writing can help. Please answer in plain language.\n\nResponse requirements:\nExplain briefly. Keep the answer in plain language",
+      "expected": "Planning before writing helps organize evidence, order ideas, and avoid unsupported claims.",
+      "actual": "Planning before writing helps organize evidence, order ideas, and avoid unsupported claims.",
+      "exact_match": true,
+      "normalized_match": true,
+      "expected_bytes": 91,
+      "generated_bytes": 91,
+      "first_divergence": null
+    },
+    {
+      "index": 24,
+      "record_id": "explain-12",
+      "domain": "planning_tools",
+      "prompt": "Explain why the moon has phases.",
+      "expected": "The moon has phases because we see different amounts of its sunlit side as it orbits Earth.",
+      "actual": "The moon has s spawee s ree diffints slizes howedge or sitang size.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 91,
+      "generated_bytes": 67,
+      "first_divergence": {
+        "byte_index": 13,
+        "expected_byte": 112,
+        "actual_byte": 115
+      }
+    },
+    {
+      "index": 25,
+      "record_id": "explain-16",
+      "domain": "planning_tools",
+      "prompt": "Can you explain why metal feels cold?",
+      "expected": "Metal feels cold because it conducts heat away from your hand quickly.",
+      "actual": "Metal feel cold cold hecks booking han handling a not desirs.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 70,
+      "generated_bytes": 61,
+      "first_divergence": {
+        "byte_index": 10,
+        "expected_byte": 115,
+        "actual_byte": 32
+      }
+    },
+    {
+      "index": 26,
+      "record_id": "syllogism-16",
+      "domain": "planning_tools",
+      "prompt": "If all trees are plants, and X is a this oak tree, is X a plants?",
+      "expected": "Yes, since all trees are plants, X is a plants.",
+      "actual": "Yes, sindes, since all trees, plants, its, X is a plants.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 47,
+      "generated_bytes": 57,
+      "first_divergence": {
+        "byte_index": 8,
+        "expected_byte": 99,
+        "actual_byte": 100
+      }
+    }
+  ]
+}

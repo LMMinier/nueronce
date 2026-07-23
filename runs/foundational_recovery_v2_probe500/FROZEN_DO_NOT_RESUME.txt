@@ -1,0 +1,12 @@
+﻿FROZEN EXPERIMENT
+
+Checkpoint:
+step1500_best.pt
+
+Results:
+- Validation loss: 0.8440045122589384
+- Broad generation gate: 0/8
+- Held-out curriculum probe: 3/26 exact
+
+Do not resume this checkpoint blindly.
+The next experiment must use a corrected V3 curriculum.
