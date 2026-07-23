@@ -1,6 +1,41 @@
 # NUERONCE Foundational Generation Recovery
 
-## Cloud-session status (this pass)
+## Cloud-session status (2026-07-23 pass — real chat_11m run, CPU sandbox)
+
+Section B has now been run for real, on the actual `chat_11m` architecture,
+on real (if slow, CPU-only) compute — not the crippled `--fast-tooling-check`
+stand-in referenced later in this file. Full result and per-item detail:
+`docs/reports/TINY_EXACT_OVERFIT_STEP1_RESULT.md`.
+
+**Result: 27/32 exact matches, 0 delimiter leaks, state isolation OK — below
+the required 31/32 threshold. `gate_passed: false`.** Do not read this as
+"the pipeline is broken": every one of the 32 free-running answers was
+topically and grammatically correct; 4 of the 5 misses are a single
+dropped/substituted character in an otherwise byte-perfect string (e.g.
+`apple`→`aple`, `keep`→`kep`), and the 5th duplicates a correct digit
+instead of stopping. Training stopped at loss 0.0471, just under the
+script's 0.05 threshold — this reads as a checkpoint that had not quite
+finished memorizing, not as broken masking/serialization/stop-handling.
+That said, the sealed rule is >=31/32, unmodified, and this run does not
+clear it — **Step 2 (base pretraining) was not started this pass**, per
+the recovery doc's own advancement rules below. See the report for the
+full per-item table, the isolation-check results, and a note that this
+diagnostic exercises `NUERONCEModel.generate()` (dense) rather than
+`nueronce.incremental.IncrementalGenerator` (what the sealed proof gate
+actually runs through) — so this result does not yet settle the
+dense-vs-incremental question either.
+
+One infrastructure finding worth carrying forward: on this 8GB CPU
+sandbox, the original (unmodified) `train_tiny_exact_overfit.py` could not
+complete a single step — a grad-enabled forward+backward on the real
+32-example batch pushed memory from ~2.7GB to ~7GB and got SIGTERM'd by a
+soft memory guard (confirmed via a `free -m` sampler, not a guess). Added
+an optional `--micro-batch N` gradient-accumulation flag (default 0 =
+original single-batch behavior, unchanged) that produces the mathematically
+identical gradient in smaller chunks. This is an infrastructure fix, not a
+change to what Section B measures.
+
+## Cloud-session status (prior pass)
 
 Implemented, from the cloud side (no GPU here, so nothing below claims the
 sealed gate now passes -- that verdict can only come from running the real
