@@ -1,0 +1,82 @@
+{
+  "diagnostic": "loss_generation_curve_v1",
+  "architecture": "fast_tooling_check",
+  "params": 228969,
+  "seed": 1234,
+  "n_examples": 32,
+  "system_bytes": 259,
+  "thresholds_requested": [
+    2.0,
+    1.0,
+    0.5,
+    0.25,
+    0.15
+  ],
+  "thresholds_reached": [
+    2.0,
+    1.0,
+    0.5,
+    0.25,
+    0.15
+  ],
+  "final_step": 738,
+  "final_loss": 0.14916574954986572,
+  "rows": [
+    {
+      "threshold": 2.0,
+      "step": 77,
+      "train_response_loss": 1.9747207164764404,
+      "response_argmax_acc": 0.6569767441860465,
+      "first8_argmax_acc": 0.578125,
+      "free_run_exact_count": 0,
+      "free_run_exact_fraction": 0.0,
+      "predicted_exact_fraction_from_tf_acc": 0.15643272562335658,
+      "elapsed_seconds": 47.098692655563354
+    },
+    {
+      "threshold": 1.0,
+      "step": 152,
+      "train_response_loss": 0.9978968501091003,
+      "response_argmax_acc": 0.8069767441860465,
+      "first8_argmax_acc": 0.74609375,
+      "free_run_exact_count": 0,
+      "free_run_exact_fraction": 0.0,
+      "predicted_exact_fraction_from_tf_acc": 0.25046610025161437,
+      "elapsed_seconds": 86.30918550491333
+    },
+    {
+      "threshold": 0.5,
+      "step": 286,
+      "train_response_loss": 0.4997629225254059,
+      "response_argmax_acc": 0.913953488372093,
+      "first8_argmax_acc": 0.8359375,
+      "free_run_exact_count": 1,
+      "free_run_exact_fraction": 0.03125,
+      "predicted_exact_fraction_from_tf_acc": 0.40208332218611365,
+      "elapsed_seconds": 156.45459151268005
+    },
+    {
+      "threshold": 0.25,
+      "step": 427,
+      "train_response_loss": 0.2474318891763687,
+      "response_argmax_acc": 0.9523255813953488,
+      "first8_argmax_acc": 0.8671875,
+      "free_run_exact_count": 1,
+      "free_run_exact_fraction": 0.03125,
+      "predicted_exact_fraction_from_tf_acc": 0.5354673939145309,
+      "elapsed_seconds": 227.51061367988586
+    },
+    {
+      "threshold": 0.15,
+      "step": 738,
+      "train_response_loss": 0.14916574954986572,
+      "response_argmax_acc": 0.9534883720930233,
+      "first8_argmax_acc": 0.8671875,
+      "free_run_exact_count": 1,
+      "free_run_exact_fraction": 0.03125,
+      "predicted_exact_fraction_from_tf_acc": 0.5413219504436282,
+      "elapsed_seconds": 1229.0386352539062
+    }
+  ],
+  "interpretation": "free_run_exact_fraction should track predicted_exact_fraction_from_tf_acc if generation is healthy: exact reproduction is the product of per-byte accuracies, so it stays near zero until per-byte accuracy is very high. Select checkpoints on response loss / first-8-bytes metrics, not aggregate val loss, and do not attempt the sealed gate above the loss level where this curve switches on (working target: <=0.05)."
+}
