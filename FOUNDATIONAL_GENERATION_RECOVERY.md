@@ -1,5 +1,72 @@
 # NUERONCE Foundational Generation Recovery
 
+## Cloud-session status (this pass)
+
+Implemented, from the cloud side (no GPU here, so nothing below claims the
+sealed gate now passes -- that verdict can only come from running the real
+diagnostic on the actual `chat_11m` architecture, on the machine that holds
+the checkpoints):
+
+- **Section A (safe stopping)** -- already done before this pass
+  (`tests/test_safe_interruption.py`).
+- **Section B (tiny exact-overfit)** -- implemented:
+  `scripts/tiny_exact_overfit_examples.py` (the 32 fixed items, 8 categories
+  x 4), `scripts/train_tiny_exact_overfit.py`, `scripts/eval_tiny_exact_overfit.py`.
+  Both scripts use the *actual* production serializer path
+  (`nueronce.training.dialogue_data.make_sft_batch`/`encode_example` for
+  training, `nueronce.prompting.format_inference_prompt` +
+  `NUERONCEModel.generate(greedy=True, stop_sequences=STOP_SEQUENCES)` for
+  eval) -- the same functions `scripts/train_forgeloop_sft.py` and
+  `scripts/eval_foundational_proof_gate.py` use, confirmed by reading both
+  files. Run order:
+  ```
+  python scripts/train_tiny_exact_overfit.py       # fresh chat_11m, ~2-10 min on a real GPU
+  python scripts/eval_tiny_exact_overfit.py         # writes runs/tiny_exact_overfit/eval_report.json
+  ```
+  A CPU-only smoke test of the tooling itself (not the real diagnostic --
+  intentionally undersized architecture via `--fast-tooling-check`) ran
+  clean end-to-end in the cloud sandbox: loss fell monotonically
+  (2.76 -> 1.63 -> 1.00 over 150 steps), both scripts executed without
+  error, and the JSON report has the documented shape. **This has not yet
+  been run on the real `chat_11m` config against a from-scratch checkpoint
+  -- that is the next required step, and it needs real (GPU-preferred, but
+  CPU-feasible) compute, not just the smoke test.**
+- **One negative result already established** (hypothesis 1, prompt/target
+  misalignment): `tests/test_foundational_recovery_pipeline.py::test_encode_example_prefix_matches_inference_prompt`
+  proves the *actual* trainer path (`encode_example` -> `format_training_example`)
+  and the *actual* eval path (`format_inference_prompt`, used verbatim by
+  `eval_foundational_proof_gate.py`) render byte-identical prompt prefixes
+  for the same `(system, user_request)`. `scripts/start_foundational_curriculum_phase.ps1`
+  confirms `runs/foundational_executor/latest_best.pt` (the checkpoint the
+  current 0/8 gate result is against) and the proof gate both go through
+  this exact code path -- so hypothesis 1 is not the cause of the current
+  0/8 result. 9 tests in all added, covering required-test items 1-7 (byte
+  prefix equality, mask start position, next-byte-shift indexing, EOS
+  inside the mask, `STOP_SEQUENCES` catching a bare `<|`, no cross-call
+  state leak, and mismatched-architecture load failing loudly). Items 8 and
+  9 are covered by the scripts above and `tests/test_incremental_torch.py`
+  respectively (both need real training time, not run in CI).
+- **Not yet implemented**: sections C, D, E (a single canonical serializer
+  is *mostly* already true in practice -- `dialogue_data.encode_example`'s
+  canonical branch and `prompting.format_inference_prompt` agree, verified
+  above -- but `dialogue_data.encode_messages`/`nueronce.chat.Conversation`
+  use a *different* layout with no `<|evidence|>`/`<|plan|>` blocks; this
+  divergence is real and should be resolved or explicitly documented, not
+  assumed harmless), F (isolation is proven for `generate()`'s own call
+  boundary; not yet proven for `IncrementalGenerator`'s cache across
+  examples), G, H (per-field loss reporting and full checkpoint-provenance
+  logging beyond the architecture-mismatch test).
+- **One more lineage fact worth recording**: `scripts/start_foundational_curriculum_phase.ps1`
+  shows `runs/foundational_curriculum` was launched with `--execution-depth 2`
+  against a base (`foundational_executor/latest_best.pt`) that itself has
+  `execution_depth=0` -- i.e. a *freshly random-initialized*
+  `AddressableExecutionRegister` module gets spliced into an already-trained
+  checkpoint at the start of that run. The current sealed 0/8 gate result is
+  against the pre-splice `foundational_executor` checkpoint, so this isn't
+  implicated in the *current* number, but it is one more variable in the
+  next stage and worth a dedicated ablation (gate with `execution_depth=0`
+  vs `2` at matched step count) once section B is green.
+
 ## Current verified result
 
 The current approximately 11.85M-parameter checkpoint achieves very low

@@ -7,6 +7,69 @@ gives the exact next runs. Pull the default branch first — your
 `codex/prompt-aligned-grounded-sft` tip is one commit behind and everything
 below is already merged.*
 
+## Current priority — supersedes the rest of this file until closed
+
+`FOUNDATIONAL_GENERATION_RECOVERY.md` (repo root) is now the live investigation:
+the `foundational_executor`/`foundational_curriculum` checkpoints reach very
+low SFT val loss but score **0/8, 0.0 overall** on the sealed
+`scripts/eval_foundational_proof_gate.py` gate — every answer is incoherent
+even though loss looks converged. **Do not resume broad curriculum training**
+(`scripts/start_foundational_curriculum_phase.ps1` or equivalent) until
+Section B below passes.
+
+Section B (tiny exact-overfit) is now implemented and needs to be run on
+your machine, against the real architecture, before anything else:
+
+```bash
+python scripts/train_tiny_exact_overfit.py \
+    --out runs/tiny_exact_overfit/checkpoint.pt \
+    --system-file runs/forgeloop/system_prompt.txt
+python scripts/eval_tiny_exact_overfit.py \
+    --checkpoint runs/tiny_exact_overfit/checkpoint.pt \
+    --output runs/tiny_exact_overfit/eval_report.json
+```
+
+This trains a **fresh** `chat_11m` (not your sealed checkpoint — this never
+touches `foundational_executor`/`foundational_curriculum`) on 32 fixed short
+examples until near-zero response loss, then checks whether it can
+free-running (greedy, no teacher forcing) reproduce what it just memorized.
+Read `runs/tiny_exact_overfit/eval_report.json`'s `gate_passed` and
+`exact_match_count` (need ≥31/32) plus `delimiter_leaks` and
+`state_isolation_ok`.
+
+- **If it fails** (< 31/32, or delimiter leaks, or isolation breaks): the bug
+  is in the shared train/serialize/generate pipeline, not in the amount of
+  curriculum data or training steps. Report exactly which of the 32 items
+  failed and their `first_mismatch_char` — that's the next thing to fix, and
+  it blocks everything downstream (per section E/F, `KNOWN_LIMITATIONS.md`
+  item 4: generation has no incremental cache during teacher-forced training,
+  but `nueronce.incremental.IncrementalGenerator` is what the proof gate
+  actually runs inference through — if the fresh-model overfit test also
+  produces garbage, suspect that path first since it's the one variable
+  neither the trainer nor a plain `model.generate()` test exercises).
+- **If it passes**: the pipeline is mechanically sound, and the 0/8 result on
+  the real checkpoints is a training-scale/data problem (recovery doc
+  hypothesis 7), not a plumbing bug. In that case the original diagnosis
+  below (base bpb too high before SFT, too little unique data, wrong
+  eval metric during the transition) is very likely still the live issue —
+  `runs/foundational_recovery_v2_probe500/FROZEN_DO_NOT_RESUME.txt` already
+  shows a directly-tested base checkpoint (`cfna_base_large_best.pt`, step
+  73,199) producing empty/repetitive garbage with **zero** SFT applied, which
+  points hard at base pretraining never having converged, independent of
+  everything built on top of it since. Cross-check its held-out bpb before
+  building another curriculum on top of it.
+
+One negative result already established from the cloud side without a GPU:
+`tests/test_foundational_recovery_pipeline.py::test_encode_example_prefix_matches_inference_prompt`
+proves `scripts/train_forgeloop_sft.py`'s trainer path and
+`scripts/eval_foundational_proof_gate.py`'s eval path render byte-identical
+prompt prefixes for the same input — so prompt/target misalignment between
+*those two specific scripts* is ruled out. It does not rule out a bug inside
+`IncrementalGenerator` itself, which only the tiny-overfit run (real
+`generate()` call, not a unit test of the byte-formatting alone) can surface.
+
+---
+
 ## Diagnosis (from your own artifacts + this repo's prior experiments)
 
 1. **You are training on CPU while a GPU sits idle.** Your checkpoint audit
