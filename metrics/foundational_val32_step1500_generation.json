@@ -1,0 +1,172 @@
+{
+  "checkpoint": "runs\\foundational_recovery_v2_probe500\\step1500_best.pt",
+  "checkpoint_step": 1500,
+  "best_val_loss": 0.8440045122589384,
+  "total": 8,
+  "exact_matches": 1,
+  "normalized_matches": 1,
+  "exact_rate": 0.125,
+  "normalized_rate": 0.125,
+  "diagnostic_passed": false,
+  "domain_scores": {
+    "causal_temporal": {
+      "rows": 4,
+      "exact": 0,
+      "normalized": 0
+    },
+    "conversation": {
+      "rows": 1,
+      "exact": 1,
+      "normalized": 1
+    },
+    "evidence_uncertainty": {
+      "rows": 1,
+      "exact": 0,
+      "normalized": 0
+    },
+    "factual_explanation": {
+      "rows": 1,
+      "exact": 0,
+      "normalized": 0
+    },
+    "mathematics": {
+      "rows": 1,
+      "exact": 0,
+      "normalized": 0
+    }
+  },
+  "results": [
+    {
+      "index": 1,
+      "record_id": "syllogism-13",
+      "domain": "causal_temporal",
+      "prompt": "All apples are fruits. This apple is an example of apple. Is this apple a fruit?",
+      "expected": "Yes, since all apples are fruits, X is a fruits.",
+      "actual": "Yes, since all apppers an fruits, X is a fruits.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 48,
+      "generated_bytes": 48,
+      "first_divergence": {
+        "byte_index": 18,
+        "expected_byte": 108,
+        "actual_byte": 112
+      }
+    },
+    {
+      "index": 2,
+      "record_id": "syllogism-30",
+      "domain": "causal_temporal",
+      "prompt": "If all chairs are furniture, and X is a this chair, is X a furniture?",
+      "expected": "Yes, since all chairs are furniture, X is a furniture.",
+      "actual": "Yes, since all chaihih s propers.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 54,
+      "generated_bytes": 33,
+      "first_divergence": {
+        "byte_index": 19,
+        "expected_byte": 114,
+        "actual_byte": 104
+      }
+    },
+    {
+      "index": 3,
+      "record_id": "syllogism-26",
+      "domain": "causal_temporal",
+      "prompt": "If all teachers are professionals, and X is a this teacher, is X a professionals?",
+      "expected": "Yes, since all teachers are professionals, X is a professionals.",
+      "actual": "Yes, since all prosearssonals, X is a professlonaling.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 64,
+      "generated_bytes": 54,
+      "first_divergence": {
+        "byte_index": 15,
+        "expected_byte": 116,
+        "actual_byte": 112
+      }
+    },
+    {
+      "index": 4,
+      "record_id": "syllogism-12",
+      "domain": "causal_temporal",
+      "prompt": "If all apples are fruits, and X is a this apple, is X a fruits?",
+      "expected": "Yes, since all apples are fruits, X is a fruits.",
+      "actual": "Yes, sincell appseps apleps appes X is a fruits.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 48,
+      "generated_bytes": 48,
+      "first_divergence": {
+        "byte_index": 10,
+        "expected_byte": 32,
+        "actual_byte": 108
+      }
+    },
+    {
+      "index": 5,
+      "record_id": "instr-vowels-978",
+      "domain": "conversation",
+      "prompt": "How many vowels are in the word translator?",
+      "expected": "The word translator has 3 vowels.",
+      "actual": "The word translator has 3 vowels.",
+      "exact_match": true,
+      "normalized_match": true,
+      "expected_bytes": 33,
+      "generated_bytes": 33,
+      "first_divergence": null
+    },
+    {
+      "index": 6,
+      "record_id": "multiturn-27",
+      "domain": "mathematics",
+      "prompt": "Good morning\nAssistant: Good morning! How can I help you today?\nUser: Is 7 a prime number?",
+      "expected": "7 is a prime number.",
+      "actual": "You are welcoming to helplie ongts a hand ay?",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 20,
+      "generated_bytes": 45,
+      "first_divergence": {
+        "byte_index": 0,
+        "expected_byte": 55,
+        "actual_byte": 89
+      }
+    },
+    {
+      "index": 7,
+      "record_id": "uncertain-6",
+      "domain": "evidence_uncertainty",
+      "prompt": "What is the weather like in Paris right now?",
+      "expected": "I do not have access to live weather data for Paris.",
+      "actual": "I do not have not have n water ter the the data growth.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 52,
+      "generated_bytes": 55,
+      "first_divergence": {
+        "byte_index": 14,
+        "expected_byte": 97,
+        "actual_byte": 110
+      }
+    },
+    {
+      "index": 8,
+      "record_id": "instr-first-269",
+      "domain": "factual_explanation",
+      "prompt": "What is the first letter of the word carpet?",
+      "expected": "The first letter of carpet is C.",
+      "actual": "The first letter of cart per is C.",
+      "exact_match": false,
+      "normalized_match": false,
+      "expected_bytes": 32,
+      "generated_bytes": 34,
+      "first_divergence": {
+        "byte_index": 23,
+        "expected_byte": 112,
+        "actual_byte": 116
+      }
+    }
+  ]
+}

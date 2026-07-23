@@ -1,0 +1,131 @@
+{
+  "gate": "foundational_model_only_generation_v1",
+  "checkpoint": "C:\\nueronce-claude-new-session-tkjr3b\\cfna_base_large_best.pt",
+  "checkpoint_step": 73199,
+  "temperature": 0.0,
+  "system_file": "runs\\forgeloop\\system_prompt.txt",
+  "inference_backend": "verified_incremental",
+  "incremental_max_logit_error": 7.62939453125e-06,
+  "criteria": {
+    "minimum_overall": 0.75,
+    "every_domain_nonzero": true,
+    "evidence_uncertainty_all": true
+  },
+  "overall_score": 0.0,
+  "domain_scores": {
+    "conversation": 0.0,
+    "factual_explanation": 0.0,
+    "mathematics": 0.0,
+    "code_debugging": 0.0,
+    "causal_temporal": 0.0,
+    "planning_tools": 0.0,
+    "evidence_uncertainty": 0.0
+  },
+  "gate_passed": false,
+  "elapsed_seconds": 214.62717008590698,
+  "results": [
+    {
+      "id": "conversation_polite",
+      "domain": "conversation",
+      "prompt": "Rewrite politely: Send me the report now.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Send me the report now.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "",
+      "passed": false,
+      "problems": [
+        "surface:empty_output",
+        "missing_any:please",
+        "missing_any:report"
+      ],
+      "seconds": 15.725822687149048
+    },
+    {
+      "id": "explanation_shadow",
+      "domain": "factual_explanation",
+      "prompt": "In one sentence, explain why an opaque object makes a shadow.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nIn one sentence, explain why an opaque object makes a shadow.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "| s se se se se se | | st ande | | | | ande amplfin amin a a a a a a a a s s a a s a s a s s s a a s s a s s a s s s sunndetetetaminonetamperon oceraramer on ar ar a a a a a a a a a",
+      "passed": false,
+      "problems": [
+        "missing_any:light",
+        "missing_any:block|blocks|blocked"
+      ],
+      "seconds": 20.171876430511475
+    },
+    {
+      "id": "math_add",
+      "domain": "mathematics",
+      "prompt": "Calculate 17 + 26. Give the numerical answer.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 17 + 26. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "stan ster = selel | | | | | |",
+      "passed": false,
+      "problems": [
+        "missing_any:43"
+      ],
+      "seconds": 21.178730487823486
+    },
+    {
+      "id": "debug_range",
+      "domain": "code_debugging",
+      "prompt": "This Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The The The The The The The the the the tre tre the to to to to the tothe the to the to the to the the t the the t the tre t t totot tothe the to the to the tothe thimp tiche the t therabo t t",
+      "passed": false,
+      "problems": [
+        "missing_any:range(1, 6)|range(1,6)"
+      ],
+      "seconds": 32.74367332458496
+    },
+    {
+      "id": "temporal_chain",
+      "domain": "causal_temporal",
+      "prompt": "Event A is at 09:00. B happens 2 hours after A. C happens 3 hours after B. What time is C?",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nEvent A is at 09:00. B happens 2 hours after A. C happens 3 hours after B. What time is C?\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "The The s s s s s thimono thimo thin the the the ithe the the the the the the the t the the the s the se the the tous tous the the the tre the to the tou the tous t therere t thererer s s s t",
+      "passed": false,
+      "problems": [
+        "missing_any:14:00|2:00 pm|2 pm"
+      ],
+      "seconds": 29.113455057144165
+    },
+    {
+      "id": "tool_plan",
+      "domain": "planning_tools",
+      "prompt": "Give a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "|Ere |Equre |Equrinctincting | | | | Thimiming tong a a a a a",
+      "passed": false,
+      "problems": [
+        "missing_any:search|find|rg|ripgrep",
+        "missing_any:.py|python"
+      ],
+      "seconds": 31.691544771194458
+    },
+    {
+      "id": "evidence_authority",
+      "domain": "evidence_uncertainty",
+      "prompt": "Using only the trusted evidence, what is the Atlas device code?",
+      "evidence": "Trusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the Atlas device code?\n\nTrusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "|End Re Re Re Re Re Re Re Re ris ris ropopopopopopopopoportortatate onse on ope orarartin ortin ol orar artine are tis to to to the thico the to the the tous the the touse the tarererererer t",
+      "passed": false,
+      "problems": [
+        "missing_any:42"
+      ],
+      "seconds": 34.29431176185608
+    },
+    {
+      "id": "honest_abstention",
+      "domain": "evidence_uncertainty",
+      "prompt": "Using only the trusted evidence, on what date did the Atlas launch?",
+      "evidence": "Trusted evidence: The Atlas device code is 42.",
+      "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, on what date did the Atlas launch?\n\nTrusted evidence: The Atlas device code is 42.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
+      "answer": "s s ste s se se se and t t the the the the the the the the the the the the the the the se se t t tou tous touse thore thicous ot one thore t the the thiche t t t t po po po the the the the th",
+      "passed": false,
+      "problems": [
+        "missing_any:not provided|cannot determine|unknown|not enough|no date"
+      ],
+      "seconds": 29.697101354599
+    }
+  ],
+  "interpretation": "A pass is evidence of capability on this fixed held-out suite, not proof of general intelligence."
+}

@@ -1,0 +1,18 @@
+﻿ M nueronce/engine/tensor.py
+ M nueronce/incremental.py
+ M scripts/train_forgeloop_sft.py
+?? artifacts/
+?? "cfna_night_session (2).ipynb"
+?? manifest.jsonl
+?? metrics/engine_sft_step.prof
+?? metrics/execution_register.json
+?? metrics/execution_register_verified.json
+?? metrics/foundational_proof_gate_current.json
+?? metrics/recurrent_reasoning.json
+?? runs/
+?? scripts/build_foundational_curriculum.py
+?? scripts/eval_foundational_proof_gate.py
+?? scripts/start_foundational_curriculum_phase.ps1
+?? test.jsonl
+?? train.jsonl
+?? val.jsonl

@@ -1,0 +1,205 @@
+{
+  "capabilities": {
+    "code_fundamentals": {
+      "families": {
+        "test": 4,
+        "train": 36,
+        "val": 4
+      },
+      "rows": {
+        "test": 4,
+        "train": 222,
+        "val": 4
+      }
+    },
+    "conversation": {
+      "families": {
+        "test": 7,
+        "train": 54,
+        "val": 7
+      },
+      "rows": {
+        "test": 7,
+        "train": 54,
+        "val": 7
+      }
+    },
+    "evidence_grounding": {
+      "families": {
+        "test": 4,
+        "train": 34,
+        "val": 4
+      },
+      "rows": {
+        "test": 98,
+        "train": 841,
+        "val": 97
+      }
+    },
+    "factual_explanation": {
+      "families": {
+        "test": 27,
+        "train": 214,
+        "val": 27
+      },
+      "rows": {
+        "test": 27,
+        "train": 214,
+        "val": 27
+      }
+    },
+    "factual_knowledge": {
+      "families": {
+        "test": 49,
+        "train": 390,
+        "val": 49
+      },
+      "rows": {
+        "test": 49,
+        "train": 390,
+        "val": 49
+      }
+    },
+    "instruction_following": {
+      "families": {
+        "test": 98,
+        "train": 783,
+        "val": 98
+      },
+      "rows": {
+        "test": 98,
+        "train": 831,
+        "val": 98
+      }
+    },
+    "logic_reasoning": {
+      "families": {
+        "test": 5,
+        "train": 37,
+        "val": 5
+      },
+      "rows": {
+        "test": 67,
+        "train": 223,
+        "val": 5
+      }
+    },
+    "mathematics": {
+      "families": {
+        "test": 3,
+        "train": 11,
+        "val": 3
+      },
+      "rows": {
+        "test": 96,
+        "train": 352,
+        "val": 96
+      }
+    },
+    "planning_procedures": {
+      "families": {
+        "test": 5,
+        "train": 36,
+        "val": 5
+      },
+      "rows": {
+        "test": 5,
+        "train": 36,
+        "val": 5
+      }
+    },
+    "rewriting": {
+      "families": {
+        "test": 13,
+        "train": 108,
+        "val": 13
+      },
+      "rows": {
+        "test": 13,
+        "train": 108,
+        "val": 13
+      }
+    },
+    "safety_refusal": {
+      "families": {
+        "test": 3,
+        "train": 28,
+        "val": 3
+      },
+      "rows": {
+        "test": 3,
+        "train": 28,
+        "val": 3
+      }
+    },
+    "summarization": {
+      "families": {
+        "test": 5,
+        "train": 39,
+        "val": 5
+      },
+      "rows": {
+        "test": 5,
+        "train": 39,
+        "val": 5
+      }
+    },
+    "uncertainty_abstention": {
+      "families": {
+        "test": 9,
+        "train": 70,
+        "val": 9
+      },
+      "rows": {
+        "test": 133,
+        "train": 380,
+        "val": 102
+      }
+    }
+  },
+  "capped_rows_removed": {
+    "code_fundamentals": 182,
+    "evidence_grounding": 397,
+    "instruction_following": 7,
+    "logic_reasoning": 256,
+    "mathematics": 544,
+    "uncertainty_abstention": 320
+  },
+  "dataset": "foundational_recovery_v3",
+  "eligible_after_status_filter": 6673,
+  "excluded_quality": {
+    "nested_chat_transcript": 126,
+    "procedure_pronoun_mismatch": 3,
+    "untrusted_synthetic_syllogism": 4
+  },
+  "family_cap": 32,
+  "final_rows": 4834,
+  "minimum_eval_families": 3,
+  "overlap_report": {
+    "train_vs_test": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    },
+    "train_vs_val": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    },
+    "val_vs_test": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    }
+  },
+  "quality_approved_before_family_cap": 6540,
+  "source_rows": 6751,
+  "split_counts": {
+    "test": 605,
+    "train": 3718,
+    "val": 511
+  },
+  "unsupported_capabilities": [
+    "code_debugging"
+  ]
+}

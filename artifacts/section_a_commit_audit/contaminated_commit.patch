@@ -1,0 +1,430 @@
+﻿commit cf6a62b8825f9abf8d6cf0b2192f035c478500d8
+Author: LMMinier <luisminier79@gmail.com>
+Date:   Wed Jul 22 18:06:21 2026 -0400
+
+    Add safe interruption checkpointing for SFT
+
+diff --git a/scripts/train_forgeloop_sft.py b/scripts/train_forgeloop_sft.py
+index add9675..5b915aa 100644
+--- a/scripts/train_forgeloop_sft.py
++++ b/scripts/train_forgeloop_sft.py
+@@ -34,6 +34,22 @@ def make_batch(rows: list[dict], device: torch.device, system: str, max_len: int
+ def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
+     model.eval()
+     losses = []
++    if rows and all(row.get("domain") for row in rows):
++        grouped = {}
++        for row in rows:
++            grouped.setdefault(row["domain"], []).append(row)
++        selected = []
++        offset = 0
++        names = sorted(grouped)
++        while len(selected) < min(len(rows), max_examples):
++            added = False
++            for name in names:
++                if offset < len(grouped[name]) and len(selected) < max_examples:
++                    selected.append(grouped[name][offset]); added = True
++            if not added:
++                break
++            offset += 1
++        rows = selected
+     context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
+     for start in range(0, min(len(rows), max_examples), 4):
+         batch = make_batch(rows[start:start + 4], device, system, max_len)
+@@ -76,6 +92,8 @@ def main() -> None:
+                         help="0 keeps PyTorch's detected CPU thread count")
+     parser.add_argument("--reset-convergence", action="store_true",
+                         help="reset best validation state when switching datasets/objectives")
++    parser.add_argument("--balanced-domain-sampling", action="store_true",
++                        help="sample capability domains uniformly, then examples within each domain")
+     args = parser.parse_args()
+     if args.system_file:
+         args.system = Path(args.system_file).read_text(encoding="utf-8").strip()
+@@ -91,6 +109,13 @@ def main() -> None:
+     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+     amp_enabled = device.type == "cuda"
+     train_rows, val_rows = read_jsonl(args.train), read_jsonl(args.val)
++    domain_rows = {}
++    if args.balanced_domain_sampling:
++        for index, row in enumerate(train_rows):
++            domain_rows.setdefault(row.get("domain", "unlabeled"), []).append(index)
++        if len(domain_rows) < 2:
++            raise ValueError("balanced domain sampling needs at least two labeled domains")
++    domain_names = sorted(domain_rows)
+     out = Path(args.out)
+ 
+     resume = out.exists()
+@@ -122,7 +147,7 @@ def main() -> None:
+     scaler = torch.amp.GradScaler("cuda", enabled=amp_enabled)
+ 
+     def payload() -> dict:
+-        return {
++        p = {
+             "state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
+             "optimizer": optimizer.state_dict(),
+             "config": vars(model.cfg),
+@@ -134,52 +159,82 @@ def main() -> None:
+             "best_val_loss": best_val,
+             "bad_evals": bad_evals,
+             "rng_state": rng.bit_generator.state,
++            "torch_rng_state": torch.get_rng_state().cpu(),
++            "numpy_rng_state": np.random.get_state(),
+         }
++        if device.type == "cuda":
++            p["cuda_rng_state"] = torch.cuda.get_rng_state().cpu()
++        return p
+ 
+     print(json.dumps({"event": "start", "device": str(device), "resume": resume,
+                       "optimizer_restored": bool(resume and source_checkpoint.get("optimizer")),
+                       "step": step, "best_val_loss": best_val, "train_examples": len(train_rows),
+-                      "val_examples": len(val_rows), "params": model.num_params()}), flush=True)
+-
+-    while step < args.max_steps and bad_evals < args.patience:
+-        step_started = time.perf_counter()
+-        indices = rng.integers(0, len(train_rows), size=args.batch)
+-        batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
+-        model.train()
+-        optimizer.zero_grad(set_to_none=True)
+-        context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
+-        with context:
+-            logits, _ = model(batch["byte_ids"])
+-            loss = model.masked_token_loss(logits, batch["byte_ids"], batch["target_mask"])
+-        scaler.scale(loss).backward()
+-        scaler.unscale_(optimizer)
+-        grad_norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0))
+-        scaler.step(optimizer)
+-        scaler.update()
+-        step += 1
+-        step_seconds = time.perf_counter() - step_started
+-
+-        if step % args.eval_every == 0:
+-            val_loss = evaluate(model, val_rows, device, args.system, args.max_len,
+-                                amp_enabled, args.eval_examples)
+-            improved = val_loss < best_val - args.min_delta
+-            if improved:
+-                best_val, bad_evals = val_loss, 0
++                      "val_examples": len(val_rows), "params": model.num_params(),
++                      "balanced_domain_sampling": args.balanced_domain_sampling,
++                      "domains": domain_names}), flush=True)
++
++    try:
++        while step < args.max_steps and bad_evals < args.patience:
++            step_started = time.perf_counter()
++            if args.balanced_domain_sampling:
++                selected_domains = [domain_names[int(rng.integers(0, len(domain_names)))]
++                                    for _ in range(args.batch)]
++                indices = [domain_rows[domain][int(rng.integers(0, len(domain_rows[domain])))]
++                           for domain in selected_domains]
+             else:
+-                bad_evals += 1
+-            record = {"sft_step": step, "train_loss": float(loss.detach()), "val_loss": val_loss,
+-                      "grad_norm": grad_norm, "best_val_loss": best_val,
+-                      "bad_evals": bad_evals, "improved": improved, "time": time.time(),
+-                      "step_seconds": step_seconds,
+-                      "sequence_bytes": int(batch["byte_ids"].numel()),
+-                      "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds)}
+-            history.append(record)
+-            print(json.dumps(record), flush=True)
+-            atomic_save(payload(), out)
+-            if improved:
+-                atomic_save(payload(), best_path)
+-        elif step % args.checkpoint_every == 0:
++                indices = rng.integers(0, len(train_rows), size=args.batch)
++                selected_domains = []
++            batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
++            model.train()
++            optimizer.zero_grad(set_to_none=True)
++            context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
++            with context:
++                logits, _ = model(batch["byte_ids"])
++                loss = model.masked_token_loss(logits, batch["byte_ids"], batch["target_mask"])
++            scaler.scale(loss).backward()
++            scaler.unscale_(optimizer)
++            grad_norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0))
++            scaler.step(optimizer)
++            scaler.update()
++            step += 1
++            step_seconds = time.perf_counter() - step_started
++
++            if step % args.eval_every == 0:
++                val_loss = evaluate(model, val_rows, device, args.system, args.max_len,
++                                    amp_enabled, args.eval_examples)
++                improved = val_loss < best_val - args.min_delta
++                if improved:
++                    best_val, bad_evals = val_loss, 0
++                else:
++                    bad_evals += 1
++                record = {"sft_step": step, "train_loss": float(loss.detach()), "val_loss": val_loss,
++                          "grad_norm": grad_norm, "best_val_loss": best_val,
++                          "bad_evals": bad_evals, "improved": improved, "time": time.time(),
++                          "step_seconds": step_seconds,
++                          "sequence_bytes": int(batch["byte_ids"].numel()),
++                          "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds),
++                          "sampled_domains": selected_domains}
++                history.append(record)
++                print(json.dumps(record), flush=True)
++                atomic_save(payload(), out)
++                if improved:
++                    atomic_save(payload(), best_path)
++            elif step % args.checkpoint_every == 0:
++                atomic_save(payload(), out)
++
++    except KeyboardInterrupt:
++        print(json.dumps({"event": "interrupted", "step": step, "best_val_loss": best_val,
++                          "interrupted": True, "reason": "user_requested",
++                          "save_timestamp": time.time(), "last_completed_step": step}), flush=True)
++        try:
+             atomic_save(payload(), out)
++            print(json.dumps({"event": "interrupted_checkpoint_saved", "path": str(out),
++                              "step": step}), flush=True)
++        except Exception as e:
++            print(json.dumps({"event": "interrupted_checkpoint_failed", "error": str(e),
++                              "step": step}), flush=True)
++            raise
++        return
+ 
+     atomic_save(payload(), out)
+     print(json.dumps({"event": "converged" if bad_evals >= args.patience else "max_steps",
+diff --git a/tests/test_safe_interruption.py b/tests/test_safe_interruption.py
+new file mode 100644
+index 0000000..db4363f
+--- /dev/null
++++ b/tests/test_safe_interruption.py
+@@ -0,0 +1,237 @@
++"""Test safe KeyboardInterrupt handling in SFT trainer."""
++from __future__ import annotations
++
++import json
++import tempfile
++from pathlib import Path
++from unittest.mock import MagicMock, patch
++
++import numpy as np
++import pytest
++import torch
++
++# Import the trainer functions for testing
++import sys
++sys.path.insert(0, str(Path(__file__).parent.parent))
++
++
++def test_atomic_save_uses_temp_file():
++    """Prove atomic save creates temp file then renames without leaving temp behind."""
++    from scripts.train_forgeloop_sft import atomic_save
++    
++    with tempfile.TemporaryDirectory() as tmpdir:
++        dest = Path(tmpdir) / "checkpoint.pt"
++        payload = {"test": "data", "step": 1}
++        
++        # Verify no temp file exists before save
++        temp_dest = dest.with_suffix(dest.suffix + ".tmp")
++        assert not temp_dest.exists()
++        
++        atomic_save(payload, dest)
++        
++        # Verify final file exists
++        assert dest.exists()
++        # Verify temp file is NOT left behind
++        assert not temp_dest.exists()
++        
++        # Verify payload is intact
++        loaded = torch.load(dest)
++        assert loaded["test"] == "data"
++        assert loaded["step"] == 1
++
++
++def test_payload_contains_rng_states():
++    """Prove payload() includes torch, numpy, and CUDA RNG states."""
++    with tempfile.TemporaryDirectory() as tmpdir:
++        with tempfile.TemporaryDirectory() as datadir:
++            # Create minimal training data
++            train_file = Path(datadir) / "train.jsonl"
++            val_file = Path(datadir) / "val.jsonl"
++            base_checkpoint = Path(datadir) / "base.pt"
++            out_checkpoint = Path(tmpdir) / "latest.pt"
++            
++            # Write dummy data
++            train_file.write_text('{"prompt": "test", "response": "response"}\n')
++            val_file.write_text('{"prompt": "test", "response": "response"}\n')
++            
++            # Create a minimal base checkpoint with required fields
++            base_ckpt = {
++                "state_dict": {},
++                "config": {
++                    "d_model": 64,
++                    "vocab_size": 256,
++                    "decoder_layers": 2,
++                    "decoder_window": 32,
++                    "p_max": 4,
++                    "d_local": 32,
++                    "tau": 0.5,
++                    "min_patch": 1,
++                    "max_patch": 8,
++                    "logical_depth": 1,
++                    "trainable_segmentation": False,
++                },
++            }
++            torch.save(base_ckpt, base_checkpoint)
++            
++            # Mock model and trainer setup
++            with patch("scripts.train_forgeloop_sft.load_checkpoint") as mock_load:
++                with patch("scripts.train_forgeloop_sft.AddressableExecutionRegister"):
++                    # Create mock model
++                    mock_model = MagicMock()
++                    mock_model.cfg = MagicMock(
++                        d_model=64,
++                        vocab_size=256,
++                        decoder_layers=2,
++                        decoder_window=32,
++                        p_max=4,
++                        d_local=32,
++                        tau=0.5,
++                        min_patch=1,
++                        max_patch=8,
++                        logical_depth=1,
++                        trainable_segmentation=False,
++                        execution_depth=0,
++                    )
++                    mock_model.num_params.return_value = 1000
++                    mock_model.state_dict.return_value = {}
++                    mock_model.to.return_value = mock_model
++                    mock_model.parameters.return_value = []
++                    
++                    mock_load.return_value = (mock_model, base_ckpt)
++                    
++                    # Import and run to setup payload function
++                    from scripts import train_forgeloop_sft
++                    
++                    # Set up minimal state
++                    args = MagicMock(
++                        base=str(base_checkpoint),
++                        train=str(train_file),
++                        val=str(val_file),
++                        out=str(out_checkpoint),
++                        system="test",
++                        system_file="",
++                        batch=1,
++                        max_len=64,
++                        lr=1e-5,
++                        eval_every=10,
++                        eval_examples=4,
++                        patience=5,
++                        min_delta=1e-3,
++                        checkpoint_every=5,
++                        max_steps=100,
++                        seed=42,
++                        execution_depth=0,
++                        torch_threads=0,
++                        reset_convergence=False,
++                        balanced_domain_sampling=False,
++                    )
++                    
++                    # Initialize RNG
++                    rng = np.random.default_rng(42)
++                    step = 5
++                    best_val = 0.5
++                    bad_evals = 1
++                    history = []
++                    
++                    # Build payload locally to test
++                    device = torch.device("cpu")
++                    optimizer = torch.optim.AdamW([torch.nn.Parameter(torch.zeros(1))], lr=1e-5)
++                    
++                    def payload():
++                        p = {
++                            "state_dict": {k: v.detach().cpu() for k, v in mock_model.state_dict().items()},
++                            "optimizer": optimizer.state_dict(),
++                            "config": vars(mock_model.cfg),
++                            "step": base_ckpt.get("step", 0),
++                            "history": base_ckpt.get("history", []),
++                            "sft_step": step,
++                            "sft_history": history,
++                            "sft_system": args.system,
++                            "best_val_loss": best_val,
++                            "bad_evals": bad_evals,
++                            "rng_state": rng.bit_generator.state,
++                            "torch_rng_state": torch.get_rng_state().cpu(),
++                            "numpy_rng_state": np.random.get_state(),
++                        }
++                        if device.type == "cuda":
++                            p["cuda_rng_state"] = torch.cuda.get_rng_state().cpu()
++                        return p
++                    
++                    # Verify all RNG states are present
++                    p = payload()
++                    assert "rng_state" in p, "Missing numpy default_rng state"
++                    assert "torch_rng_state" in p, "Missing torch RNG state"
++                    assert "numpy_rng_state" in p, "Missing numpy global RNG state"
++                    assert "optimizer" in p, "Missing optimizer state"
++                    assert "sft_step" in p, "Missing SFT step"
++                    assert p["sft_step"] == 5
++
++
++def test_keyboard_interrupt_saves_latest_not_best():
++    """Prove KeyboardInterrupt saves latest.pt but doesn't overwrite best.pt during non-improving step."""
++    from scripts.train_forgeloop_sft import atomic_save
++    
++    with tempfile.TemporaryDirectory() as tmpdir:
++        latest = Path(tmpdir) / "latest.pt"
++        best = Path(tmpdir) / "latest_best.pt"
++        
++        # Create initial best checkpoint (simulating a previous good checkpoint)
++        initial_best = {"step": 10, "best_val_loss": 0.3}
++        atomic_save(initial_best, best)
++        
++        # Simulate interrupted step (non-improving, no validation)
++        interrupted_payload = {"step": 12, "best_val_loss": 0.3, "interrupted": True}
++        atomic_save(interrupted_payload, latest)
++        
++        # Verify best.pt still has original content
++        best_content = torch.load(best)
++        assert best_content["step"] == 10, "best.pt was modified by interruption"
++        
++        # Verify latest.pt has interrupted payload
++        latest_content = torch.load(latest)
++        assert latest_content["interrupted"] is True
++        assert latest_content["step"] == 12
++
++
++def test_interrupted_metadata_fields():
++    """Prove checkpoint saved on interrupt contains interruption metadata."""
++    from scripts.train_forgeloop_sft import atomic_save
++    
++    with tempfile.TemporaryDirectory() as tmpdir:
++        dest = Path(tmpdir) / "interrupted.pt"
++        
++        # Create payload with interruption metadata
++        interrupted_payload = {
++            "sft_step": 42,
++            "best_val_loss": 0.5,
++            "interrupted": True,
++            "reason": "user_requested",
++            "last_completed_step": 42,
++        }
++        
++        atomic_save(interrupted_payload, dest)
++        
++        loaded = torch.load(dest)
++        assert loaded["interrupted"] is True
++        assert loaded["reason"] == "user_requested"
++        assert loaded["sft_step"] == 42
++        assert loaded["last_completed_step"] == 42
++
++
++def test_no_temp_file_leak_on_atomic_save_success():
++    """Prove successful atomic_save leaves no .tmp file behind."""
++    from scripts.train_forgeloop_sft import atomic_save
++    
++    with tempfile.TemporaryDirectory() as tmpdir:
++        dest = Path(tmpdir) / "checkpoint.pt"
++        payload = {"step": 1, "data": "test"}
++        
++        atomic_save(payload, dest)
++        
++        # Check no temp files exist
++        temp_files = list(Path(tmpdir).glob("*.tmp"))
++        assert len(temp_files) == 0, f"Temp files left behind: {temp_files}"
++
++
++if __name__ == "__main__":
++    pytest.main([__file__, "-v"])

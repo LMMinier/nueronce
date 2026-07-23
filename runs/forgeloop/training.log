@@ -1,0 +1,11 @@
+{"event": "start", "device": "cpu", "resume": false, "optimizer_restored": false, "step": 8449, "best_val_loss": 1.7240121215581894, "train_examples": 11666, "val_examples": 215, "params": 11131477}
+{"sft_step": 8450, "train_loss": 1.6892658472061157, "val_loss": 1.6776024434301589, "grad_norm": 11.707427024841309, "best_val_loss": 1.6776024434301589, "bad_evals": 0, "improved": true, "time": 1784744736.8070452}
+{"sft_step": 8475, "train_loss": 1.7777941226959229, "val_loss": 1.684725907113817, "grad_norm": 3.4296321868896484, "best_val_loss": 1.6776024434301589, "bad_evals": 1, "improved": false, "time": 1784744893.5868654}
+{"sft_step": 8500, "train_loss": 1.833992838859558, "val_loss": 1.6744637025727167, "grad_norm": 3.701915979385376, "best_val_loss": 1.6744637025727167, "bad_evals": 0, "improved": true, "time": 1784745049.0801473}
+{"sft_step": 8525, "train_loss": 1.2512106895446777, "val_loss": 1.6651364145455536, "grad_norm": 4.970285415649414, "best_val_loss": 1.6651364145455536, "bad_evals": 0, "improved": true, "time": 1784745193.524736}
+{"sft_step": 8550, "train_loss": 1.3424885272979736, "val_loss": 1.6620958072167855, "grad_norm": 3.026103973388672, "best_val_loss": 1.6620958072167855, "bad_evals": 0, "improved": true, "time": 1784745301.3557138}
+{"sft_step": 8575, "train_loss": 1.5615423917770386, "val_loss": 1.6608960805115875, "grad_norm": 3.8676090240478516, "best_val_loss": 1.6608960805115875, "bad_evals": 0, "improved": true, "time": 1784745403.3773005}
+{"sft_step": 8600, "train_loss": 0.7950818538665771, "val_loss": 1.6587641967667475, "grad_norm": 7.931353569030762, "best_val_loss": 1.6587641967667475, "bad_evals": 0, "improved": true, "time": 1784745512.6508594}
+{"sft_step": 8625, "train_loss": 1.6505508422851562, "val_loss": 1.6592597806895222, "grad_norm": 3.8565704822540283, "best_val_loss": 1.6587641967667475, "bad_evals": 1, "improved": false, "time": 1784745633.3506231}
+{"sft_step": 8650, "train_loss": 1.2577688694000244, "val_loss": 1.656062971662592, "grad_norm": 3.844785213470459, "best_val_loss": 1.656062971662592, "bad_evals": 0, "improved": true, "time": 1784745748.1167145}
+{"sft_step": 8675, "train_loss": 1.5576227903366089, "val_loss": 1.6556469202041626, "grad_norm": 6.656416416168213, "best_val_loss": 1.656062971662592, "bad_evals": 1, "improved": false, "time": 1784745869.0698717}

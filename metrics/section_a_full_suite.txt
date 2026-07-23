@@ -1,0 +1,18 @@
+..............................................F......................... [ 21%]
+.........ss............................................................. [ 43%]
+........................................................................ [ 65%]
+........................................................................ [ 87%]
+..........................................                               [100%]
+================================== FAILURES ===================================
+_____________ test_torch_and_engine_presets_agree_field_for_field _____________
+tests\test_config_presets.py:31: in test_torch_and_engine_presets_agree_field_for_field
+    assert tcfg == mcfg, f"{name}: preset drift between backends"
+E   AssertionError: chat_11m: preset drift between backends
+E   assert {'byte_embed_...max': 48, ...} == {'byte_embed_...max': 48, ...}
+E     
+E     Omitting 24 identical items, use -vv to show
+E     Right contains 1 more item:
+E     {'activation_checkpointing': False}
+E     Use -v to get more diff
+=========================== short test summary info ===========================
+FAILED tests/test_config_presets.py::test_torch_and_engine_presets_agree_field_for_field

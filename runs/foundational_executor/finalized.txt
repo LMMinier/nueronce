@@ -1,0 +1,2 @@
+finalized=2026-07-22T23:12:31.7285414Z
+engine_checkpoint=C:\nueronce-claude-new-session-tkjr3b\checkpoints\engine\cfna_foundational_executor_best.pkl

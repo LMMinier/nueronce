@@ -1,0 +1,166 @@
+{
+  "allocation": {
+    "code_fundamentals": {
+      "target_eval_rows": 20,
+      "test_families": 7,
+      "total_families": 44,
+      "total_rows_after_cap": 134,
+      "train_families": 30,
+      "val_families": 7
+    },
+    "conversation": {
+      "target_eval_rows": 10,
+      "test_families": 10,
+      "total_families": 68,
+      "total_rows_after_cap": 68,
+      "train_families": 48,
+      "val_families": 10
+    },
+    "evidence_grounding": {
+      "target_eval_rows": 101,
+      "test_families": 6,
+      "total_families": 42,
+      "total_rows_after_cap": 672,
+      "train_families": 30,
+      "val_families": 6
+    },
+    "factual_explanation": {
+      "target_eval_rows": 40,
+      "test_families": 40,
+      "total_families": 268,
+      "total_rows_after_cap": 268,
+      "train_families": 188,
+      "val_families": 40
+    },
+    "factual_knowledge": {
+      "target_eval_rows": 73,
+      "test_families": 73,
+      "total_families": 488,
+      "total_rows_after_cap": 488,
+      "train_families": 342,
+      "val_families": 73
+    },
+    "instruction_following": {
+      "target_eval_rows": 151,
+      "test_families": 147,
+      "total_families": 979,
+      "total_rows_after_cap": 1009,
+      "train_families": 685,
+      "val_families": 147
+    },
+    "logic_reasoning": {
+      "target_eval_rows": 25,
+      "test_families": 7,
+      "total_families": 47,
+      "total_rows_after_cap": 167,
+      "train_families": 33,
+      "val_families": 7
+    },
+    "mathematics": {
+      "target_eval_rows": 41,
+      "test_families": 3,
+      "total_families": 17,
+      "total_rows_after_cap": 272,
+      "train_families": 11,
+      "val_families": 3
+    },
+    "planning_procedures": {
+      "target_eval_rows": 7,
+      "test_families": 7,
+      "total_families": 46,
+      "total_rows_after_cap": 46,
+      "train_families": 32,
+      "val_families": 7
+    },
+    "rewriting": {
+      "target_eval_rows": 20,
+      "test_families": 20,
+      "total_families": 134,
+      "total_rows_after_cap": 134,
+      "train_families": 94,
+      "val_families": 20
+    },
+    "safety_refusal": {
+      "target_eval_rows": 5,
+      "test_families": 5,
+      "total_families": 34,
+      "total_rows_after_cap": 34,
+      "train_families": 24,
+      "val_families": 5
+    },
+    "summarization": {
+      "target_eval_rows": 7,
+      "test_families": 7,
+      "total_families": 49,
+      "total_rows_after_cap": 49,
+      "train_families": 35,
+      "val_families": 7
+    },
+    "uncertainty_abstention": {
+      "target_eval_rows": 51,
+      "test_families": 13,
+      "total_families": 88,
+      "total_rows_after_cap": 343,
+      "train_families": 62,
+      "val_families": 13
+    }
+  },
+  "approved_rows_before_cap": 6540,
+  "dataset": "foundational_recovery_v3_1",
+  "eligible_rows": 6673,
+  "eval_family_fraction": 0.15,
+  "family_cap": 16,
+  "family_cap_removals": {
+    "code_fundamentals": 278,
+    "evidence_grounding": 761,
+    "instruction_following": 25,
+    "logic_reasoning": 384,
+    "mathematics": 816,
+    "uncertainty_abstention": 592
+  },
+  "final_rows": 3684,
+  "minimum_eval_families": 3,
+  "overlaps": {
+    "train_vs_test": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    },
+    "train_vs_val": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    },
+    "val_vs_test": {
+      "content_overlap": 0,
+      "family_overlap": 0,
+      "prompt_overlap": 0
+    }
+  },
+  "quality_exclusions": {
+    "nested_chat_transcript": 126,
+    "procedure_pronoun_mismatch": 3,
+    "untrusted_synthetic_syllogism": 4
+  },
+  "source_rows": 6751,
+  "split_counts": {
+    "test": 555,
+    "train": 2574,
+    "val": 555
+  },
+  "unsupported_capabilities": [
+    "code_debugging"
+  ],
+  "warnings": [
+    "code_fundamentals/val largest family share is 72.7%",
+    "code_fundamentals/test largest family share is 72.7%",
+    "logic_reasoning/val largest family share is 72.7%",
+    "logic_reasoning/test largest family share is 72.7%",
+    "planning_procedures/val has only 7 rows",
+    "planning_procedures/test has only 7 rows",
+    "safety_refusal/val has only 5 rows",
+    "safety_refusal/test has only 5 rows",
+    "summarization/val has only 7 rows",
+    "summarization/test has only 7 rows"
+  ]
+}

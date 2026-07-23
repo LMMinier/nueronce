@@ -1,0 +1,10 @@
+﻿commit cf6a62b8825f9abf8d6cf0b2192f035c478500d8
+Author:     LMMinier <luisminier79@gmail.com>
+AuthorDate: Wed Jul 22 18:06:21 2026 -0400
+Commit:     LMMinier <luisminier79@gmail.com>
+CommitDate: Wed Jul 22 18:06:21 2026 -0400
+
+    Add safe interruption checkpointing for SFT
+
+M	scripts/train_forgeloop_sft.py
+A	tests/test_safe_interruption.py

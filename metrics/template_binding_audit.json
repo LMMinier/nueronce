@@ -1,0 +1,460 @@
+{
+  "train_rows": 15785,
+  "val_rows": 922,
+  "train_categories": {
+    "classification": 3508,
+    "pa_grounded_evidence": 1804,
+    "logic": 3537,
+    "arithmetic": 3505,
+    "instruction_following": 930,
+    "coding": 430,
+    "pa_abstain_conflict_conflict": 174,
+    "facts": 433,
+    "pa_abstain_conflict_revision": 185,
+    "rewriting": 119,
+    "pa_abstain_conflict_insufficient": 182,
+    "summarization": 42,
+    "definitions": 202,
+    "pa_abstain_conflict_rejected": 177,
+    "greetings": 83,
+    "pa_abstain_conflict_qualified": 183,
+    "refusals": 26,
+    "uncertainty": 58,
+    "multiturn": 108,
+    "explanations": 22,
+    "handwritten": 35,
+    "procedures": 42
+  },
+  "nested_conversation_prompts": 15785,
+  "exact_prompt_conflicts": 6,
+  "normalized_train_templates": 2232,
+  "normalized_val_templates": 244,
+  "normalized_template_overlap": 79,
+  "normalized_val_overlap_fraction": 0.3237704918032787,
+  "ambiguous_template_groups": 13,
+  "top_ambiguous_groups": [
+    {
+      "category": "logic",
+      "template": "conversation: user: is <NUM> greater than <NUM>?",
+      "rows": 1135,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "no, <NUM> is not greater than <NUM>.",
+        "yes, <NUM> is greater than <NUM>."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Is 72 greater than 77?",
+          "response": "No, 72 is not greater than 77."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 15 greater than 55?",
+          "response": "No, 15 is not greater than 55."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 186 greater than 165?",
+          "response": "Yes, 186 is greater than 165."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 81 greater than 176?",
+          "response": "No, 81 is not greater than 176."
+        }
+      ]
+    },
+    {
+      "category": "classification",
+      "template": "conversation: user: is <NUM> a prime number?",
+      "rows": 854,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "<NUM> is a prime number.",
+        "<NUM> is not a prime number."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Is 1097 a prime number?",
+          "response": "1097 is a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 2558 a prime number?",
+          "response": "2558 is not a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 971 a prime number?",
+          "response": "971 is a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 1485 a prime number?",
+          "response": "1485 is not a prime number."
+        }
+      ]
+    },
+    {
+      "category": "classification",
+      "template": "conversation: user: tell me if <NUM> is even or odd.",
+      "rows": 825,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "<NUM> is even.",
+        "<NUM> is odd."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Tell me if 2189 is even or odd.",
+          "response": "2189 is odd."
+        },
+        {
+          "prompt": "Conversation:\nUser: Tell me if 1714 is even or odd.",
+          "response": "1714 is even."
+        },
+        {
+          "prompt": "Conversation:\nUser: Tell me if 2904 is even or odd.",
+          "response": "2904 is even."
+        },
+        {
+          "prompt": "Conversation:\nUser: Tell me if 1043 is even or odd.",
+          "response": "1043 is odd."
+        }
+      ]
+    },
+    {
+      "category": "classification",
+      "template": "conversation: user: classify <NUM> as even or odd.",
+      "rows": 805,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "<NUM> is even.",
+        "<NUM> is odd."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Classify 27 as even or odd.",
+          "response": "27 is odd."
+        },
+        {
+          "prompt": "Conversation:\nUser: Classify 2545 as even or odd.",
+          "response": "2545 is odd."
+        },
+        {
+          "prompt": "Conversation:\nUser: Classify 2504 as even or odd.",
+          "response": "2504 is even."
+        },
+        {
+          "prompt": "Conversation:\nUser: Classify 1526 as even or odd.",
+          "response": "1526 is even."
+        }
+      ]
+    },
+    {
+      "category": "classification",
+      "template": "conversation: user: is <NUM> even or odd?",
+      "rows": 791,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "<NUM> is even.",
+        "<NUM> is odd."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Is 2393 even or odd?",
+          "response": "2393 is odd."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 3345 even or odd?",
+          "response": "3345 is odd."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 2452 even or odd?",
+          "response": "2452 is even."
+        },
+        {
+          "prompt": "Conversation:\nUser: Is 816 even or odd?",
+          "response": "816 is even."
+        }
+      ]
+    },
+    {
+      "category": "classification",
+      "template": "conversation: user: determine whether <NUM> is prime.",
+      "rows": 233,
+      "response_shape_count": 2,
+      "response_shapes": [
+        "<NUM> is a prime number.",
+        "<NUM> is not a prime number."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Determine whether 111 is prime.",
+          "response": "111 is not a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Determine whether 990 is prime.",
+          "response": "990 is not a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Determine whether 966 is prime.",
+          "response": "966 is not a prime number."
+        },
+        {
+          "prompt": "Conversation:\nUser: Determine whether 767 is prime.",
+          "response": "767 is not a prime number."
+        }
+      ]
+    },
+    {
+      "category": "instruction_following",
+      "template": "conversation: user: count from <NUM> to <NUM>.",
+      "rows": 33,
+      "response_shape_count": 33,
+      "response_shapes": [
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>.",
+        "<NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>, <NUM>."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Count from 1 to 33.",
+          "response": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33."
+        },
+        {
+          "prompt": "Conversation:\nUser: Count from 1 to 9.",
+          "response": "1, 2, 3, 4, 5, 6, 7, 8, 9."
+        },
+        {
+          "prompt": "Conversation:\nUser: Count from 1 to 25.",
+          "response": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25."
+        },
+        {
+          "prompt": "Conversation:\nUser: Count from 1 to 2.",
+          "response": "1, 2."
+        }
+      ]
+    },
+    {
+      "category": "instruction_following",
+      "template": "conversation: user: list the first five multiples of <NUM>.",
+      "rows": 16,
+      "response_shape_count": 16,
+      "response_shapes": [
+        "10x1=<NUM>, 10x2=<NUM>, 10x3=<NUM>, 10x4=<NUM>, 10x5=<NUM>.",
+        "11x1=<NUM>, 11x2=<NUM>, 11x3=<NUM>, 11x4=<NUM>, 11x5=<NUM>.",
+        "12x1=<NUM>, 12x2=<NUM>, 12x3=<NUM>, 12x4=<NUM>, 12x5=<NUM>.",
+        "14x1=<NUM>, 14x2=<NUM>, 14x3=<NUM>, 14x4=<NUM>, 14x5=<NUM>.",
+        "15x1=<NUM>, 15x2=<NUM>, 15x3=<NUM>, 15x4=<NUM>, 15x5=<NUM>.",
+        "16x1=<NUM>, 16x2=<NUM>, 16x3=<NUM>, 16x4=<NUM>, 16x5=<NUM>.",
+        "17x1=<NUM>, 17x2=<NUM>, 17x3=<NUM>, 17x4=<NUM>, 17x5=<NUM>.",
+        "18x1=<NUM>, 18x2=<NUM>, 18x3=<NUM>, 18x4=<NUM>, 18x5=<NUM>.",
+        "19x1=<NUM>, 19x2=<NUM>, 19x3=<NUM>, 19x4=<NUM>, 19x5=<NUM>.",
+        "3x1=<NUM>, 3x2=<NUM>, 3x3=<NUM>, 3x4=<NUM>, 3x5=<NUM>."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: List the first five multiples of 9.",
+          "response": "9x1=9, 9x2=18, 9x3=27, 9x4=36, 9x5=45."
+        },
+        {
+          "prompt": "Conversation:\nUser: List the first five multiples of 11.",
+          "response": "11x1=11, 11x2=22, 11x3=33, 11x4=44, 11x5=55."
+        },
+        {
+          "prompt": "Conversation:\nUser: List the first five multiples of 15.",
+          "response": "15x1=15, 15x2=30, 15x3=45, 15x4=60, 15x5=75."
+        },
+        {
+          "prompt": "Conversation:\nUser: List the first five multiples of 17.",
+          "response": "17x1=17, 17x2=34, 17x3=51, 17x4=68, 17x5=85."
+        }
+      ]
+    },
+    {
+      "category": "greetings",
+      "template": "conversation: user: goodbye",
+      "rows": 5,
+      "response_shape_count": 5,
+      "response_shapes": [
+        "bye! take care.",
+        "farewell! come back anytime.",
+        "goodbye! have a great day.",
+        "see you later! take care.",
+        "take care! have a good one."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Goodbye",
+          "response": "See you later! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: Goodbye",
+          "response": "Bye! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: Goodbye",
+          "response": "Goodbye! Have a great day."
+        },
+        {
+          "prompt": "Conversation:\nUser: Goodbye",
+          "response": "Take care! Have a good one."
+        }
+      ]
+    },
+    {
+      "category": "greetings",
+      "template": "conversation: user: take care",
+      "rows": 5,
+      "response_shape_count": 5,
+      "response_shapes": [
+        "bye! take care.",
+        "farewell! come back anytime.",
+        "goodbye! have a great day.",
+        "see you later! take care.",
+        "take care! have a good one."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Take care",
+          "response": "Take care! Have a good one."
+        },
+        {
+          "prompt": "Conversation:\nUser: Take care",
+          "response": "Goodbye! Have a great day."
+        },
+        {
+          "prompt": "Conversation:\nUser: Take care",
+          "response": "See you later! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: Take care",
+          "response": "Bye! Take care."
+        }
+      ]
+    },
+    {
+      "category": "greetings",
+      "template": "conversation: user: see you later",
+      "rows": 5,
+      "response_shape_count": 5,
+      "response_shapes": [
+        "bye! take care.",
+        "farewell! come back anytime.",
+        "goodbye! have a great day.",
+        "see you later! take care.",
+        "take care! have a good one."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: See you later",
+          "response": "See you later! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: See you later",
+          "response": "Bye! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: See you later",
+          "response": "Goodbye! Have a great day."
+        },
+        {
+          "prompt": "Conversation:\nUser: See you later",
+          "response": "Take care! Have a good one."
+        }
+      ]
+    },
+    {
+      "category": "greetings",
+      "template": "conversation: user: farewell",
+      "rows": 5,
+      "response_shape_count": 5,
+      "response_shapes": [
+        "bye! take care.",
+        "farewell! come back anytime.",
+        "goodbye! have a great day.",
+        "see you later! take care.",
+        "take care! have a good one."
+      ],
+      "examples": [
+        {
+          "prompt": "Conversation:\nUser: Farewell",
+          "response": "Bye! Take care."
+        },
+        {
+          "prompt": "Conversation:\nUser: Farewell",
+          "response": "Farewell! Come back anytime."
+        },
+        {
+          "prompt": "Conversation:\nUser: Farewell",
+          "response": "Goodbye! Have a great day."
+        },
+        {
+          "prompt": "Conversation:\nUser: Farewell",
+          "response": "Take care! Have a good one."
+        }
+      ]
+    }
+  ],
+  "exact_conflict_examples": [
+    {
+      "prompt": "Conversation:\nUser: Goodbye",
+      "responses": [
+        "Bye! Take care.",
+        "Farewell! Come back anytime.",
+        "Goodbye! Have a great day.",
+        "See you later! Take care.",
+        "Take care! Have a good one."
+      ]
+    },
+    {
+      "prompt": "Conversation:\nUser: Take care",
+      "responses": [
+        "Bye! Take care.",
+        "Farewell! Come back anytime.",
+        "Goodbye! Have a great day.",
+        "See you later! Take care.",
+        "Take care! Have a good one."
+      ]
+    },
+    {
+      "prompt": "Conversation:\nUser: See you later",
+      "responses": [
+        "Bye! Take care.",
+        "Farewell! Come back anytime.",
+        "Goodbye! Have a great day.",
+        "See you later! Take care.",
+        "Take care! Have a good one."
+      ]
+    },
+    {
+      "prompt": "Conversation:\nUser: Farewell",
+      "responses": [
+        "Bye! Take care.",
+        "Farewell! Come back anytime.",
+        "Goodbye! Have a great day.",
+        "See you later! Take care.",
+        "Take care! Have a good one."
+      ]
+    },
+    {
+      "prompt": "Conversation:\nUser: Good morning",
+      "responses": [
+        "Good morning! How can I help you today?",
+        "Hello! How can I help you today?"
+      ]
+    },
+    {
+      "prompt": "Conversation:\nUser: See you",
+      "responses": [
+        "Bye! Take care.",
+        "Farewell! Come back anytime.",
+        "Goodbye! Have a great day.",
+        "See you later! Take care.",
+        "Take care! Have a good one."
+      ]
+    }
+  ]
+}

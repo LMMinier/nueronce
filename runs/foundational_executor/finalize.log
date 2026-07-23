@@ -1,0 +1,7 @@
+{
+  "destination": "C:\\nueronce-claude-new-session-tkjr3b\\checkpoints\\engine\\cfna_foundational_executor_best.pkl",
+  "bytes": 95246464,
+  "params": 11853998,
+  "loaded": 194,
+  "source_tensors": 194
+}

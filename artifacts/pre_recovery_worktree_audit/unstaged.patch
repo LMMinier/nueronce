@@ -1,0 +1,111 @@
+diff --git a/nueronce/incremental.py b/nueronce/incremental.py
+index 89a7fcb..6b818a2 100644
+--- a/nueronce/incremental.py
++++ b/nueronce/incremental.py
+@@ -96,7 +96,22 @@ class IncrementalGenerator:
+         if c.trainable_segmentation:
+             units = units + self.model.boundary_proj(mean_p)
+         units = units + self.model.memory(units)
+-        self._g = self.model.core(units, c.logical_depth, key_padding=unit_mask)
++        self._g = self.model.core(
++            units, c.logical_depth, key_padding=unit_mask,
++            reasoning_mode=getattr(c, "reasoning_mode", "fixed"),
++            min_depth=getattr(c, "reasoning_min_depth", 1),
++            halt_epsilon=getattr(c, "reasoning_halt_epsilon", 0.0),
++            damping=getattr(c, "reasoning_damping", 1.0),
++        )
++        execution_depth = getattr(c, "execution_depth", 0)
++        if self.model.executor is not None and execution_depth > 0:
++            causal = torch.ones(c.p_max, c.p_max, dtype=torch.bool,
++                                device=self.device).tril()
++            exec_mask = causal[None, :, :] & unit_mask[:, None, :].bool()
++            executed, _ = self.model.executor(self._g, units, units, execution_depth,
++                                              memory_mask=exec_mask)
++            scale = getattr(c, "execution_residual_scale", 1.0)
++            self._g = self._g + scale * (executed - self._g)
+         self._unit_mask = unit_mask
+         self._units_dirty = False
+ 
+diff --git a/scripts/train_forgeloop_sft.py b/scripts/train_forgeloop_sft.py
+index add9675..bb8c137 100644
+--- a/scripts/train_forgeloop_sft.py
++++ b/scripts/train_forgeloop_sft.py
+@@ -34,6 +34,22 @@ def make_batch(rows: list[dict], device: torch.device, system: str, max_len: int
+ def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
+     model.eval()
+     losses = []
++    if rows and all(row.get("domain") for row in rows):
++        grouped = {}
++        for row in rows:
++            grouped.setdefault(row["domain"], []).append(row)
++        selected = []
++        offset = 0
++        names = sorted(grouped)
++        while len(selected) < min(len(rows), max_examples):
++            added = False
++            for name in names:
++                if offset < len(grouped[name]) and len(selected) < max_examples:
++                    selected.append(grouped[name][offset]); added = True
++            if not added:
++                break
++            offset += 1
++        rows = selected
+     context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
+     for start in range(0, min(len(rows), max_examples), 4):
+         batch = make_batch(rows[start:start + 4], device, system, max_len)
+@@ -76,6 +92,8 @@ def main() -> None:
+                         help="0 keeps PyTorch's detected CPU thread count")
+     parser.add_argument("--reset-convergence", action="store_true",
+                         help="reset best validation state when switching datasets/objectives")
++    parser.add_argument("--balanced-domain-sampling", action="store_true",
++                        help="sample capability domains uniformly, then examples within each domain")
+     args = parser.parse_args()
+     if args.system_file:
+         args.system = Path(args.system_file).read_text(encoding="utf-8").strip()
+@@ -91,6 +109,13 @@ def main() -> None:
+     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+     amp_enabled = device.type == "cuda"
+     train_rows, val_rows = read_jsonl(args.train), read_jsonl(args.val)
++    domain_rows = {}
++    if args.balanced_domain_sampling:
++        for index, row in enumerate(train_rows):
++            domain_rows.setdefault(row.get("domain", "unlabeled"), []).append(index)
++        if len(domain_rows) < 2:
++            raise ValueError("balanced domain sampling needs at least two labeled domains")
++    domain_names = sorted(domain_rows)
+     out = Path(args.out)
+ 
+     resume = out.exists()
+@@ -139,11 +164,20 @@ def main() -> None:
+     print(json.dumps({"event": "start", "device": str(device), "resume": resume,
+                       "optimizer_restored": bool(resume and source_checkpoint.get("optimizer")),
+                       "step": step, "best_val_loss": best_val, "train_examples": len(train_rows),
+-                      "val_examples": len(val_rows), "params": model.num_params()}), flush=True)
++                      "val_examples": len(val_rows), "params": model.num_params(),
++                      "balanced_domain_sampling": args.balanced_domain_sampling,
++                      "domains": domain_names}), flush=True)
+ 
+     while step < args.max_steps and bad_evals < args.patience:
+         step_started = time.perf_counter()
+-        indices = rng.integers(0, len(train_rows), size=args.batch)
++        if args.balanced_domain_sampling:
++            selected_domains = [domain_names[int(rng.integers(0, len(domain_names)))]
++                                for _ in range(args.batch)]
++            indices = [domain_rows[domain][int(rng.integers(0, len(domain_rows[domain])))]
++                       for domain in selected_domains]
++        else:
++            indices = rng.integers(0, len(train_rows), size=args.batch)
++            selected_domains = []
+         batch = make_batch([train_rows[int(i)] for i in indices], device, args.system, args.max_len)
+         model.train()
+         optimizer.zero_grad(set_to_none=True)
+@@ -172,7 +206,8 @@ def main() -> None:
+                       "bad_evals": bad_evals, "improved": improved, "time": time.time(),
+                       "step_seconds": step_seconds,
+                       "sequence_bytes": int(batch["byte_ids"].numel()),
+-                      "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds)}
++                      "bytes_per_second": float(batch["byte_ids"].numel() / step_seconds),
++                      "sampled_domains": selected_domains}
+             history.append(record)
+             print(json.dumps(record), flush=True)
+             atomic_save(payload(), out)
