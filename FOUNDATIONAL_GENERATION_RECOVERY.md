@@ -24,13 +24,32 @@ the checkpoints):
   python scripts/eval_tiny_exact_overfit.py         # writes runs/tiny_exact_overfit/eval_report.json
   ```
   A CPU-only smoke test of the tooling itself (not the real diagnostic --
-  intentionally undersized architecture via `--fast-tooling-check`) ran
-  clean end-to-end in the cloud sandbox: loss fell monotonically
-  (2.76 -> 1.63 -> 1.00 over 150 steps), both scripts executed without
-  error, and the JSON report has the documented shape. **This has not yet
-  been run on the real `chat_11m` config against a from-scratch checkpoint
-  -- that is the next required step, and it needs real (GPU-preferred, but
-  CPU-feasible) compute, not just the smoke test.**
+  intentionally undersized architecture via `--fast-tooling-check`: 48-dim,
+  1 physical block, 1 logical-depth reuse, vs. `chat_11m`'s 256-dim/3
+  blocks/4 logical depth) ran to full convergence in the cloud sandbox: 697
+  steps, final training loss 0.149 (below the 0.15 threshold), both scripts
+  executed without error, and the JSON report has the documented shape
+  (`runs/tiny_exact_overfit_smoketest/fast_tooling_check_report.json`).
+  **The eval result itself is instructive, with the caveat that this is the
+  crippled smoke-test config, not the real architecture:** the model
+  converged to a *constant* output -- it answered every one of the 32
+  prompts (copying, arithmetic, polite-rewrite, ..., all 8 categories) with
+  the literal bytes `"12"`, scoring 1/32 only because one target
+  legitimately is `"12"`. Category scores: everything 0.0 except
+  `evidence_extraction` at 0.25 (1 of its 4 items). This is precisely the
+  failure signature under investigation -- low *aggregate* response-byte
+  loss coexisting with output that ignores the prompt entirely -- reproduced
+  on a toy scale where it can be inspected cheaply. It is very plausibly a
+  genuine capacity artifact of squeezing this architecture down to 1
+  physical block / 1 logical-depth reuse (dynamic patching + typed memory +
+  hybrid-core routing may need more reuse depth to actually carry
+  prompt-conditioning information to the decoder at all), not evidence about
+  the real `chat_11m`. **The required next step is unchanged: run both
+  scripts with the real `chat_11m` config (the default, no
+  `--fast-tooling-check` flag) on real compute.** If the real run *also*
+  collapses to a constant output, that reframes hypothesis 7 (insufficient
+  training) as something structural instead -- worth watching for
+  specifically now that the failure mode has a name and a cheap reproduction.
 - **One negative result already established** (hypothesis 1, prompt/target
   misalignment): `tests/test_foundational_recovery_pipeline.py::test_encode_example_prefix_matches_inference_prompt`
   proves the *actual* trainer path (`encode_example` -> `format_training_example`)
