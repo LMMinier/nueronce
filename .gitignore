@@ -50,3 +50,5 @@ scripts/baseline_metrics.json
 # anchored to repo root so the cfna/corpus/ *source* package stays tracked
 /corpus/
 /corpus_stack/
+corpus_local/
+logs/
