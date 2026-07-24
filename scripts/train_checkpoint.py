@@ -138,32 +138,37 @@ def main():
         }
         atomic_torch_save(payload, out)
 
-    while (time.time() - t0) < args.minutes * 60:
-        batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
-        model.train()
-        with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
-            loss, parts = model.loss(batch)
-        opt.zero_grad(set_to_none=True)
-        scaler.scale(loss).backward()
-        scaler.unscale_(opt)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        scaler.step(opt)
-        scaler.update()
-        step += 1
+    try:
+        while (time.time() - t0) < args.minutes * 60:
+            batch = torch.from_numpy(train.sample_batch(args.seq, args.batch, rng)).to(device)
+            model.train()
+            with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
+                loss, parts = model.loss(batch)
+            opt.zero_grad(set_to_none=True)
+            scaler.scale(loss).backward()
+            scaler.unscale_(opt)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            scaler.step(opt)
+            scaler.update()
+            step += 1
 
-        if step % 50 == 0:
-            vb = heldout_bpb(model, valb)
-            mins = (time.time() - t0) / 60
-            history.append({
-                "step": step,
-                "train_bpb": parts["bpb"],
-                "heldout_bpb": vb,
-                "minutes": mins,
-            })
-            print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | "
-                  f"held-out bpb {vb:.3f}", flush=True)
-            best_val = min(best_val, vb)
-            save()
+            if step % 50 == 0:
+                vb = heldout_bpb(model, valb)
+                mins = (time.time() - t0) / 60
+                history.append({
+                    "step": step,
+                    "train_bpb": parts["bpb"],
+                    "heldout_bpb": vb,
+                    "minutes": mins,
+                })
+                print(f"step {step:5d} | {mins:5.1f}m | train bpb {parts['bpb']:.3f} | "
+                      f"held-out bpb {vb:.3f}", flush=True)
+                best_val = min(best_val, vb)
+                save()
+    except KeyboardInterrupt:
+        # SIGINT is a *requested* clean stop (budget cap, notebook interrupt):
+        # save through the normal path and exit 0 so --resume continues cleanly.
+        print(f"\ninterrupted at step {step} — saving checkpoint before exit", flush=True)
 
     save()
     atomic_json_save({"config": vars(cfg), "history": history}, Path(str(out) + ".json"))
