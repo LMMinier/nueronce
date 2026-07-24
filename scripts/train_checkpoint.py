@@ -80,6 +80,10 @@ def main():
                     help="nueronce.model.CONFIG_PRESETS rung (default: local chat_config)")
     ap.add_argument("--device", default="auto", help="auto|cuda|cpu")
     ap.add_argument("--amp", action="store_true", help="fp16 autocast (CUDA only)")
+    ap.add_argument("--boundary-mode", default="",
+                    choices=["", "syntax", "entropy_global", "entropy_relative"],
+                    help="override the preset's boundary_target_mode for the entropy-patching A/B "
+                         "(default: keep the preset's syntactic behavior)")
     args = ap.parse_args()
 
     device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
@@ -95,6 +99,8 @@ def main():
           f"({', '.join(val.titles[:8])}{' ...' if len(val.titles) > 8 else ''})")
 
     cfg = CONFIG_PRESETS[args.preset]() if args.preset else chat_config()
+    if args.boundary_mode:
+        cfg.boundary_target_mode = args.boundary_mode  # entropy-patching A/B opt-in
     model = NUERONCEModel(cfg)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     scaler = torch.amp.GradScaler("cuda", enabled=amp)
@@ -106,8 +112,17 @@ def main():
 
     if args.resume and out.exists():
         ck = torch.load(out, map_location="cpu", weights_only=False)
-        if ck.get("config") != vars(cfg):
-            raise SystemExit("resume config mismatch — checkpoint was created with another preset")
+        # Backward-compatible config check: a checkpoint saved before new config
+        # fields existed must still resume, as long as every SHARED field agrees.
+        # New fields (added since the checkpoint) take their defaults. This is
+        # what lets adaptive-patching fields land without bricking in-flight
+        # checkpoints; a genuine preset change (e.g. base_35m -> base_90m) still
+        # mismatches on shared fields and is refused.
+        saved_cfg, cur_cfg = ck.get("config", {}), vars(cfg)
+        mismatched = {k: (saved_cfg[k], cur_cfg[k])
+                      for k in (set(saved_cfg) & set(cur_cfg)) if saved_cfg[k] != cur_cfg[k]}
+        if mismatched:
+            raise SystemExit(f"resume config mismatch on shared fields: {mismatched}")
         model.load_state_dict(ck["state_dict"])
         if ck.get("optimizer") is not None:
             opt.load_state_dict(ck["optimizer"])

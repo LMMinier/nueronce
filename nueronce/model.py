@@ -118,6 +118,16 @@ class ModelConfig:
     reasoning_damping: float = 1.0
     execution_depth: int = 0
     execution_residual_scale: float = 1.0
+    # Adaptive (entropy-driven) byte patching — OPT-IN, default off = the current
+    # syntactic boundary behavior byte-for-byte. Measured justification for the
+    # upgrade: metrics/entropy_allocation_experiment.json (entropy predicts model
+    # difficulty ~2x better than syntax, replicated across 3 corpora). Integration
+    # + A/B protocol: docs/ADAPTIVE_PATCHING_SPEC.md. Engine config mirrors these
+    # fields for preset parity; the engine model ignores them (torch-only for now).
+    boundary_target_mode: str = "syntax"   # "syntax" | "entropy_global" | "entropy_relative"
+    entropy_head_dim: int = 64
+    entropy_global_theta: float = 2.5
+    entropy_relative_theta: float = 0.2
 
 
 class NUERONCEModel(nn.Module):
@@ -145,6 +155,13 @@ class NUERONCEModel(nn.Module):
         execution_depth = getattr(c, "execution_depth", 0)
         self.executor = (AddressableExecutionRegister(c.d_model)
                          if execution_depth > 0 else None)
+        # Entropy-driven patching head: only constructed when opted in, so the
+        # default (syntax) model has an identical parameter set to before.
+        if getattr(c, "boundary_target_mode", "syntax") != "syntax":
+            from .adaptive_patching import ByteEntropyHead
+            self.entropy_head = ByteEntropyHead(getattr(c, "entropy_head_dim", 64))
+        else:
+            self.entropy_head = None
         self.register_buffer("_syntax", syntax_table(), persistent=False)
 
     # ------------------------------------------------------------------ #
@@ -232,12 +249,34 @@ class NUERONCEModel(nn.Module):
         lm = F.cross_entropy(
             logits[:, :-1].reshape(-1, 256), byte_ids[:, 1:].reshape(-1)
         )
-        b_target = boundary_targets(byte_ids, self._syntax)
+        mode = getattr(self.cfg, "boundary_target_mode", "syntax")
+        ent_lm = None
+        if mode == "syntax" or self.entropy_head is None:
+            # unchanged default path — byte-identical to the pre-adaptive model
+            b_target = boundary_targets(byte_ids, self._syntax)
+        else:
+            # informational boundary target from the model's own entropy head,
+            # which is trained jointly by its own next-byte loss (ent_lm).
+            from .adaptive_patching import entropy_boundary_targets
+            ent_logits = self.entropy_head(byte_ids)
+            b_target = entropy_boundary_targets(
+                ent_logits,
+                mode="global" if mode == "entropy_global" else "relative",
+                global_theta=getattr(self.cfg, "entropy_global_theta", 2.5),
+                relative_theta=getattr(self.cfg, "entropy_relative_theta", 0.2),
+            )
+            ent_lm = F.cross_entropy(
+                ent_logits[:, :-1].reshape(-1, 256), byte_ids[:, 1:].reshape(-1)
+            )
         bnd = F.binary_cross_entropy_with_logits(boundary_logits, b_target)
         total = lm + self.cfg.boundary_loss_weight * bnd
+        if ent_lm is not None:
+            total = total + ent_lm
         stats = {"loss": total.detach().item(), "lm": lm.detach().item(),
                  "boundary": bnd.detach().item(),
                  "bpb": lm.detach().item() / 0.6931471805599453}
+        if ent_lm is not None:
+            stats["entropy_lm"] = ent_lm.detach().item()
         return total, stats
 
     def lm_loss(self, byte_ids: Tensor) -> Tensor:

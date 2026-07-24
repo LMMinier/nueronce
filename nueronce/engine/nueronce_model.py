@@ -70,6 +70,14 @@ class NueronceConfig:
     reasoning_damping: float = 1.0
     execution_depth: int = 0
     execution_residual_scale: float = 1.0
+    # Mirror of torch ModelConfig's adaptive-patching fields, for preset parity
+    # (tests/test_config_presets). The engine model does not implement entropy
+    # patching yet (torch-only); these are carried so the two configs stay
+    # field-identical, exactly like activation_checkpointing.
+    boundary_target_mode: str = "syntax"
+    entropy_head_dim: int = 64
+    entropy_global_theta: float = 2.5
+    entropy_relative_theta: float = 0.2
 
 
 def _softmax_np(v: np.ndarray) -> np.ndarray:

@@ -1,0 +1,43 @@
+{
+  "config": {
+    "corpus": "origin.txt",
+    "seq": 256,
+    "weak_steps": 150,
+    "strong_steps": 600,
+    "held_positions": 89856
+  },
+  "Q1_signal_predicts_difficulty": {
+    "pearson_entropy_vs_loss": 0.5046993494033813,
+    "spearman_entropy_vs_loss": 0.5792280891747624,
+    "pearson_syntax_vs_loss": 0.28353366255760193,
+    "spearman_syntax_vs_loss": 0.22801951733156942
+  },
+  "Q2_allocation_quality": {
+    "budget_10pct": {
+      "entropy": 0.15313269197940826,
+      "syntax": 0.14525549113750458,
+      "random_floor": 0.09999729841947555,
+      "oracle_ceiling": 0.24327366054058075
+    },
+    "budget_25pct": {
+      "entropy": 0.35210421681404114,
+      "syntax": 0.3161553144454956,
+      "random_floor": 0.24962370097637177,
+      "oracle_ceiling": 0.490326851606369
+    },
+    "budget_50pct": {
+      "entropy": 0.6364625692367554,
+      "syntax": 0.5418378114700317,
+      "random_floor": 0.5002035617828369,
+      "oracle_ceiling": 0.7782069444656372
+    }
+  },
+  "Q3_epistemic_vs_aleatoric": {
+    "pearson_entropy_vs_reducible": 0.16543658077716827,
+    "pearson_entropy_vs_irreducible": 0.4212779998779297,
+    "spearman_entropy_vs_reducible": 0.10023136029866556,
+    "spearman_entropy_vs_irreducible": 0.5285243607735501,
+    "mean_reducible": 0.5722436904907227,
+    "mean_irreducible": 1.6261472702026367
+  }
+}
