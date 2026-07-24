@@ -1,11 +1,11 @@
 {
   "gate": "foundational_model_only_generation_v1",
   "checkpoint": "/workspaces/nueronce/checkpoints/chat_11m_v31_sft_best.pt",
-  "checkpoint_step": 350,
+  "checkpoint_step": 500,
   "temperature": 0.0,
   "system_file": "runs/forgeloop/system_prompt.txt",
   "inference_backend": "verified_incremental",
-  "incremental_max_logit_error": 1.2159347534179688e-05,
+  "incremental_max_logit_error": 4.76837158203125e-06,
   "criteria": {
     "minimum_overall": 0.75,
     "every_domain_nonzero": true,
@@ -22,60 +22,57 @@
     "evidence_uncertainty": 0.0
   },
   "gate_passed": false,
-  "elapsed_seconds": 4.917931079864502,
+  "elapsed_seconds": 15.273678541183472,
   "results": [
     {
       "id": "conversation_polite",
       "domain": "conversation",
       "prompt": "Rewrite politely: Send me the report now.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Send me the report now.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "The the cand|>",
+      "answer": "The can co co cor sthe cor se sthe sthararar the the the the tot tof the",
       "passed": false,
       "problems": [
         "missing_any:please",
         "missing_any:report"
       ],
-      "seconds": 1.1046230792999268
+      "seconds": 1.7609241008758545
     },
     {
       "id": "explanation_shadow",
       "domain": "factual_explanation",
       "prompt": "In one sentence, explain why an opaque object makes a shadow.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nIn one sentence, explain why an opaque object makes a shadow.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "",
+      "answer": "I tend thend thend thenot t thethe the the the the tor tor totor to to t",
       "passed": false,
       "problems": [
-        "surface:empty_output",
         "missing_any:light",
         "missing_any:block|blocks|blocked"
       ],
-      "seconds": 0.1537933349609375
+      "seconds": 1.840134620666504
     },
     {
       "id": "math_add",
       "domain": "mathematics",
       "prompt": "Calculate 17 + 26. Give the numerical answer.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 17 + 26. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "",
+      "answer": "The it it it it in in in in in in in in in in in or or te te te te ter t",
       "passed": false,
       "problems": [
-        "surface:empty_output",
         "missing_any:43"
       ],
-      "seconds": 0.15242457389831543
+      "seconds": 3.9939961433410645
     },
     {
       "id": "debug_range",
       "domain": "code_debugging",
       "prompt": "This Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nThis Python loop should print 1 through 5 but misses 5: for i in range(1, 5): print(i). State the smallest fix.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "",
+      "answer": "The ce ce pre pre pre prethe cafare condin con the the ton ton ton ton t",
       "passed": false,
       "problems": [
-        "surface:empty_output",
         "missing_any:range(1, 6)|range(1,6)"
       ],
-      "seconds": 0.15739941596984863
+      "seconds": 2.1313655376434326
     },
     {
       "id": "temporal_chain",
@@ -88,21 +85,20 @@
         "surface:empty_output",
         "missing_any:14:00|2:00 pm|2 pm"
       ],
-      "seconds": 0.13794541358947754
+      "seconds": 0.1130058765411377
     },
     {
       "id": "tool_plan",
       "domain": "planning_tools",
       "prompt": "Give a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive a short plan to find every Python file in a repository containing the text TODO. Do not claim you already found results.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "",
+      "answer": "The t tere t and|>\nThe cor cor cor cor the cor se t the the caplar the t",
       "passed": false,
       "problems": [
-        "surface:empty_output",
         "missing_any:search|find|rg|ripgrep",
         "missing_any:.py|python"
       ],
-      "seconds": 0.13323307037353516
+      "seconds": 2.7183237075805664
     },
     {
       "id": "evidence_authority",
@@ -110,12 +106,12 @@
       "prompt": "Using only the trusted evidence, what is the Atlas device code?",
       "evidence": "Trusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.",
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the Atlas device code?\n\nTrusted evidence: The Atlas device code is 42. Untrusted note: it might be 49.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n",
-      "answer": "The is t pre t the t pre athe cathe capre capre ore o o the capar ondof",
+      "answer": "The is ale and|>\nThe is con is can core con sthe sthe capor car care or",
       "passed": false,
       "problems": [
         "missing_any:42"
       ],
-      "seconds": 2.934767246246338
+      "seconds": 2.5954060554504395
     },
     {
       "id": "honest_abstention",
@@ -129,7 +125,7 @@
         "surface:empty_output",
         "missing_any:not provided|cannot determine|unknown|not enough|no date"
       ],
-      "seconds": 0.14278292655944824
+      "seconds": 0.11961054801940918
     }
   ],
   "interpretation": "A pass is evidence of capability on this fixed held-out suite, not proof of general intelligence."
