@@ -32,6 +32,15 @@ def make_batch(rows: list[dict], device: torch.device, system: str, max_len: int
 
 @torch.no_grad()
 def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
+    """Free-run-predictive validation metrics, not just aggregate loss.
+
+    The 2026-07-23 investigation (docs/RESULTS.md) showed aggregate response
+    loss can look 'low' (0.844) while free-running generation is still ~0%
+    exact -- exact reproduction is the product of per-byte accuracies, so
+    checkpoint selection must watch the metrics that predict generation:
+    per-byte argmax accuracy and the first-8-assistant-bytes loss (the bytes
+    that decide whether an answer starts on-topic at all). Gate attempts are
+    pointless above ~0.05 response loss."""
     model.eval()
     losses = []
     if rows and all(row.get("domain") for row in rows):
@@ -51,6 +60,8 @@ def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
             offset += 1
         rows = selected
     context = torch.autocast(device_type="cuda", dtype=torch.float16) if amp_enabled else nullcontext()
+    argmax_hits = argmax_total = 0
+    first8_losses = []
     for start in range(0, min(len(rows), max_examples), 4):
         batch = make_batch(rows[start:start + 4], device, system, max_len)
         if not bool(batch["target_mask"].any()):
@@ -59,7 +70,24 @@ def evaluate(model, rows, device, system, max_len, amp_enabled, max_examples):
             logits, _ = model(batch["byte_ids"])
             loss = model.masked_token_loss(logits, batch["byte_ids"], batch["target_mask"])
         losses.append(float(loss.float().item()))
-    return float(np.mean(losses)) if losses else float("nan")
+        pred = logits[:, :-1].argmax(dim=-1)
+        tgt = batch["byte_ids"][:, 1:]
+        sel = batch["target_mask"][:, 1:]
+        correct = (pred == tgt) & sel
+        argmax_hits += int(correct.sum())
+        argmax_total += int(sel.sum())
+        ce = torch.nn.functional.cross_entropy(
+            logits[:, :-1].float().reshape(-1, 256), tgt.reshape(-1), reduction="none"
+        ).view(tgt.shape)
+        for b in range(tgt.shape[0]):
+            idx = sel[b].nonzero(as_tuple=True)[0][:8]
+            if len(idx):
+                first8_losses.append(float(ce[b, idx].mean()))
+    return {
+        "val_loss": float(np.mean(losses)) if losses else float("nan"),
+        "response_argmax_acc": argmax_hits / argmax_total if argmax_total else float("nan"),
+        "first8_loss": float(np.mean(first8_losses)) if first8_losses else float("nan"),
+    }
 
 
 def atomic_save(payload: dict, destination: Path) -> None:
@@ -200,14 +228,18 @@ def main() -> None:
             step_seconds = time.perf_counter() - step_started
 
             if step % args.eval_every == 0:
-                val_loss = evaluate(model, val_rows, device, args.system, args.max_len,
-                                    amp_enabled, args.eval_examples)
+                metrics = evaluate(model, val_rows, device, args.system, args.max_len,
+                                   amp_enabled, args.eval_examples)
+                val_loss = metrics["val_loss"]
                 improved = val_loss < best_val - args.min_delta
                 if improved:
                     best_val, bad_evals = val_loss, 0
                 else:
                     bad_evals += 1
                 record = {"sft_step": step, "train_loss": float(loss.detach()), "val_loss": val_loss,
+                          "response_argmax_acc": metrics["response_argmax_acc"],
+                          "first8_loss": metrics["first8_loss"],
+                          "gate_ready": val_loss <= 0.05,
                           "grad_norm": grad_norm, "best_val_loss": best_val,
                           "bad_evals": bad_evals, "improved": improved, "time": time.time(),
                           "step_seconds": step_seconds,

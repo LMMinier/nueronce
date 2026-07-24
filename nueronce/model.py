@@ -107,6 +107,11 @@ class ModelConfig:
     max_patch: int = 24
     boundary_loss_weight: float = 0.3
     trainable_segmentation: bool = True   # let LM loss reach the boundary head
+    # Engine-only behavior flag, mirrored here so the torch and engine configs
+    # stay field-identical (test_config_presets guards this). The torch path
+    # ignores it; nueronce/engine/nueronce_model.py uses it for activation
+    # recompute in the decomposed CPU runtime.
+    activation_checkpointing: bool = False
     reasoning_mode: str = "fixed"
     reasoning_min_depth: int = 1
     reasoning_halt_epsilon: float = 0.0

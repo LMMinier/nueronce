@@ -1,11 +1,11 @@
 {
   "gate": "tiny_exact_overfit_v1",
-  "checkpoint": "/workspaces/nueronce/runs/tiny_exact_overfit/checkpoint.pt",
-  "checkpoint_step": 115,
-  "final_train_loss": 0.047064796555787325,
+  "checkpoint": "/home/user/nueronce/runs/tiny_exact_overfit/checkpoint.pt",
+  "checkpoint_step": 137,
+  "final_train_loss": 0.004538211040198803,
   "n_examples": 32,
-  "exact_match_count": 27,
-  "exact_match_fraction": 0.84375,
+  "exact_match_count": 31,
+  "exact_match_fraction": 0.96875,
   "delimiter_leaks": 0,
   "state_isolation_ok": true,
   "isolation_checks": [
@@ -30,21 +30,21 @@
   ],
   "category_scores": {
     "copying": 0.75,
-    "arithmetic": 0.75,
-    "polite_rewriting": 0.75,
+    "arithmetic": 1.0,
+    "polite_rewriting": 1.0,
     "evidence_extraction": 1.0,
-    "abstention": 0.75,
+    "abstention": 1.0,
     "simple_debugging": 1.0,
     "temporal_ordering": 1.0,
-    "one_step_planning": 0.75
+    "one_step_planning": 1.0
   },
   "criteria": {
     "min_exact_matches": 31,
     "delimiter_leaks_must_be_zero": true,
     "state_isolation_required": true
   },
-  "gate_passed": false,
-  "elapsed_seconds": 235.74160027503967,
+  "gate_passed": true,
+  "elapsed_seconds": 112.85355734825134,
   "results": [
     {
       "index": 0,
@@ -119,12 +119,10 @@
       "category": "arithmetic",
       "prompt": "Calculate 10 - 4. Give the numerical answer.",
       "target": "6",
-      "answer": "6\n6",
-      "exact_match": false,
-      "first_mismatch_char": 1,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "6",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nCalculate 10 - 4. Give the numerical answer.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -176,12 +174,10 @@
       "category": "polite_rewriting",
       "prompt": "Rewrite politely: Answer the question.",
       "target": "Could you please answer the question?",
-      "answer": "Could you please anser the quesesestion?",
-      "exact_match": false,
-      "first_mismatch_char": 20,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Could you please answer the question?",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nRewrite politely: Answer the question.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -255,12 +251,10 @@
       "category": "abstention",
       "prompt": "Using only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.",
       "target": "Not provided in the evidence.",
-      "answer": "Not provided in theviden e.",
-      "exact_match": false,
-      "first_mismatch_char": 19,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "Not provided in the evidence.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nUsing only the trusted evidence, what is the price?\n\nTrusted evidence: There are 9 items.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {
@@ -378,12 +372,10 @@
       "category": "one_step_planning",
       "prompt": "Give one step to find every Python file in a folder.",
       "target": "List the folder and keep files ending in .py.",
-      "answer": "List the folder and kep files ending in .py.",
-      "exact_match": false,
-      "first_mismatch_char": 22,
-      "problems": [
-        "mismatch"
-      ],
+      "answer": "List the folder and keep files ending in .py.",
+      "exact_match": true,
+      "first_mismatch_char": null,
+      "problems": [],
       "rendered_prompt": "<|system|>\nYou are CFNA, a bounded software-engineering assistant. Respect authority and provenance constraints. For coding work use ForgeLoop: CONTRACT, MAP, PLAN, ACT, OBSERVE, CRITIQUE, REVISE, VERIFY, LEDGER, MEMORY. Do not claim a tool result that was not observed.\n<|user|>\nGive one step to find every Python file in a folder.\n<|evidence|>\n\n<|plan|>\n\n<|assistant|>\n"
     },
     {

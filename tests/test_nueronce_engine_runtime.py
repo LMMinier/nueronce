@@ -40,6 +40,33 @@ def test_plan_covers_model_parameters(tmp_path):
     assert (tmp_path / "manifest.json").exists()
 
 
+def test_block_stream_factor_set_lr_changes_the_applied_update():
+    """set_lr() must actually change step()'s output, not just the attribute --
+    guards against the silent-stale-LR bug class already found once in
+    scripts/train_checkpoint.py's resume path."""
+    from nueronce.engine.tensor import Tensor
+
+    def one_step(lr_value, set_via_method):
+        np.random.seed(0)
+        p = Tensor(np.ones((4,)), requires_grad=True)
+        p.grad = np.full(4, 2.0)
+        opt = BlockStreamFactor(lr=1e-3, tile_rows=16)
+        if set_via_method:
+            opt.set_lr(lr_value)
+        else:
+            opt.lr = lr_value
+        state = opt.init_state([p])
+        opt.step([p], state)
+        return p.data.copy()
+
+    baseline = one_step(1e-3, set_via_method=False)
+    via_attr = one_step(5e-2, set_via_method=False)
+    via_method = one_step(5e-2, set_via_method=True)
+
+    assert not np.allclose(baseline, via_attr), "lr must affect the update at all"
+    assert np.allclose(via_attr, via_method), "set_lr() must match direct attribute assignment"
+
+
 def test_decomposed_training_updates_and_resumes_state(tmp_path):
     np.random.seed(3)
     model = tiny_model()

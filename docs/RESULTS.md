@@ -147,3 +147,73 @@ The hybrid block's adaptive router originally mean-pooled path outputs over the
 position — leaking future units into past positions. The causality test failed
 (max logit change before an edited byte ≈ 0.04). Switching to **per-position
 routing** fixed it; the test now reports `0.0`.
+
+## 2026-07-23: the 0/8 proof-gate mystery is closed — it was arithmetic, not a bug
+
+The recovery investigation (`FOUNDATIONAL_GENERATION_RECOVERY.md`) asked why
+checkpoints with "low" teacher-forced validation loss (0.844 nats/byte on
+response bytes) score 0/8 on the sealed generation gate. The Codespace-side
+loss sweep plus cloud-side pipeline tests closed all seven hypotheses:
+
+**There is no generation bug.** Exact free-running reproduction is the
+*product of per-byte success probabilities*, so it stays near zero until
+per-byte accuracy is very high. At 0.844 nats/byte, the sweep measured
+~85% per-byte argmax accuracy — and 0.85^30 ≈ 0.8% exact-match probability
+on a ~30-byte answer. (Note the distinction: e^-0.844 ≈ 0.43 is the
+probability mass on the correct byte; the ~85% figure is measured *argmax*
+accuracy, which is what compounds in greedy decoding.) The observed ~10%
+check-pass rate is the expected value of that loss level. "0.844 is low"
+was the error: it is low for open-ended language modeling and
+catastrophically high for exact task completion.
+
+Hypothesis verdicts (numbering from the recovery doc):
+- **H1 prompt/target misalignment — cleared.** Serializer shared by
+  construction; byte-prefix equality proven in
+  `tests/test_foundational_recovery_pipeline.py`.
+- **H2 loss masking — cleared.** Shift/mask indexing verified correct.
+- **H3 boundary/EOS handling — cleared.** `<|end|>` generated correctly in
+  7/8 gate transcripts.
+- **H4 state contamination — cleared at micro scale.** Fresh-prompt
+  generations independent (also `test_generate_has_no_cross_call_state_leak`).
+- **H5 checkpoint/config mismatch — was live, now fixed.** The `chat_11m`
+  preset drift (`activation_checkpointing` present in the engine config,
+  absent in torch `ModelConfig`) is closed in this commit;
+  `test_config_presets.py` is green again. Section-H architecture
+  verification against the 11.85M checkpoint remains worth running to bound
+  how much of the 0.844 was train/eval mismatch.
+- **H6 can't reproduce training examples — confirmed, as a consequence** of
+  loss level, not a mechanism.
+- **H7 insufficient training — confirmed, primary cause.**
+
+Secondary findings recorded for the next data pass: ~0.5% of train.jsonl
+rows are role-swapped OASST1 pairs (responses that are other users'
+prompts) and ~1.5% are context-orphaned — real, not decisive; drop them.
+Training rows must be serialized with the *same* system prompt the gate
+uses (260 bytes of CFNA/ForgeLoop text) — a byte-level distribution shift
+at the front of every eval prompt costs exactly the first assistant bytes
+that decide everything. And `generate()`'s default `max_ctx=256` silently
+truncates long prompts — the gate passes 768 explicitly, but `chat.py`
+paths inherit the footgun.
+
+**The fix ladder** (in order; see `scripts/eval_loss_generation_curve.py`,
+which turns the loss→generation relationship into a measured curve):
+1. Select checkpoints on free-run-predictive metrics — response-byte argmax
+   accuracy and first-8-assistant-bytes loss — never aggregate val loss.
+   Working target: response TF loss ≤ 0.05 before any gate attempt.
+2. Preset drift: fixed here. Run section-H verification on the existing
+   checkpoint.
+3. Match training-time and gate-time system prompts byte-for-byte.
+4. Drive response loss ≤ 0.05 on the cleaned v3.1 rows (drop the
+   role-swapped/orphaned rows first). An 11.85M model that cannot crush
+   2,574 rows to that level is itself the diagnostic — suspect LR schedule
+   or remaining config mismatch, not data volume.
+5. Only then run the sealed gate, unmodified.
+
+Honest bridge: steps 1–5 produce a model that executes instructions it was
+trained on — necessary, not sufficient. Passing the sealed gate on unseen
+phrasings requires generalization, which 3,684 SFT rows on ~14 MB of
+pretraining cannot provide. The sequence to the actual goal: fix the loop
+at 11.85M, then scale base pretraining data 100–1000× on the license-clean
+corpus pipeline, then the 337M rung. If NUERONCE still doesn't beat the
+matched transformer at that point, that result gets written down too — the
+verification harness is the part that survives either answer.

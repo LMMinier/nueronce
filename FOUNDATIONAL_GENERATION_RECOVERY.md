@@ -1,41 +1,50 @@
 # NUERONCE Foundational Generation Recovery
 
-## Cloud-session status (2026-07-23 pass — real chat_11m run, CPU sandbox)
+## Cloud-session status (2026-07-23, parallel-session note)
 
-Section B has now been run for real, on the actual `chat_11m` architecture,
-on real (if slow, CPU-only) compute — not the crippled `--fast-tooling-check`
-stand-in referenced later in this file. Full result and per-item detail:
-`docs/reports/TINY_EXACT_OVERFIT_STEP1_RESULT.md`.
+A separate, concurrent cloud session ran Section B on this same branch (see
+the GATE PASSED block below) and closed the investigation for real: a
+preset-drift bug (H5) was the root cause, fixed, and a resumed run reached
+31/32. That result supersedes the one below — kept for the record since it
+still holds two things worth carrying forward: (1) `docs/reports/TINY_EXACT_OVERFIT_STEP1_RESULT.md`,
+a from-scratch run on the real `chat_11m` architecture that reached 27/32
+(loss 0.0471) *before* the preset-drift fix landed here, whose failure
+pattern (single-character typos, not incoherence) independently corroborates
+this session's "it's the loss-arithmetic, not a pipeline bug" conclusion;
+and (2) an infrastructure fix: on an 8GB CPU sandbox, the *unmodified*
+`train_tiny_exact_overfit.py` could not complete a single step — a
+grad-enabled forward+backward on the real 32-example batch pushed memory
+from ~2.7GB to ~7GB and got SIGTERM'd by a soft memory guard (confirmed via
+a `free -m` sampler, not a guess). Fixed with an optional `--micro-batch N`
+gradient-accumulation flag (default 0 = original single-batch behavior,
+unchanged) producing the mathematically identical gradient in smaller
+chunks — worth keeping for anyone re-running this on similarly constrained
+hardware, alongside this session's own `--resume` flag below.
 
-**Result: 27/32 exact matches, 0 delimiter leaks, state isolation OK — below
-the required 31/32 threshold. `gate_passed: false`.** Do not read this as
-"the pipeline is broken": every one of the 32 free-running answers was
-topically and grammatically correct; 4 of the 5 misses are a single
-dropped/substituted character in an otherwise byte-perfect string (e.g.
-`apple`→`aple`, `keep`→`kep`), and the 5th duplicates a correct digit
-instead of stopping. Training stopped at loss 0.0471, just under the
-script's 0.05 threshold — this reads as a checkpoint that had not quite
-finished memorizing, not as broken masking/serialization/stop-handling.
-That said, the sealed rule is >=31/32, unmodified, and this run does not
-clear it — **Step 2 (base pretraining) was not started this pass**, per
-the recovery doc's own advancement rules below. See the report for the
-full per-item table, the isolation-check results, and a note that this
-diagnostic exercises `NUERONCEModel.generate()` (dense) rather than
-`nueronce.incremental.IncrementalGenerator` (what the sealed proof gate
-actually runs through) — so this result does not yet settle the
-dense-vs-incremental question either.
+> **GATE PASSED 2026-07-23 (later the same day): 31/32 on the real chat_11m.**
+> Round 1 at loss 0.046 scored 24/32 with every miss a byte-stutter on a known
+> answer — and the miss rate matched the compounding arithmetic (98.72%
+> measured TF accuracy predicts 81% exact vs 75% observed). Resumed to loss
+> 0.0045: **31/32 exact, 0 delimiter leaks, state isolation clean —
+> `gate_passed: true`** (`runs/tiny_exact_overfit/eval_report.json`). The
+> train→serialize→mask→generate pipeline is proven mechanically sound on the
+> real 11M architecture. Per the advancement rules below, broad training is
+> now unblocked; the constraint that remains is training scale (H7), and the
+> checkpoint-selection metric must stay on free-run-predictive numbers.
+>
+> **STATUS 2026-07-23 — investigation closed, verdicts in.** The loss sweep
+> answered the core question: 0.844 nats/byte response loss ≈ ~85% per-byte
+> argmax accuracy, and 0.85^30 ≈ 0.8% exact reproduction of a 30-byte answer
+> — the 0/8 gate score is the *expected value* of that loss level, not a
+> generation bug. H1–H4 cleared, H5 (preset drift) found and fixed, H6
+> confirmed as consequence, H7 (insufficient training) confirmed as primary
+> cause. Full verdicts, secondary findings, and the 5-step fix ladder:
+> `docs/RESULTS.md` (2026-07-23 entry). Measurement tool:
+> `scripts/eval_loss_generation_curve.py`. Checkpoint selection must move to
+> response-byte/first-8-bytes metrics with target ≤ 0.05 before any gate
+> attempt.
 
-One infrastructure finding worth carrying forward: on this 8GB CPU
-sandbox, the original (unmodified) `train_tiny_exact_overfit.py` could not
-complete a single step — a grad-enabled forward+backward on the real
-32-example batch pushed memory from ~2.7GB to ~7GB and got SIGTERM'd by a
-soft memory guard (confirmed via a `free -m` sampler, not a guess). Added
-an optional `--micro-batch N` gradient-accumulation flag (default 0 =
-original single-batch behavior, unchanged) that produces the mathematically
-identical gradient in smaller chunks. This is an infrastructure fix, not a
-change to what Section B measures.
-
-## Cloud-session status (prior pass)
+## Cloud-session status (earlier pass)
 
 Implemented, from the cloud side (no GPU here, so nothing below claims the
 sealed gate now passes -- that verdict can only come from running the real
