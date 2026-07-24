@@ -1,6 +1,6 @@
 {
- "sft_step": 500,
- "best_val_loss": 1.8897534161806107,
+ "sft_step": 550,
+ "best_val_loss": 1.8421857208013535,
  "history": [
   {
    "sft_step": 25,
@@ -440,6 +440,50 @@
     "factual_explanation",
     "logic_reasoning",
     "factual_knowledge"
+   ]
+  },
+  {
+   "sft_step": 525,
+   "train_loss": 1.7666611671447754,
+   "val_loss": 1.8581008687615395,
+   "response_argmax_acc": 0.46642218656887463,
+   "first8_loss": 2.060003312304616,
+   "gate_ready": false,
+   "grad_norm": 3.425189971923828,
+   "best_val_loss": 1.8581008687615395,
+   "bad_evals": 0,
+   "improved": true,
+   "time": 1784901754.8711789,
+   "step_seconds": 2.0600630000000137,
+   "sequence_bytes": 2528,
+   "bytes_per_second": 1227.1469367684304,
+   "sampled_domains": [
+    "mathematics",
+    "factual_knowledge",
+    "uncertainty_abstention",
+    "conversation"
+   ]
+  },
+  {
+   "sft_step": 550,
+   "train_loss": 2.0617096424102783,
+   "val_loss": 1.8421857208013535,
+   "response_argmax_acc": 0.46596378638551456,
+   "first8_loss": 2.0664978865534067,
+   "gate_ready": false,
+   "grad_norm": 5.560486793518066,
+   "best_val_loss": 1.8421857208013535,
+   "bad_evals": 0,
+   "improved": true,
+   "time": 1784901800.7905881,
+   "step_seconds": 1.2421462469999938,
+   "sequence_bytes": 2032,
+   "bytes_per_second": 1635.878226825259,
+   "sampled_domains": [
+    "factual_knowledge",
+    "mathematics",
+    "rewriting",
+    "summarization"
    ]
   }
  ]
