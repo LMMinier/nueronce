@@ -1,0 +1,13 @@
+[package]
+name = "nuetorch"
+version = "0.2.0"
+edition = "2021"
+description = "Dependency-free Rust CPU execution prototype for NUERONCE"
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "nuetorch"
+path = "src/main.rs"

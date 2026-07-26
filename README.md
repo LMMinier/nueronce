@@ -56,7 +56,14 @@ docs/                     Design doc, architecture map, RESULTS, research_mcp
 scripts/                  train_demo.py, run_pipeline.py
 tests/                    70+ tests incl. learning + causality proofs
 research_mcp.py           Notion-backed research MCP server (standalone)
+nuetorch/                 Dependency-free Rust CPU execution prototype
 ```
+
+The [`nuetorch/`](nuetorch/) prototype is a deliberately small byte-level
+learner for exercising flat tensor arenas, manually implemented gradients, a
+factorized optimizer, and resumable checkpoints on a CPU. It is not a port of
+the complete NUERONCE architecture; its README documents the implemented scope
+and the suggested path toward numerical parity with the NumPy engine.
 
 ## Quickstart
 
