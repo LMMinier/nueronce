@@ -31,6 +31,11 @@ def main() -> None:
     ap.add_argument("--max-new", type=int, default=96)
     ap.add_argument("--max-ctx", type=int, default=288)
     ap.add_argument("--prompt", action="append", default=[])
+    ap.add_argument("--top-k", type=int)
+    ap.add_argument("--top-p", type=float)
+    ap.add_argument("--repetition-penalty", type=float, default=1.0)
+    ap.add_argument("--no-repeat-ngram-size", type=int, default=0)
+    ap.add_argument("--dense", action="store_true")
     args = ap.parse_args()
 
     checkpoint = Path(args.checkpoint)
@@ -58,7 +63,11 @@ def main() -> None:
             max_new=args.max_new,
             max_ctx=args.max_ctx,
             prompt_format=prompt_format,
-            use_incremental=False,
+            use_incremental=not args.dense,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            repetition_penalty=args.repetition_penalty,
+            no_repeat_ngram_size=args.no_repeat_ngram_size,
         )
         reply = chat.say(prompt)
         printable = sum(ch.isprintable() or ch.isspace() for ch in reply) / max(1, len(reply))
@@ -74,6 +83,11 @@ def main() -> None:
         "checkpoint": str(checkpoint),
         "prompt_format": prompt_format,
         "temperature": args.temperature,
+        "top_k": args.top_k,
+        "top_p": args.top_p,
+        "repetition_penalty": args.repetition_penalty,
+        "no_repeat_ngram_size": args.no_repeat_ngram_size,
+        "incremental": not args.dense,
         "pass_nonempty": sum(int(r["nonempty"]) for r in results),
         "pass_printable": sum(int(r["printable_fraction"] >= 0.95) for r in results),
         "total": len(results),

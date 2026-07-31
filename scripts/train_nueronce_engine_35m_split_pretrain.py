@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from nueronce.engine import functional as F
-from nueronce.engine.nueronce_model import NueronceModel, preset_configs
+from nueronce.engine.nueronce_model import NueronceConfig, NueronceModel
 from nueronce.engine.tensor import no_grad
 
 
@@ -43,7 +43,11 @@ def canonical_state_hash(checkpoint: dict) -> str:
 
 
 def build_model(checkpoint: dict):
-    cfg = preset_configs()['base_35m']
+    cfg = NueronceConfig(**checkpoint['config'])
+    if cfg.p_max < 256:
+        raise RuntimeError(f'unsafe segmentation capacity for s1024 recovery: p_max={cfg.p_max} < 256')
+    if not cfg.strict_segmentation_capacity:
+        raise RuntimeError('strict_segmentation_capacity must be enabled for recovery training')
     model = NueronceModel(cfg)
     params = list(model.parameters())
     if len(params) != len(checkpoint['params']):
@@ -56,6 +60,24 @@ def build_model(checkpoint: dict):
 def lm_loss(model, batch: np.ndarray):
     logits, _ = model.forward(batch)
     return F.cross_entropy(logits[:, :-1].reshape(-1, 256), batch[:, 1:].reshape(-1))
+
+
+def pretrain_loss(model, batch: np.ndarray, include_boundary_loss: bool):
+    if include_boundary_loss:
+        total, stats = model.loss(batch)
+        return total, {
+            'total': float(total.item()),
+            'lm': float(stats['lm']),
+            'boundary': float(stats['boundary']),
+            'bpb': float(stats['bpb']),
+        }
+    lm = lm_loss(model, batch)
+    return lm, {
+        'total': float(lm.item()),
+        'lm': float(lm.item()),
+        'boundary': None,
+        'bpb': float(lm.item()) / 0.6931471805599453,
+    }
 
 
 def finite_and_norm(params):
@@ -125,14 +147,17 @@ def prepare(args):
     batch = np.frombuffer(sequence, dtype=np.uint8).astype(np.int64)[None, :]
     t0 = time.time()
     with no_grad():
-        loss = lm_loss(model, batch)
+        loss, components = pretrain_loss(model, batch, args.include_boundary_loss)
     forward_s = time.time() - t0
     plan = {
-        'format': 'engine-base35m-pretrain-pending-v1', 'status': 'prepared',
+        'format': 'engine-base35m-pretrain-pending-v2', 'status': 'prepared',
         'checkpoint': str(args.checkpoint.resolve()), 'checkpoint_sha256': checkpoint_hash,
         'checkpoint_canonical_hash': canonical_state_hash(checkpoint),
         'checkpoint_step': int(checkpoint['meta']['step']), 'next_step': next_step,
-        'objective': 'document_byte_pretraining', 'document': str(document),
+        'objective': ('document_byte_pretraining_with_boundary'
+                      if args.include_boundary_loss else 'document_byte_pretraining'),
+        'include_boundary_loss': bool(args.include_boundary_loss),
+        'loss_components': components, 'document': str(document),
         'document_sha256': sha256_file(document), 'document_bytes': len(raw),
         'offset': offset, 'sequence': sequence, 'seq_len': args.seq_len,
         'expected_loss': float(loss.item()),
@@ -144,6 +169,8 @@ def prepare(args):
         'status': 'prepared', 'step': next_step, 'objective': plan['objective'],
         'document': str(document), 'document_sha256': plan['document_sha256'],
         'offset': offset, 'seq_len': args.seq_len, 'loss': float(loss.item()),
+        'lm_loss': components['lm'], 'boundary_loss': components['boundary'],
+        'bpb': components['bpb'],
         'forward_s': forward_s, 'plan': str(args.plan),
         'elapsed_s': time.time() - started,
         'peak_rss_kib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
@@ -171,7 +198,9 @@ def backward(args):
     model, params, cfg = build_model(checkpoint)
     batch = np.frombuffer(plan['sequence'], dtype=np.uint8).astype(np.int64)[None, :]
     for p in params: p.grad = None
-    t0 = time.time(); loss = lm_loss(model, batch); forward_s = time.time() - t0
+    t0 = time.time()
+    loss, components = pretrain_loss(model, batch, bool(plan.get('include_boundary_loss', False)))
+    forward_s = time.time() - t0
     if abs(float(loss.item()) - float(plan['expected_loss'])) > 1e-5:
         raise RuntimeError('reconstructed loss mismatch')
     t0 = time.time(); loss.backward(); backward_s = time.time() - t0
@@ -184,7 +213,9 @@ def backward(args):
         'document': plan['document'], 'document_sha256': plan['document_sha256'],
         'offset': int(plan['offset']), 'sequence_bytes': int(plan['seq_len']),
         'supervised_target_bytes': int(plan['seq_len']) - 1,
-        'loss': float(loss.item()), 'grad_norm': norm, 'clip_scale': scale,
+        'loss': float(loss.item()), 'lm_loss': components['lm'],
+        'boundary_loss': components['boundary'], 'bpb': components['bpb'],
+        'grad_norm': norm, 'clip_scale': scale,
         'grad_tensors': count, 'forward_s': forward_s,
         'backward_s': backward_s, 'update_s': update_s,
     }
@@ -220,6 +251,8 @@ def main():
     p.add_argument('--seed', type=int, default=20260710)
     p.add_argument('--lr', type=float)
     p.add_argument('--max-grad-norm', type=float, default=1.0)
+    p.add_argument('--include-boundary-loss', action='store_true',
+                   help='optimize LM CE plus the configured auxiliary boundary BCE')
     p.set_defaults(func=prepare)
     p = sub.add_parser('backward')
     p.add_argument('--plan', type=Path, required=True)

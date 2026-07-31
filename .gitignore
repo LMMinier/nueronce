@@ -27,6 +27,7 @@ frontend/.vite/
 
 # Model / data artifacts (keep large blobs out of git)
 *.pt
+*.pkl
 *.bin
 *.safetensors
 *.gguf

@@ -83,6 +83,37 @@ def test_generate_runs_and_returns_bytes():
     assert len(out) == 10
 
 
+def test_repetition_penalty_changes_greedy_repeated_byte():
+    np.random.seed(0)
+    m = NueronceModel(_tiny())
+
+    def fake_forward(byte_ids, *args, **kwargs):
+        from nueronce.engine.tensor import Tensor
+        logits = np.full((1, byte_ids.shape[1], 256), -20.0)
+        logits[0, -1, ord("A")] = 2.0
+        logits[0, -1, ord("B")] = 1.5
+        return Tensor(logits), None
+
+    m.forward = fake_forward
+    assert m.generate(b"A", max_new=1, greedy=True) == b"AA"
+    assert m.generate(b"A", max_new=1, greedy=True, repetition_penalty=2.0) == b"AB"
+
+
+def test_no_repeat_ngram_blocks_phrase_without_banning_its_bytes():
+    from nueronce.engine.nueronce_model import _decode_next_byte
+
+    logits = np.full(256, -20.0)
+    logits[ord("e")] = 2.0
+    logits[ord("a")] = 1.5
+    generated = list(b" the th")
+    chosen = _decode_next_byte(
+        logits, ids=list(b"prompt") + generated, generated=generated,
+        temperature=0.0, greedy=True, top_k=None, top_p=None,
+        repetition_penalty=1.0, no_repeat_ngram_size=4, rng=None,
+    )
+    assert chosen == ord("a")
+
+
 def test_model_learns_on_toy_corpus():
     np.random.seed(0)
     m = NueronceModel(_tiny())

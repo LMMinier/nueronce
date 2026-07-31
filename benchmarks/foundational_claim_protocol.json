@@ -1,0 +1,80 @@
+{
+  "protocol": "nueronce_foundational_claims_v1",
+  "status_rule": "No claim is supported until every required gate has an attached artifact and passes.",
+  "common_controls": {
+    "minimum_seeds": 3,
+    "parameter_tolerance_fraction": 0.05,
+    "same_corpus_sha256": true,
+    "same_train_validation_split": true,
+    "same_sequence_length": true,
+    "same_batch_order_per_seed": true,
+    "same_predicted_training_bytes": true,
+    "fixed_unseen_generation_suite": true,
+    "record_cpu_model_threads_wall_time_peak_rss": true
+  },
+  "prior_art_roles": {
+    "micrograd": "autograd correctness and finite-difference testing precedent",
+    "tinygrad": "small end-to-end framework and backend comparison precedent",
+    "llm.c": "simple raw LLM training loop and throughput-accounting precedent",
+    "Adafactor": "mandatory optimizer prior art for factored row/column second moments"
+  },
+  "claims": {
+    "coherent_language_generation": {
+      "required": [
+        "sealed_generation_results.json",
+        "prompt_format_and_terminator_audit.json",
+        "human_blind_rating.json"
+      ],
+      "gates": {
+        "surface_coherence_rate_min": 0.8,
+        "task_accuracy_min": 0.75,
+        "nonempty_rate_min": 0.95,
+        "delimiter_leaks_max": 0,
+        "repetition_failures_max_fraction": 0.05
+      }
+    },
+    "faster_convergence_than_pytorch": {
+      "comparison": "same NUERONCE architecture on MicroTorch and PyTorch",
+      "required": ["backend_convergence_3seed.json"],
+      "gates": {
+        "same_optimizer_math": true,
+        "same_initial_weight_hash": true,
+        "target_bpb_reached_all_seeds": true,
+        "median_time_to_target_improvement_min_fraction": 0.1
+      }
+    },
+    "better_quality_than_transformer": {
+      "comparison": "NUERONCE versus byte Transformer",
+      "required": ["matched_transformer_3seed.json"],
+      "gates": {
+        "heldout_bpb_wins_min_seeds": 2,
+        "generation_score_not_worse": true,
+        "gain_exceeds_combined_seed_noise": true
+      }
+    },
+    "novel_cpu_training_concept": {
+      "required": ["prior_art_matrix.md", "independent_novelty_review.md"],
+      "gates": {
+        "claim_must_be_combination_not_cpu_training_itself": true,
+        "distinct_mechanism_claim_mapped_to_code": true
+      }
+    },
+    "streamfactor_fundamentally_new": {
+      "default_status": "unsupported_due_to_Adafactor_prior_art",
+      "required": ["streamfactor_adafactor_algorithm_diff.md", "optimizer_3seed.json"],
+      "gates": {
+        "mathematical_difference_beyond_row_column_factorization": true,
+        "ablation_attributes_gain_to_that_difference": true
+      }
+    },
+    "competitive_per_compute_hour": {
+      "required": ["compute_efficiency_3seed.json"],
+      "gates": {
+        "report_bytes_per_second": true,
+        "report_time_to_target_bpb": true,
+        "report_peak_rss": true,
+        "report_quality_at_equal_wall_clock": true
+      }
+    }
+  }
+}

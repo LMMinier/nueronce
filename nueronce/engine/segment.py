@@ -32,6 +32,7 @@ def segment_ids_from_boundaries(
     min_patch: int = 3,
     max_patch: int = 24,
     p_max: int = 32,
+    strict_capacity: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Greedy left-to-right segmentation honoring min/max patch length.
 
@@ -40,15 +41,23 @@ def segment_ids_from_boundaries(
     b, t = boundary_prob.shape
     seg = np.zeros((b, t), dtype=np.int64)
     cur = np.zeros(b, dtype=np.int64)
+    raw_cur = np.zeros(b, dtype=np.int64)
     length = np.ones(b, dtype=np.int64)
     ones = np.ones_like(length)
     for i in range(1, t):
         over_min = length >= min_patch
         over_max = length >= max_patch
         cut = ((boundary_prob[:, i] > tau) & over_min) | over_max
+        raw_cur = raw_cur + cut.astype(np.int64)
         cur = np.minimum(cur + cut.astype(np.int64), p_max - 1)
         seg[:, i] = cur
         length = np.where(cut, ones, length + 1)
+    raw_units = raw_cur + 1
+    if strict_capacity and np.any(raw_units > p_max):
+        raise RuntimeError(
+            "segmentation capacity overflow: "
+            f"required_units={int(raw_units.max())} p_max={p_max} sequence_length={t}"
+        )
     return seg, cur + 1
 
 

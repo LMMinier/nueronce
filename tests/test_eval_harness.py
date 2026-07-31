@@ -48,6 +48,29 @@ def test_compare_reports_heldout_for_all():
     res = compare(factories, train_batches, val_batches)
     for name, r in res.items():
         assert r["params"] > 0
+        assert r["training_bytes"] > 0
+        assert r["training_seconds"] > 0
+        assert r["training_bytes_per_second"] > 0
+        assert r["seed"] == 0
         assert 0.0 < r["heldout_bpb"] < 9.0, f"{name} heldout bpb out of range"
         # held-out should differ from training loss (not the same data)
         assert r["heldout_bpb"] != r["final_train_bpb"]
+
+
+def test_claim_baselines_are_within_five_percent_parameter_spread():
+    models = [
+        NUERONCEModel(ModelConfig(
+            byte_embed_dim=32, d_local=64, d_model=96, p_max=24,
+            physical_blocks=2, logical_depth=3, n_heads=4, unit_window=16,
+            decoder_window=24, decoder_layers=2, d_state=12,
+            channel_dim=16, min_patch=3, max_patch=20,
+        )),
+        ByteTransformerLM(BaselineConfig(
+            d_model=132, n_layers=5, n_heads=4, max_len=64,
+        )),
+        ByteSSMLM(BaselineConfig(
+            d_model=136, n_layers=4, d_state=12, max_len=64,
+        )),
+    ]
+    counts = [model.num_params() for model in models]
+    assert (max(counts) - min(counts)) / min(counts) <= 0.05

@@ -38,18 +38,13 @@ from typing import List, Optional
 
 import numpy as np
 
-from .nueronce_model import NueronceModel
+from .nueronce_model import NueronceModel, _decode_next_byte
 from .segment import byte_to_unit_mask
 from .tensor import Tensor, no_grad
 
 # Perception receptive field: conv3 (2 back) + conv7 (6 back) + dilated conv3
 # with dilation 4 (8 back) = 16 bytes back + the byte itself.
 _PERCEPTION_SPAN = 17
-
-
-def _softmax_np(v: np.ndarray) -> np.ndarray:
-    e = np.exp(v - v.max())
-    return e / e.sum()
 
 
 class IncrementalGenerator:
@@ -149,23 +144,28 @@ class IncrementalGenerator:
     def generate(self, prompt: bytes, max_new: int = 64, temperature: float = 0.8,
                  greedy: bool = False, max_ctx: int = 256,
                  stop_bytes: bytes = b"", min_new: int = 0,
-                 rng: Optional[np.random.Generator] = None) -> bytes:
+                 rng: Optional[np.random.Generator] = None,
+                 top_k: Optional[int] = None, top_p: Optional[float] = None,
+                 repetition_penalty: float = 1.0,
+                 no_repeat_ngram_size: int = 0) -> bytes:
         """API- and output-compatible with ``NueronceModel.generate``.
         Byte-identical to the dense path under ``greedy=True`` (tested)."""
         ids = list(prompt) or [32]
         out: List[int] = list(ids)
+        generated: List[int] = []
         new_count = 0
         with no_grad():
             self.prime(out[-max_ctx:])
             for _ in range(max_new):
                 nxt = self._last_logits()
-                if greedy:
-                    idx = int(nxt.argmax())
-                elif rng is not None:
-                    idx = int(rng.choice(256, p=_softmax_np(nxt / max(1e-5, temperature))))
-                else:
-                    idx = int(np.random.choice(256, p=_softmax_np(nxt / max(1e-5, temperature))))
+                idx = _decode_next_byte(
+                    nxt, ids=out, generated=generated, temperature=temperature,
+                    greedy=greedy, top_k=top_k, top_p=top_p,
+                    repetition_penalty=repetition_penalty,
+                    no_repeat_ngram_size=no_repeat_ngram_size, rng=rng,
+                )
                 out.append(idx)
+                generated.append(idx)
                 new_count += 1
                 if stop_bytes and new_count >= min_new and idx in stop_bytes:
                     break

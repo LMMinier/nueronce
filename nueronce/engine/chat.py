@@ -13,7 +13,7 @@ format (reused directly, not re-implemented) rather than ``nueronce.chat``'s
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from ..prompting import ASSISTANT, END, SYSTEM, USER
 from ..training.dialogue_data import BOT_TAG, USER_TAG
@@ -47,6 +47,10 @@ class MicroConversation:
     user_tag: str = USER_TAG
     bot_tag: str = BOT_TAG
     temperature: float = 0.7
+    top_k: Optional[int] = 64
+    top_p: Optional[float] = 0.95
+    repetition_penalty: float = 1.0
+    no_repeat_ngram_size: int = 4
     max_new: int = 80
     min_new: int = 8
     max_ctx: int = 288
@@ -57,7 +61,10 @@ class MicroConversation:
     def _generate(self, context: bytes) -> bytes:
         kwargs = dict(max_new=self.max_new, temperature=self.temperature,
                       greedy=(self.temperature <= 0), max_ctx=self.max_ctx,
-                      stop_bytes=_STOP, min_new=self.min_new)
+                      stop_bytes=_STOP, min_new=self.min_new,
+                      top_k=self.top_k, top_p=self.top_p,
+                      repetition_penalty=self.repetition_penalty,
+                      no_repeat_ngram_size=self.no_repeat_ngram_size)
         if self.use_incremental:
             try:
                 from .incremental import IncrementalGenerator

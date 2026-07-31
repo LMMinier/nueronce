@@ -10,6 +10,7 @@ and held-out bits/byte so memorization vs generalization is visible.
 from __future__ import annotations
 
 import math
+import time
 from typing import Callable, Dict, List
 
 import torch
@@ -41,21 +42,29 @@ def train_model(model, train_batches: List[Tensor], lr: float = 3e-3,
 
 
 def compare(model_factories: Dict[str, Callable], train_batches: List[Tensor],
-            val_batches: List[Tensor], lr: float = 3e-3) -> Dict[str, dict]:
+            val_batches: List[Tensor], lr: float = 3e-3,
+            seed: int = 0) -> Dict[str, dict]:
     """Train each model on train_batches, report train+held-out bits/byte.
 
     ``model_factories``: name -> zero-arg callable returning a fresh model that
     exposes ``lm_loss`` and ``num_params``. Same batches/optimizer/steps for all.
     """
     results: Dict[str, dict] = {}
+    training_bytes = sum(int(batch.numel()) for batch in train_batches)
     for name, make in model_factories.items():
-        torch.manual_seed(0)  # identical init RNG stream per model for fairness
+        torch.manual_seed(seed)  # identical init RNG stream per model for fairness
         model = make()
+        started = time.perf_counter()
         curve = train_model(model, train_batches, lr=lr)
+        training_seconds = time.perf_counter() - started
         results[name] = {
             "params": model.num_params(),
             "final_train_bpb": curve[-1] if curve else float("nan"),
             "heldout_bpb": bits_per_byte(model, val_batches),
+            "training_bytes": training_bytes,
+            "training_seconds": training_seconds,
+            "training_bytes_per_second": training_bytes / max(training_seconds, 1e-12),
+            "seed": seed,
         }
     return results
 
