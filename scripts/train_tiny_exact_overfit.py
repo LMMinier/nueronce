@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from nueronce.model import ModelConfig, NUERONCEModel, chat_config
 from nueronce.training.dialogue_data import make_sft_batch
@@ -64,6 +65,13 @@ def main() -> None:
                      help="use a much smaller architecture for a quick pipeline-plumbing "
                           "smoke test on CPU; NOT the real diagnostic -- the real gate uses "
                           "the actual chat_11m config (the default)")
+    ap.add_argument("--micro-batch", type=int, default=0,
+                     help="split the 32-example batch into chunks of this size and "
+                          "accumulate gradients before each optimizer step, to bound peak "
+                          "memory on constrained hardware. Mathematically identical to a "
+                          "single full-batch step (same global loss normalization, just "
+                          "computed over smaller chunks) -- not an approximation. "
+                          "0 (default) uses the full batch in one step.")
     ap.add_argument("--resume", action="store_true",
                      help="continue training from an existing --out checkpoint instead of "
                           "a fresh init (for walking the loss threshold down without "
@@ -113,16 +121,34 @@ def main() -> None:
     started = time.time()
     step = 0
     loss_value = float("inf")
+    n_examples = byte_ids.shape[0]
+    micro = args.micro_batch if args.micro_batch > 0 else n_examples
     while step < args.max_steps and loss_value > args.loss_threshold:
         model.train()
         optimizer.zero_grad(set_to_none=True)
-        logits, _ = model(byte_ids)
-        loss = model.masked_token_loss(logits, byte_ids, target_mask)
-        loss.backward()
+        # Global denominator so chunked accumulation reproduces the exact same
+        # gradient as one full-batch model.masked_token_loss() call -- each
+        # chunk's cross-entropy sum is normalized by the *whole batch's* valid
+        # target count, so summing the chunk backward()s equals the full-batch
+        # gradient exactly (not an approximation of it).
+        total_valid = target_mask[:, 1:].float().sum().clamp_min(1.0)
+        loss_sum = 0.0
+        for start in range(0, n_examples, micro):
+            end = min(start + micro, n_examples)
+            chunk_ids = byte_ids[start:end]
+            chunk_mask = target_mask[start:end]
+            logits, _ = model(chunk_ids)
+            pred = logits[:, :-1].reshape(-1, 256)
+            tgt = chunk_ids[:, 1:].reshape(-1)
+            sel = chunk_mask[:, 1:].reshape(-1).float()
+            ce = F.cross_entropy(pred, tgt, reduction="none")
+            chunk_loss = (ce * sel).sum() / total_valid
+            chunk_loss.backward()
+            loss_sum += float(chunk_loss.detach())
         grad_norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0))
         optimizer.step()
         step += 1
-        loss_value = float(loss.detach())
+        loss_value = loss_sum
         if step % args.log_every == 0 or loss_value <= args.loss_threshold:
             record = {"step": step, "loss": loss_value, "grad_norm": grad_norm,
                       "elapsed_seconds": time.time() - started}

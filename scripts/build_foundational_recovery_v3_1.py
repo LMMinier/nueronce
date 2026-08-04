@@ -7,12 +7,12 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 SOURCE = Path(
-    r"artifacts\foundational_v3_relabel_preview_corrected.csv"
+    "artifacts/foundational_v3_relabel_preview_corrected.csv"
 )
 
-OUT_DIR = Path(r"data\foundational_recovery_v3_1")
-REPORT = Path(r"artifacts\foundational_v3_1_build_report.md")
-MANIFEST = Path(r"artifacts\foundational_v3_1_manifest.json")
+OUT_DIR = Path("data/foundational_recovery_v3_1")
+REPORT = Path("artifacts/foundational_v3_1_build_report.md")
+MANIFEST = Path("artifacts/foundational_v3_1_manifest.json")
 
 FAMILY_CAP = 16
 EVAL_FAMILY_FRACTION = 0.15

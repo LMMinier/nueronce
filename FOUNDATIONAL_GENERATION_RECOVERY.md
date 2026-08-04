@@ -1,5 +1,26 @@
 # NUERONCE Foundational Generation Recovery
 
+## Cloud-session status (2026-07-23, parallel-session note)
+
+A separate, concurrent cloud session ran Section B on this same branch (see
+the GATE PASSED block below) and closed the investigation for real: a
+preset-drift bug (H5) was the root cause, fixed, and a resumed run reached
+31/32. That result supersedes the one below — kept for the record since it
+still holds two things worth carrying forward: (1) `docs/reports/TINY_EXACT_OVERFIT_STEP1_RESULT.md`,
+a from-scratch run on the real `chat_11m` architecture that reached 27/32
+(loss 0.0471) *before* the preset-drift fix landed here, whose failure
+pattern (single-character typos, not incoherence) independently corroborates
+this session's "it's the loss-arithmetic, not a pipeline bug" conclusion;
+and (2) an infrastructure fix: on an 8GB CPU sandbox, the *unmodified*
+`train_tiny_exact_overfit.py` could not complete a single step — a
+grad-enabled forward+backward on the real 32-example batch pushed memory
+from ~2.7GB to ~7GB and got SIGTERM'd by a soft memory guard (confirmed via
+a `free -m` sampler, not a guess). Fixed with an optional `--micro-batch N`
+gradient-accumulation flag (default 0 = original single-batch behavior,
+unchanged) producing the mathematically identical gradient in smaller
+chunks — worth keeping for anyone re-running this on similarly constrained
+hardware, alongside this session's own `--resume` flag below.
+
 > **GATE PASSED 2026-07-23 (later the same day): 31/32 on the real chat_11m.**
 > Round 1 at loss 0.046 scored 24/32 with every miss a byte-stutter on a known
 > answer — and the miss rate matched the compounding arithmetic (98.72%
